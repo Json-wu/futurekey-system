@@ -1,0 +1,72 @@
+// app.js
+const express = require('express');
+const path = require('path');
+const moment = require('moment');
+const db = require('./libs/db');
+const smsRoutes = require('./routes/sms');
+const courseRoutes = require('./routes/course');
+require('./libs/scheduler');
+// require('./service/emailService');
+// require('./service/smsService');
+// require('./service/xbbService');
+// require('./service/teamupService');
+const bodyParser = require('body-parser');
+const config = require('./config/config');
+
+const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(bodyParser.json());
+app.use('/sms', smsRoutes);
+app.use('/course', courseRoutes);
+
+
+
+// 日志分页接口
+app.get('/logs', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  db.all(`SELECT * FROM logs ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit} `, (err, rows) => {
+    if (err) {
+      return res.status(500).send('Failed to retrieve logs.');
+    }
+    db.get(`SELECT COUNT(*) AS count FROM logs`, (err, row) => {
+      if (err) {
+          return res.status(500).send('Failed to retrieve logs.');
+      }
+      rows = rows.map((item)=>{
+        const dt = new Date(item.timestamp);
+        dt.setHours(dt.getHours() + 8);
+        item.timestamp = moment(dt).format('YYYY-MM-DD HH:mm:ss');
+        return item;
+      })
+      
+    res.json({logs:rows, totalPages:row.count});
+    });
+  });
+});
+// 查看teamup调用记录
+app.get('/teamup-data', (req, res) => {
+  db.all("SELECT * FROM teamup_data ORDER BY timestamp DESC", (err, rows) => {
+    if (err) {
+      return res.status(500).send('Failed to retrieve teamup data.');
+    }
+    res.send(rows);
+  });
+});
+// 查看日志
+app.get('/view-logs', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/logs.html'));
+});
+// 反馈表
+app.get('/back', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/feedback.html'));
+});
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
+});

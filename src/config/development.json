@@ -1,0 +1,21 @@
+{
+  "sms": {
+    "enable": false,
+    "signName": "科爱信",
+    "templateCode": "SMS_471440216",
+    "signName_USA": "FutureKey",
+    "templateCode_USA": "SMS_471430206",
+    "templateCode_GAT": ""
+  },
+  "email": {
+    "enable": true,
+    "service": "gmail",
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": true,
+    "auth": {
+      "user": "no_reply@gdfdlearning.org"
+    },
+    "receive": "info@futurekey.com"
+  }
+}

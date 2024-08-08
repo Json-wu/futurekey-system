@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Attendance and Feedback</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .attendance-section, .feedback-section {
+            margin-bottom: 20px;
+        }
+        .attendance-section label, .feedback-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .attendance-section select, .feedback-section select, .feedback-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .feedback-section textarea {
+            height: 100px;
+            resize: none;
+        }
+        .button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .student-list {
+            margin-bottom: 20px;
+        }
+        .student-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Course Attendance and Feedback</h1>
+
+    <div class="attendance-section">
+        <h2>Course Attendance Confirmation</h2>
+        <label for="attendance">Are you attending the course?</label>
+        <select id="attendance">
+            <option value="attending">Attending</option>
+            <option value="not_attending">Not Attending</option>
+        </select>
+        <button class="button" onclick="confirmAttendance()">Confirm Attendance</button>
+    </div>
+
+    <div class="feedback-section">
+        <h2>Student Course Feedback</h2>
+        <div class="student-list" id="studentList"></div>
+        <button class="button" onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+</div>
+
+<script>
+    const students = [
+        { id: 1, name: 'Student A' },
+        { id: 2, name: 'Student B' },
+        { id: 3, name: 'Student C' }
+    ];
+
+    function loadStudents() {
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = '';
+
+        students.forEach(student => {
+            const studentItem = document.createElement('div');
+            studentItem.classList.add('student-item');
+            studentItem.innerHTML = `
+                <h3>${student.name}</h3>
+                <label for="status-${student.id}">Status:</label>
+                <select id="status-${student.id}">
+                    <option value="late">Late</option>
+                    <option value="absent">Absent</option>
+                </select>
+                <label for="feedback-${student.id}">Feedback:</label>
+                <textarea id="feedback-${student.id}"></textarea>
+            `;
+            studentList.appendChild(studentItem);
+        });
+    }
+
+    function confirmAttendance() {
+        const attendance = document.getElementById('attendance').value;
+        alert(`Attendance confirmed: ${attendance}`);
+    }
+
+    function submitFeedback() {
+        const feedbackData = students.map(student => {
+            const status = document.getElementById(`status-${student.id}`).value;
+            const feedback = document.getElementById(`feedback-${student.id}`).value;
+            return {
+                studentId: student.id,
+                status,
+                feedback
+            };
+        });
+
+        console.log('Feedback Data:', feedbackData);
+
+        // This is where you would send the feedback data to the server using an API call
+        // For example:
+        // fetch('/api/submitFeedback', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(feedbackData)
+        // }).then(response => {
+        //     return response.json();
+        // }).then(data => {
+        //     alert('Feedback submitted successfully');
+        // }).catch(error => {
+        //     console.error('Error submitting feedback:', error);
+        // });
+    }
+
+    window.onload = loadStudents;
+</script>
+
+</body>
+</html>

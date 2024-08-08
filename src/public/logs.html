@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logs</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+      overflow: hidden;
+      word-break: break-word; /* Ensures content will wrap within the cell */
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .pagination {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .pagination button {
+      padding: 8px 16px;
+      margin: 0 4px;
+      border: 1px solid #ddd;
+      background-color: #f2f2f2;
+      cursor: pointer;
+    }
+    .pagination button.disabled {
+      background-color: #eaeaea;
+      cursor: not-allowed;
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Logs</h1>
+  <div class="pagination">
+    <button id="prev-page" disabled>Previous</button>
+    <span id="page-info"></span>
+    <button id="next-page">Next</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 5%;">ID</th>
+        <th style="width: 75%;">Message</th>
+        <th style="width: 5%;">Level</th>
+        <th style="width: 15%;">Timestamp</th>
+      </tr>
+    </thead>
+    <tbody id="log-entries">
+    </tbody>
+  </table>
+ 
+  <script>
+    const logEntries = document.getElementById('log-entries');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
+    const pageInfo = document.getElementById('page-info');
+    let currentPage = 1;
+    const logsPerPage = 10;
+
+    function loadLogs(page) {
+      fetch(`/logs?page=${page}&limit=${logsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+          logEntries.innerHTML = '';
+          data.logs.forEach(log => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${log.id}</td>
+              <td>${log.message}</td>
+              <td>${log.level}</td>
+              <td>${log.timestamp}</td>
+            `;
+            logEntries.appendChild(row);
+          });
+          pageInfo.textContent = `Page ${page} of ${data.totalPages}`;
+          prevPageBtn.disabled = page <= 1;
+          nextPageBtn.disabled = page >= data.totalPages;
+        });
+    }
+
+    prevPageBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadLogs(currentPage);
+      }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+      currentPage++;
+      loadLogs(currentPage);
+    });
+
+    loadLogs(currentPage);
+  </script>
+</body>
+</html>
