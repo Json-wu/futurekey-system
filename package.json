@@ -27,6 +27,16 @@
     "sqlite3": "^5.1.7"
   },
   "dependencies": {
+    "@alicloud/sms-sdk": "^1.1.6",
+    "axios": "^1.7.3",
+    "express": "^4.19.2",
+    "moment": "^2.30.1",
+    "node-fetch": "^3.3.2",
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^6.9.14",
+    "nodemailer-mock": "^2.0.6",
+    "sinon": "^18.0.0",
+    "sqlite3": "^5.1.7",
     "config": "^3.3.12",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security",
