@@ -1,19 +1,21 @@
 // scheduler.js
 const schedule = require('node-schedule');
 const moment = require('moment');
-const { getDateNow, getDatetimeAddMin } =require('../libs/common');
+const { getDateNow, getDatetimeAddMin } = require('../libs/common');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
 const db = require('./db');
 const config = require('../config/config');
 const { logMessage } = require('./logger');
 const { getCustomerDetail } = require('../service/xbbService');
-const { autoSendSms } = require('../service/smsService');
+const { autoSendSms, SendSms_teacher } = require('../service/smsService');
 const { sendEmail } = require('../service/emailService');
 const teacherData = require('../config/teacher');
+const { InsertData } = require('../service/courseService');
 
 
 const calendarKeyOrId = process.env.TEAMUP_KEY;
 const apiKey = process.env.TEAMUP_APIKEY;
+const emailConfig = config.email;
 
 // 定时规则
 const rule = new schedule.RecurrenceRule();
@@ -34,26 +36,32 @@ schedule.scheduleJob(rule, task);
  * 课程开始前15分钟，给老师和学生发送短信提醒；
  * 从Teamup平台获取到排课信息；从销售帮获取到学生和老师电话号码/邮件
  */
- async function classReminder(){
+async function classReminder() {
   try {
     console.log('课程开始前15分钟，给老师和学生发送短信提醒；')
     const data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey);
-    if(data!=null && data.length>0){
+    if (data != null && data.length > 0) {
       let title = "";
       let users = [];
-      let sub_eventId="";
-      let time="";
+      let sub_eventId = "";
+      let time = "";
       let noWhoList = [];
-      let sendData = data.filter(item=>{
+      let dateNow = new Date(moment().seconds(0).milliseconds(0));
+      let sendData = data.filter(item => {
         let dt = new Date(item.start_dt);
-        return  dt>= new Date() && dt<= new Date(moment().add(15,'minute'))
-      } ).map(item=>{
-          return {
-            title: item.title,
-            who: item.who,
-            start_dt: item.start_dt,
-            end_dt: item.end_dt
-          };
+        console.log(dt);
+        console.log(dateNow);
+        console.log(new Date(moment(dateNow).add(15, 'minute')));
+        return dt >= dateNow && dt <= new Date(moment(dateNow).add(15, 'minute'))
+      }).map(item => {
+        return {
+          id: item.id,
+          title: item.title,
+          subcalendar_id: item.subcalendar_id,
+          who: item.who,
+          start_dt: item.start_dt,
+          end_dt: item.end_dt
+        };
       });
 
       for (let index = 0; index < sendData.length; index++) {
@@ -62,84 +70,131 @@ schedule.scheduleJob(rule, task);
         sub_eventId = info.subcalendar_id;
         time = moment(new Date(info.start_dt)).format('YYYY-MM-DD HH:mm');
         var userName = info.who;//.replace(/\s*/g,"");
-        if(userName.length>0){
+        if (userName.length > 0) {
           users = userName.split(/[,，]+/);
-          await remind(sub_eventId, users, time, title);
-        }else{ // who为空，发送邮件
+          await remind(info.id,sub_eventId, users, time, title);
+        } else { // who为空，发送邮件
           console.log('field who is null,sended administartor email');
           noWhoList.push(title);
-         }
+        }
       }
-      if(noWhoList.length>0){
+      if (noWhoList.length > 0) {
         //sendEmail(config.email.receive,'课程参与人缺失提醒','',`课程标题：${title.join(';')}`);
       }
-    }else{
+    } else {
       logMessage('not found TeamUp calendar data', 'info');
     }
   } catch (error) {
     logMessage(`Failed to fetch TeamUp calendar data: ${error.message}`, 'error');
   }
- }
- 
- async function remind(sub_eventid, users, time, title){
+}
+
+async function remind(id,sub_eventid, users, time, title) {
   try {
     let noPhoneList = [];
-    // send msg to teacher  teacherData[sub_eventid].name
-    autoSendSms(phone, type, childName, time);
-    sendEmail(teacherData[sub_eventid].email,'Reminders for new classes','',`Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
+    let teacherInfo = teacherData[sub_eventid];
+    let teacherName = '';
+    if (teacherInfo == null) {
+      console.log('未找到老师信息');
+      logMessage(`Teacher information not found.[${sub_eventid}]`, 'error');
+    } else {
+      teacherName = teacherInfo.name;
+      // send msg to teacher  teacherName
+      try {
+        SendSms_teacher(teacherInfo.phone, 2, teacherName, time);
+        sendEmail(teacherInfo.email, 'New Class Notification', '', 
+        `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>New Class Notification</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+
+            <p>Hi Teacher <strong>[${teacherName}]</strong>,</p>
+
+            <p>You have a new class with <strong>[${users.join(',')}]</strong>.</p>
+            
+            <p>Please check out the <a href="${emailConfig.back_url}" style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
+            
+            <p>FutureKey School<br>
+            <em>[${time}]</em></p>
+
+        </body>
+        </html>
+        `);
+        logMessage(`Successfuly send msg to teacher.`, 'info');
+      } catch (error) {
+        console.log('Failed send msg to teacher.');
+        logMessage(`Failed send msg to teacher.: ${error.message}`, 'error');
+      }
+    }
+    // Record course information to database
+    users = users.filter(x=> x!='');
+    let usersInfo = users.map(item => {
+      return {
+        name: item,
+        state: 0,
+        evaluate: ''
+      }
+    });
+    InsertData(id,sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time);
+    // Send a message to students’ parents
     for (let index = 0; index < users.length; index++) {
       const item = users[index].trim();
-      if(item=='')
+      if (item == '')
         continue;
       let userInfo = await getCustomerDetail(item);
-      if(userInfo){
-        if(userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length>0){
+      if (userInfo) {
+        // send sms
+        if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
           let phone = userInfo.monther.subForm_1[0].text_2;
-          if(phone.trim().length==0){
+          if (phone.trim().length == 0) {
             noPhoneList.push(item);
             continue;
-          }else{
+          } else {
             let codenum = userInfo.monther.subForm_1[0].text_1.text;
-            console.log('phonetype:;:'+codenum);
-            phone = codenum.split(" ")[1].replace(/^0+/, '')+ phone;
+            console.log('phonetype:;:' + codenum);
+            phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
             let type = userInfo.monther.text_8.value;
             let childName = userInfo.child.text_2;
-            autoSendSms(phone, type, childName, time);//, teacherData[sub_eventid].name
+            autoSendSms(phone, type, childName, time);//, teacherName
           }
-        }else{
+        } else {
           noPhoneList.push(item);
         }
-        // 发邮件
-        let email_address = userInfo.monther.text_86? userInfo.monther.text_86.value: null;
-        if(email_address && email_address.length>0){
-          sendEmail(config.email.receive,'Reminders for new classes','',`Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
-        }else{
+        // send email
+        let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
+        if (email_address && email_address.length > 0) {
+          sendEmail(config.email.receive, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
+        } else {
           noPhoneList.push(item);
         }
       }
     }
-    if(noPhoneList.length>0){
+    if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
-      sendEmail(config.email.receive,'参与人联系方式缺失提醒','',`参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
+      sendEmail(config.email.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');
   }
- }
+}
 
- async function test(){
+async function test() {
   let userInfo = await getCustomerDetail('Misylia');
-  if(userInfo){
-    if(userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length>0){
+  if (userInfo) {
+    if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
       let phone = userInfo.monther.subForm_1[0].text_2;
 
       let codenum = userInfo.monther.subForm_1[0].text_1.text;
-      phone = codenum.split(" ")[1].replace(/^0+/, '')+ "13052515651";
-      let time = moment(new Date()).add(15,'M').format('YYYY-MM-DD HH:mm');
+      phone = codenum.split(" ")[1].replace(/^0+/, '') + "13052515651";
+      let time = moment(new Date()).add(15, 'M').format('YYYY-MM-DD HH:mm');
       let type = userInfo.monther.text_8.value;
       let childName = userInfo.child.text_2;
       autoSendSms(phone, type, childName, time);
     }
   }
- }
+}
 

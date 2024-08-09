@@ -1,11 +1,10 @@
 
-const { resolve } = require('path');
 const db = require('../libs/db');
 
-async function InsertData(id,title,teacher,student,attend,time){
+async function InsertData(id,subid,title,teacher,student,attend,time,date){
     try {
-        const stmt = db.prepare("INSERT INTO courses (id,title,teacher,student,attend,time) VALUES (?,?,?,?,?,?)");
-        stmt.run(id,title,teacher,student,attend,time);  
+        const stmt = db.prepare("INSERT INTO courses (id,subid,title,teacher,student,attend,time,date) VALUES (?,?,?,?,?,?,?,?)");
+        stmt.run(id,subid,title,teacher,student,attend,time,time.substr(0,10));  
         stmt.finalize();
         return true;
     } catch (error) {
@@ -13,10 +12,10 @@ async function InsertData(id,title,teacher,student,attend,time){
         return false;
     }
 }
-async function GetData(id){
+async function GetData(date){
     try {
         return await new Promise((resolve, reject)=>{
-            db.get(`SELECT * FROM courses where id='${id}'`, (err, data) => {
+            db.all(`SELECT * FROM courses where date='${date}'`, (err, data) => {
                 if (err) {
                     resolve(null);
                 }

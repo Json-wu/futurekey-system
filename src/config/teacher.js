@@ -22,46 +22,55 @@ const teacherData = {
     },
     "13405637":{
         "name": "Burroughs",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13366831":{
         "name": "Cristian",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13326794":{
         "name": "Donna",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13332080":{
         "name": "Faith",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13452382":{
         "name": "Jennie Covell",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13437828":{
         "name": "Johnson-Corless",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13326785":{
         "name": "Kayla",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13326786":{
         "name": "Mike",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     },
     "13462340":{
         "name": "Swanson",
+        "type": 1, 
         "phone": "13052515651",
         "email": "yongqiangwu1@163.com"
     }

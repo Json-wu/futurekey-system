@@ -17,11 +17,11 @@ router.post('/InsertData', async (req, res) => {
 });
 
 router.post('/GetData', async (req, res) => {
-    const { id } = req.body;
+    const { date } = req.body;
     try {
-        const result = await courseService.GetData(id);
+        const result = await courseService.GetData(date);
         if (result != null) {
-            res.status(200).json({ code: 0, msg: 'ok', result });
+            res.status(200).json({ code: 0, msg: 'ok', data: result });
         } else {
             res.status(500).json({ code: 1, msg: 'Failed to get.' });
         }

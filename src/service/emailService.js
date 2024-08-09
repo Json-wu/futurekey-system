@@ -34,7 +34,7 @@ function sendEmail(toMail, title, text, html) {
     html: html // 邮件内容的 HTML 部分
   };
   console.log(`准备发送邮件：${JSON.stringify(mailOptions)}`);
-  return;
+  // return;
   // 发送邮件
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
