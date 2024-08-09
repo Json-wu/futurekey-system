@@ -1,5 +1,5 @@
 # 使用 Node.js 官方 LTS 版本作为基础镜像
-FROM node:18
+FROM node:18.12.1
 
 # 创建并设置工作目录
 WORKDIR /usr/src/app
