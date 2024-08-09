@@ -19,8 +19,8 @@ const emailConfig = config.email;
 
 // 定时规则
 const rule = new schedule.RecurrenceRule();
-rule.minute = [0, 15, 30, 45];
-// rule.second = [0, 30];
+// rule.minute = [0, 15, 30, 45];
+rule.minute = [0, 30];
 
 // 定义任务
 async function task() {
