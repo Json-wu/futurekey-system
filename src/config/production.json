@@ -1,6 +1,6 @@
 {
   "sms": {
-    "enable": false,
+    "enable": true,
     "signName": "科爱信",
     "templateCode": "SMS_471440216",
     "signName_USA": "FutureKey",
