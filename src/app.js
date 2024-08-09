@@ -21,13 +21,13 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
-app.use('/sms', smsRoutes);
-app.use('/course', courseRoutes);
+// app.use('/sms', smsRoutes);
+app.use('/classroom/course', courseRoutes);
 
 
 
 // 日志分页接口
-app.get('/logs', (req, res) => {
+app.get('/classroom/logs', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   db.all(`SELECT * FROM logs ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit} `, (err, rows) => {
@@ -50,7 +50,7 @@ app.get('/logs', (req, res) => {
   });
 });
 // 查看teamup调用记录
-app.get('/teamup-data', (req, res) => {
+app.get('/classroom/teamup-data', (req, res) => {
   db.all("SELECT * FROM teamup_data ORDER BY timestamp DESC", (err, rows) => {
     if (err) {
       return res.status(500).send('Failed to retrieve teamup data.');
@@ -59,11 +59,11 @@ app.get('/teamup-data', (req, res) => {
   });
 });
 // 查看日志
-app.get('/view-logs', (req, res) => {
+app.get('/classroom/view-logs', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/logs.html'));
 });
 // 反馈表
-app.get('/back', (req, res) => {
+app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/feedback.html'));
 });
 
