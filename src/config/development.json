@@ -18,6 +18,6 @@
       "user": "no_reply@gdfdlearning.org"
     },
     "receive": "info@futurekey.com",
-    "back_url": "http://baidu.com"
+    "back_url": "http://localhost:3000/back"
   }
 }

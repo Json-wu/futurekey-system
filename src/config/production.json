@@ -16,6 +16,7 @@
     "auth": {
       "user": "no_reply@gdfdlearning.org"
     },
-    "receive": "info@futurekey.com"
+    "receive": "info@futurekey.com",
+    "back_url": "https://futurekey.com/classroom/back"
   }
 }
