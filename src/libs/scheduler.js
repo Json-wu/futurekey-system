@@ -39,6 +39,7 @@ schedule.scheduleJob(rule, task);
 async function classReminder() {
   try {
     console.log('课程开始前15分钟，给老师和学生发送短信提醒；')
+    logMessage(new Date()+'开始校验提前课程提醒,','info');
     const data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey);
     if (data != null && data.length > 0) {
       let title = "";
@@ -49,9 +50,9 @@ async function classReminder() {
       let dateNow = new Date(moment().seconds(0).milliseconds(0));
       let sendData = data.filter(item => {
         let dt = new Date(item.start_dt);
-        console.log(dt);
-        console.log(dateNow);
-        console.log(new Date(moment(dateNow).add(15, 'minute')));
+        // console.log(dt);
+        // console.log(dateNow);
+        // console.log(new Date(moment(dateNow).add(15, 'minute')));
         return dt >= dateNow && dt <= new Date(moment(dateNow).add(15, 'minute'))
       }).map(item => {
         return {
@@ -77,6 +78,7 @@ async function classReminder() {
           console.log('field who is null,sended administartor email');
           noWhoList.push(title);
         }
+        logMessage(`classInfo:>> title: ${title},time: ${time}, sub_eventId:${sub_eventId},who:${userName}`,'info');
       }
       if (noWhoList.length > 0) {
         //sendEmail(config.email.receive,'课程参与人缺失提醒','',`课程标题：${title.join(';')}`);
@@ -116,7 +118,7 @@ async function remind(id,sub_eventid, users, time, title) {
 
             <p>You have a new class with <strong>[${users.join(',')}]</strong>.</p>
             
-            <p>Please check out the <a href="${emailConfig.back_url}" style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
+            <p>Please check out the <a href=${emailConfig.back_url}?subid=${sub_eventid} style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
             
             <p>FutureKey School<br>
             <em>[${time}]</em></p>
@@ -176,6 +178,7 @@ async function remind(id,sub_eventid, users, time, title) {
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
       sendEmail(config.email.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
+      logMessage(`参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`, 'info');
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');

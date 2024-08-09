@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Attendance and Feedback</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .loading {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: none;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        .attendance-section,
+        .feedback-section {
+            margin-bottom: 20px;
+        }
+
+        .attendance-section label,
+        .feedback-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .attendance-section select,
+        .feedback-section select,
+        .feedback-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .feedback-section textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #0056b3;
+        }
+
+        .student-list {
+            margin-bottom: 20px;
+        }
+
+        .student-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <p class="loading">Loading data, please wait...</p>
+    <div class="container" id="container">
+        <h1>Course Attendance and Feedback</h1>
+
+        <div class="attendance-section">
+            <h2>Course Attendance Confirmation</h2>
+            <label for="date">Date selection</label>
+            <select id="DateItems" onchange="selectDate(this)">
+                <option value="">---Please select---</option>
+            </select>
+            <label for="class">Class selection</label>
+            <select id="ClassItems" onchange="selectClass(this)">
+                <option value="">---Please select---</option>
+            </select>
+            <label for="attendance">Are you attending the course?</label>
+            <select id="attendance">
+                <option value="0" disabled>---Please select---</option>
+                <option value="1">Attending</option>
+                <option value="9">Not Attending</option>
+            </select>
+            <button id="btn_attendance" class="button" onclick="confirmAttendance()">Confirm Attendance</button>
+        </div>
+
+        <div class="feedback-section">
+            <h2>Student Course Feedback</h2>
+            <div class="student-list" id="studentList"></div>
+            <button class="button" onclick="submitFeedback()">Submit Feedback</button>
+        </div>
+    </div>
+
+    <script>
+        const url = "/classroom";
+        const subid = '13332080';
+        let classDatas = [];
+        let current_date = "";
+        let current_eventId = "";
+        let Current_classData = {};
+        let Current_attendance = 0;
+        let students =[];
+
+        let DateItems = new Set();
+        let ClassItems = [];
+
+        function formatDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+        });
+
+        async function fetchData() {
+            try {
+                const response = await fetch(url + '/course/GetData', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ date: formatDate(),subid })
+                });
+                const result = await response.json();
+
+                if (result.code != 0) {
+                    alert('Network response was not ok ' + response.statusText);
+                }
+                classData = result.data;
+                current_date = formatDate();
+                if (classData.length > 0) {
+                    classData.map(item => {
+                        DateItems.add(item.date);
+                    });
+                    classData.map(item => {
+                        if (item.date == current_date) {
+                            if (ClassItems.findIndex(x => {
+                                return x.id == item.id;
+                            }
+                            ) < 0) {
+                                ClassItems.push(item);
+                            }
+                        }
+                    });
+                    Current_classData = ClassItems[0];
+                    current_eventId = Current_classData.id;
+                    document.getElementById("btn_attendance").disabled = false;
+                    students = JSON.parse(Current_classData.student);
+                    displayData(students);
+                    Current_attendance = Current_classData.attend;
+                    display("attendance",Current_attendance);
+                    bindDate();
+                    bindClass();
+                } else {
+                    DateItems = [];
+                    ClassItems = [];
+                    Current_classData = {};
+                    current_eventId = "";
+                    document.getElementById("btn_attendance").disabled = true;
+                    Current_attendance = 0;
+                    display("attendance",Current_attendance);
+                    students=[];
+                    displayData([]);
+                    bindDate();
+                    bindClass();
+                }
+
+            } catch (error) {
+                console.error('There has been a problem with your fetch operation:', error);
+                document.querySelector('.loading').textContent = 'Failed to load data.';
+            }
+        }
+
+        function displayData(data) {
+            const studentList = document.getElementById('studentList');
+            const dataContainer = document.getElementById('container');
+            studentList.innerHTML = "";
+            data.forEach(student => {
+                const studentItem = document.createElement('div');
+                studentItem.classList.add('student-item');
+                studentItem.innerHTML = `
+                <h3>${student.name}</h3>
+                <label for="status-${student.name}">Status:</label>
+                <select id="status-${student.name}">
+                    <option value="late">Late</option>
+                    <option value="absent">Absent</option>
+                </select>
+                <label for="feedback-${student.name}">Feedback:</label>
+                <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
+            `;
+                studentList.appendChild(studentItem);
+            });
+
+            data.forEach(student=>{
+                display(`status-${student.name}`, student.state);
+            });
+            document.querySelector('.loading').style.display = 'none';
+            dataContainer.style.display = 'block';
+        }
+        function bindDate() {
+            const DatetList = document.getElementById('DateItems');
+            DatetList.innerHTML = '';
+
+            // Create and append default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Please select an option';
+            defaultOption.disabled = true;
+            //defaultOption.selected = true;
+            DatetList.appendChild(defaultOption);
+
+            // Iterate over the data array
+            DateItems.forEach(item => {
+                // Create an option element
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                if (item == current_date)
+                    option.selected = true;
+
+                // Append the option to the select element
+                DatetList.appendChild(option);
+            });
+        }
+        function bindClass() {
+            const DatetList = document.getElementById('ClassItems');
+            DatetList.innerHTML = '';
+
+            // Create and append default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Please select an option';
+            defaultOption.disabled = true;
+            //defaultOption.selected = true;
+            DatetList.appendChild(defaultOption);
+
+            // Iterate over the data array
+            ClassItems.forEach(item => {
+                // Create an option element
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.title;
+                if (item == current_eventId)
+                    option.selected = true;
+
+                // Append the option to the select element
+                DatetList.appendChild(option);
+            });
+        }
+
+        function display(optionID, selectDa) {
+            var all_options = document.getElementById(optionID).options;
+            for (i = 0; i < all_options.length; i++) {
+                if (all_options[i].value == selectDa)  // 根据option标签的ID来进行判断  测试的代码这里是两个等号
+                {
+                    all_options[i].selected = true;
+                }
+            }
+        }
+
+        function selectDate(that) {
+            console.log(that.value);
+            current_date = that.value;
+            classData.map(item => {
+                if (item.date == current_date) {
+                    if (ClassItems.findIndex(x => {
+                        return x.id == item.id;
+                    }
+                    ) < 0) {
+                        ClassItems.push(item);
+                    }
+                }
+            });
+            Current_classData = ClassItems[0];
+            current_eventId = Current_classData.id;
+            students = JSON.parse(Current_classData.student);
+            displayData(students);
+            Current_attendance = Current_classData.attend;
+            display("attendance",Current_attendance);
+            bindClass();
+        }
+        function selectClass(that) {
+            console.log(that.value);
+            Current_classData = ClassItems.find(x => x.id == that.value);
+            current_eventId = Current_classData.id;
+            students = JSON.parse(Current_classData.student);
+            displayData(students);
+            Current_attendance = Current_classData.attend;
+            display("attendance",Current_attendance);
+        }
+
+        async function confirmAttendance() {
+            const attendance = document.getElementById('attendance').value;
+            alert(`Attendance confirmed: ${attendance}`);
+            const response = await fetch(url + '/course/EditData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: current_eventId, attend: attendance })
+            });
+            const result = await response.json();
+
+            if (result.code != 0) {
+                alert('Submission failed');
+                //throw new Error('Network response was not ok ' + response.statusText);
+            } else {
+                alert('The submission was successful');
+            }
+        }
+
+        async function submitFeedback() {
+            const feedbackData = students.map(student => {
+                const status = document.getElementById(`status-${student.name}`).value;
+                const feedback = document.getElementById(`feedback-${student.name}`).value;
+                console.log(student.name);
+                console.log(status);
+                console.log(feedback);
+                return {
+                    name: student.name,
+                    state: status,
+                    evaluate: feedback
+                };
+            });
+
+            console.log('Feedback Data:', feedbackData);
+
+            // This is where you would send the feedback data to the server using an API call
+            //For example:
+            const response = await fetch(url + '/course/EditStuData', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({id: current_eventId, student: JSON.stringify(feedbackData)})
+                });
+                const result = await response.json();
+
+                if (result.code != 0) {
+                    //throw new Error('Network response was not ok ' + response.statusText);
+                    alert('Feedback submitted faild');
+                }else{
+                    alert('Feedback submitted successfully');
+                }
+        }
+
+        // window.onload = loadStudents;
+    </script>
+
+</body>
+
+</html>

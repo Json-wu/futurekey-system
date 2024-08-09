@@ -81,7 +81,8 @@ const autoSendSms = async(phone,type,user,time)=>{
     const phoneNumber = phone;
     const templateParam = { user,time };
 
-    console.log(`开始发送短信:phoneNumber-${phoneNumber},templateParam-${JSON.stringify(templateParam)}`);
+    console.log(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`);
+    logMessage(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`,'info');
     // return;
     // 中国内地
     if(type==1){
@@ -105,7 +106,8 @@ const SendSms_teacher = async(phone,type,user,time)=>{
     const phoneNumber = phone;
     const templateParam = { user,time };
 
-    console.log(`开始发送短信:phoneNumber-${phoneNumber},templateParam-${JSON.stringify(templateParam)}`);
+    console.log(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`);
+    logMessage(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`,'info');
     // return;
     // 中国内地
     if(type==1){

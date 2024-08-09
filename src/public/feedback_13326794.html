@@ -116,6 +116,7 @@
 
     <script>
         const url = "/classroom";
+        const subid = '13326794';
         let classDatas = [];
         let current_date = "";
         let current_eventId = "";
@@ -144,7 +145,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ date: formatDate() })
+                    body: JSON.stringify({ date: formatDate(),subid })
                 });
                 const result = await response.json();
 

@@ -12,10 +12,10 @@ async function InsertData(id,subid,title,teacher,student,attend,time,date){
         return false;
     }
 }
-async function GetData(date){
+async function GetData(date,subid){
     try {
         return await new Promise((resolve, reject)=>{
-            db.all(`SELECT * FROM courses where date='${date}'`, (err, data) => {
+            db.all(`SELECT * FROM courses where date='${date}' and subid='${subid}'`, (err, data) => {
                 if (err) {
                     resolve(null);
                 }
