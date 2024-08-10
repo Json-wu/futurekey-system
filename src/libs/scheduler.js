@@ -51,7 +51,7 @@ async function classReminder() {
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
         //let dt = new Date(item.start_dt);
-        console.log(momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD')+',,'+item.tz);
+        console.log(momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
         console.log(dt);
         console.log(dateNow);
         console.log(date_end);
