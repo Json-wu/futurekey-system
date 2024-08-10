@@ -86,7 +86,7 @@
           });
           pageInfo.textContent = `Page ${page} of ${data.totalPages}`;
           prevPageBtn.disabled = page <= 1;
-          nextPageBtn.disabled = page >= data.totalPages;
+          nextPageBtn.disabled = page >= Math.ceil(data.totalPages/10);
         });
     }
 
