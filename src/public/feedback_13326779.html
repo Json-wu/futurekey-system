@@ -73,12 +73,45 @@
             background-color: #0056b3;
         }
 
+        .button:disabled {
+            background-color: #cccccc;
+            /* Gray out the button */
+            color: #666666;
+            /* Change text color */
+            cursor: not-allowed;
+            /* Show a not-allowed cursor */
+        }
+
         .student-list {
             margin-bottom: 20px;
         }
 
         .student-item {
             margin-bottom: 10px;
+        }
+
+        #attendance {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            /* Adjust the spacing between buttons as needed */
+        }
+
+        #attendance input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        #attendance label {
+            margin-right: 15px;
+        }
+
+        .status label {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .status input[type="radio"] {
+            margin-right: 5px;
         }
     </style>
 </head>
@@ -87,7 +120,7 @@
     <p class="loading">Loading data, please wait...</p>
     <div class="container" id="container">
         <h1>Course Attendance and Feedback</h1>
-        <h2>Teacher name: Faith</h2>
+        <p>Teacher name: <span id="teacher_name"></span></p>
         <div class="attendance-section">
             <h2>Course Attendance Confirmation</h2>
             <label for="date">Date selection</label>
@@ -99,12 +132,10 @@
                 <option value="">---Please select---</option>
             </select>
             <label for="attendance">Are you attending the course?</label>
-            <select id="attendance">
-                <option value="0" disabled>---Please select---</option>
-                <option value="1">Attending</option>
-                <option value="9">Not Attending</option>
-            </select>
-            <button id="btn_attendance" class="button" onclick="confirmAttendance()">Confirm Attendance</button>
+
+            <button id="btn_attendance" class="button" onclick="attendance(1)">Attending</button>
+            <button id="btn_noattendance" class="button" onclick="attendance(9)">Not Attending</button>
+
         </div>
 
         <div class="feedback-section">
@@ -122,7 +153,7 @@
         let current_eventId = "";
         let Current_classData = {};
         let Current_attendance = 0;
-        let students =[];
+        let students = [];
 
         let DateItems = new Set();
         let ClassItems = [];
@@ -145,7 +176,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ date: formatDate(),subid })
+                    body: JSON.stringify({ date: formatDate(), subid })
                 });
                 const result = await response.json();
 
@@ -170,11 +201,19 @@
                     });
                     Current_classData = ClassItems[0];
                     current_eventId = Current_classData.id;
-                    document.getElementById("btn_attendance").disabled = false;
+                    // document.getElementById("btn_attendance").disabled = false;
+                    document.getElementById("teacher_name").innerText = Current_classData.teacher;
                     students = JSON.parse(Current_classData.student);
                     displayData(students);
                     Current_attendance = Current_classData.attend;
-                    display("attendance",Current_attendance);
+                    if (Current_attendance == 1) {
+                        document.getElementById("btn_attendance").disabled = true;
+                        document.getElementById("btn_noattendance").disabled = false;
+                    } else if (Current_attendance == 9) {
+                        document.getElementById("btn_attendance").disabled = false;
+                        document.getElementById("btn_noattendance").disabled = true;
+                    }
+                    //display("attendance",Current_attendance);
                     bindDate();
                     bindClass();
                 } else {
@@ -182,10 +221,10 @@
                     ClassItems = [];
                     Current_classData = {};
                     current_eventId = "";
-                    document.getElementById("btn_attendance").disabled = true;
+                    // document.getElementById("btn_attendance").disabled = true;
                     Current_attendance = 0;
-                    display("attendance",Current_attendance);
-                    students=[];
+                    //display("attendance",Current_attendance);
+                    students = [];
                     displayData([]);
                     bindDate();
                     bindClass();
@@ -205,21 +244,22 @@
                 const studentItem = document.createElement('div');
                 studentItem.classList.add('student-item');
                 studentItem.innerHTML = `
-                <h3>${student.name}</h3>
-                <label for="status-${student.name}">Status:</label>
-                <select id="status-${student.name}">
-                    <option value="late">Late</option>
-                    <option value="absent">Absent</option>
-                </select>
-                <label for="feedback-${student.name}">Feedback:</label>
-                <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
-            `;
+                    <h3>${student.name}</h3>
+                    <label for="status-${student.name}">Status:</label>
+                    <div class="status">
+                        <label><input type="radio" name="status-${student.name}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Normal</label>
+                        <label><input type="radio" name="status-${student.name}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Late</label>
+                        <label><input type="radio" name="status-${student.name}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Absent</label>
+                    </div>
+                    <label for="feedback-${student.name}">Feedback:</label>
+                    <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
+                `;
                 studentList.appendChild(studentItem);
             });
 
-            data.forEach(student=>{
-                display(`status-${student.name}`, student.state);
-            });
+            // data.forEach(student => {
+            //     display(`status-${student.name}`, student.state);
+            // });
             document.querySelector('.loading').style.display = 'none';
             dataContainer.style.display = 'block';
         }
@@ -302,7 +342,7 @@
             students = JSON.parse(Current_classData.student);
             displayData(students);
             Current_attendance = Current_classData.attend;
-            display("attendance",Current_attendance);
+            display("attendance", Current_attendance);
             bindClass();
         }
         function selectClass(that) {
@@ -312,17 +352,73 @@
             students = JSON.parse(Current_classData.student);
             displayData(students);
             Current_attendance = Current_classData.attend;
-            display("attendance",Current_attendance);
+            display("attendance", Current_attendance);
         }
 
-        async function confirmAttendance() {
-            const attendance = document.getElementById('attendance').value;
+        async function attendance(attend) {
             const response = await fetch(url + '/course/EditData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id: current_eventId, attend: attendance })
+                body: JSON.stringify({ id: current_eventId, attend: attend })
+            });
+            const result = await response.json();
+
+            if (result.code != 0) {
+                alert('Submission failed');
+            } else {
+                alert('The submission was successful');
+                Current_attendance = attend;
+                if (Current_attendance == 1) {
+                    document.getElementById("btn_attendance").disabled = true;
+                    document.getElementById("btn_noattendance").disabled = false;
+                } else if (Current_attendance == 9) {
+                    document.getElementById("btn_attendance").disabled = false;
+                    document.getElementById("btn_noattendance").disabled = true;
+                }
+            }
+        }
+
+        async function submitFeedback() {
+            const feedbackData = students.map(student => {
+                //const status = document.getElementById(`status-${student.name}`).value;
+                const feedback = document.getElementById(`feedback-${student.name}`).value;
+                student.evaluate = feedback;
+                return student;
+                // return {
+                //     name: student.name,
+                //     state: status,
+                //     evaluate: feedback
+                // };
+            });
+
+            const response = await fetch(url + '/course/EditStuData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: current_eventId, student: JSON.stringify(feedbackData) })
+            });
+            const result = await response.json();
+
+            if (result.code != 0) {
+                alert('Feedback submitted faild');
+            } else {
+                alert('Feedback submitted successfully');
+            }
+        }
+
+        // Function to handle the selection change event
+        async function handleAttendanceChange(event) {
+            const selectedValue = event.target.value;
+            console.log("Selected attendance value:", selectedValue);
+            const response = await fetch(url + '/course/EditData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: current_eventId, attend: selectedValue })
             });
             const result = await response.json();
 
@@ -334,42 +430,34 @@
             }
         }
 
-        async function submitFeedback() {
-            const feedbackData = students.map(student => {
-                const status = document.getElementById(`status-${student.name}`).value;
-                const feedback = document.getElementById(`feedback-${student.name}`).value;
-                console.log(student.name);
-                console.log(status);
-                console.log(feedback);
-                return {
-                    name: student.name,
-                    state: status,
-                    evaluate: feedback
-                };
-            });
+        // Bind the change event to the radio buttons
+        document.querySelectorAll('input[name="attendance"]').forEach(radio => {
+            radio.addEventListener('change', handleAttendanceChange);
+        });
 
-            console.log('Feedback Data:', feedbackData);
-
-            // This is where you would send the feedback data to the server using an API call
-            //For example:
-            const response = await fetch(url + '/course/EditStuData', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({id: current_eventId, student: JSON.stringify(feedbackData)})
-                });
-                const result = await response.json();
-
-                if (result.code != 0) {
-                    //throw new Error('Network response was not ok ' + response.statusText);
-                    alert('Feedback submitted faild');
-                }else{
-                    alert('Feedback submitted successfully');
+        // Example function to handle status change
+        async function handleStatusChange(studentName, radioButton) {
+            console.log(`Student: ${studentName}, Status: ${radioButton.value}`);
+            students.forEach(item=>{
+                if(item.name == studentName){
+                    item.state = radioButton.value
                 }
-        }
+            })
+            const response = await fetch(url + '/course/SignStudentStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: current_eventId, studentName, state:radioButton.value })
+            });
+            const result = await response.json();
 
-        // window.onload = loadStudents;
+            if (result.code != 0) {
+                alert('SignStatus submitted faild');
+            } else {
+                alert('SignStatus submitted successfully');
+            }
+        }
     </script>
 
 </body>

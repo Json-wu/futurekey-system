@@ -2,9 +2,7 @@
 const schedule = require('node-schedule');
 const moment = require('moment');
 const momenttz = require('moment-timezone');
-const { getDateNow, getDatetimeAddMin } = require('../libs/common');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
-const db = require('./db');
 const config = require('../config/config');
 const { logMessage } = require('./logger');
 const { getCustomerDetail } = require('../service/xbbService');
@@ -146,7 +144,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         evaluate: ''
       }
     });
-    InsertData(id,sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time);
+    InsertData(id,sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
     for (let index = 0; index < users.length; index++) {
       const item = users[index].trim();
@@ -181,7 +179,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         // send email
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
         if (email_address && email_address.length > 0) {
-          sendEmail(config.email.receive, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
+          sendEmail(email_address, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
         } else {
           noPhoneList.push(item);
         }
@@ -191,7 +189,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
     }
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
-      sendEmail(config.email.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
+      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
       logMessage(`参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`, 'info');
     }
   } catch (error) {
