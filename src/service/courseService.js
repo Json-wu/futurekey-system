@@ -7,10 +7,10 @@ const ejs = require('ejs');
 const path = require('path');
 
 const emailConfig = config.email;
-async function InsertData(id, subid, title, teacher, student, attend, time, date) {
+async function InsertData(id, subid, title, teacher, student, attend, time,tz) {
     try {
-        const stmt = db.prepare("INSERT INTO courses (id,subid,title,teacher,student,attend,time,date) VALUES (?,?,?,?,?,?,?,?)");
-        stmt.run(id, subid, title, teacher, student, attend, time, time.substr(0, 10));
+        const stmt = db.prepare("INSERT INTO courses (id,subid,title,teacher,student,attend,time,date,tz) VALUES (?,?,?,?,?,?,?,?,?)");
+        stmt.run(id, subid, title, teacher, student, attend, time, time.substr(0, 10),tz);
         stmt.finalize();
         return true;
     } catch (error) {

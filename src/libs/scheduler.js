@@ -72,11 +72,11 @@ async function classReminder() {
         const info = sendData[index];
         title = info.title;
         sub_eventId = info.subcalendar_id;
-        time = momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm');
+        time = momenttz.tz(info.start_dt, info.tz).format('YYYY-MM-DD HH:mm');
         var userName = info.who;//.replace(/\s*/g,"");
         if (userName.length > 0) {
           users = userName.split(/[,，]+/);
-          await remind(info.id,sub_eventId, users, time, title, item.tz);
+          await remind(info.id,sub_eventId, users, time, title, info.tz);
         } else { // who为空，发送邮件
           console.log('field who is null,sended administartor email');
           noWhoList.push(title);
