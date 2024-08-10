@@ -317,7 +317,6 @@
 
         async function confirmAttendance() {
             const attendance = document.getElementById('attendance').value;
-            alert(`Attendance confirmed: ${attendance}`);
             const response = await fetch(url + '/course/EditData', {
                 method: 'POST',
                 headers: {

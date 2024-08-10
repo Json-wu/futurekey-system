@@ -1,6 +1,7 @@
 // scheduler.js
 const schedule = require('node-schedule');
 const moment = require('moment');
+const momenttz = require('moment-timezone');
 const { getDateNow, getDatetimeAddMin } = require('../libs/common');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
 const db = require('./db');
@@ -47,13 +48,16 @@ async function classReminder() {
       let sub_eventId = "";
       let time = "";
       let noWhoList = [];
-      let dateNow = new Date(moment().seconds(0).milliseconds(0));
+      let dateNow = moment().seconds(0).milliseconds(0).utc();//new Date(moment().seconds(0).milliseconds(0));
+      let date_end= moment(dateNow).add(30, 'minute').utc();
       let sendData = data.filter(item => {
-        let dt = new Date(item.start_dt);
-        // console.log(dt);
-        // console.log(dateNow);
-        // console.log(new Date(moment(dateNow).add(15, 'minute')));
-        return dt >= dateNow && dt <= new Date(moment(dateNow).add(15, 'minute'))
+        let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
+        //let dt = new Date(item.start_dt);
+        console.log(momenttz.tz(item.start_dt, item.tz)+',,'+item.tz);
+        console.log(dt);
+        console.log(dateNow);
+        console.log(date_end);
+        return dt >= dateNow && dt <= date_end
       }).map(item => {
         return {
           id: item.id,
@@ -61,6 +65,7 @@ async function classReminder() {
           subcalendar_id: item.subcalendar_id,
           who: item.who,
           start_dt: item.start_dt,
+          tz: item.tz,
           end_dt: item.end_dt
         };
       });
@@ -69,11 +74,11 @@ async function classReminder() {
         const info = sendData[index];
         title = info.title;
         sub_eventId = info.subcalendar_id;
-        time = moment(new Date(info.start_dt)).format('YYYY-MM-DD HH:mm');
+        time = momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm');
         var userName = info.who;//.replace(/\s*/g,"");
         if (userName.length > 0) {
           users = userName.split(/[,，]+/);
-          await remind(info.id,sub_eventId, users, time, title);
+          await remind(info.id,sub_eventId, users, time, title, item.tz);
         } else { // who为空，发送邮件
           console.log('field who is null,sended administartor email');
           noWhoList.push(title);
@@ -91,7 +96,7 @@ async function classReminder() {
   }
 }
 
-async function remind(id,sub_eventid, users, time, title) {
+async function remind(id,sub_eventid, users, time, title, tz) {
   try {
     let noPhoneList = [];
     let teacherInfo = teacherData[sub_eventid];
@@ -103,7 +108,7 @@ async function remind(id,sub_eventid, users, time, title) {
       teacherName = teacherInfo.name;
       // send msg to teacher  teacherName
       try {
-        SendSms_teacher(teacherInfo.phone, 2, teacherName, time);
+        SendSms_teacher(teacherInfo.phone, teacherInfo.type, teacherName, time);
         sendEmail(teacherInfo.email, 'New Class Notification', '', 
         `<!DOCTYPE html>
         <html lang="en">
@@ -121,7 +126,7 @@ async function remind(id,sub_eventid, users, time, title) {
             <p>Please check out the <a href=${emailConfig.back_url}?subid=${sub_eventid} style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
             
             <p>FutureKey School<br>
-            <em>[${time}]</em></p>
+            <em>[${time} ${tz}]</em></p>
 
         </body>
         </html>
@@ -151,17 +156,24 @@ async function remind(id,sub_eventid, users, time, title) {
       if (userInfo) {
         // send sms
         if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
-          let phone = userInfo.monther.subForm_1[0].text_2;
-          if (phone.trim().length == 0) {
+          let phones = userInfo.monther.subForm_1;
+          let isnoPhone = false;
+          for (let index = 0; index < phones.length; index++) {
+            const subForm = phones[index];
+            let phone = subForm.text_2;
+            if (phone.trim().length == 0) {
+              isnoPhone = true;
+            } else {
+              let codenum = subForm.text_1.text;
+              console.log('phonetype:;:' + codenum);
+              phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
+              let type = userInfo.monther.text_8.value;
+              let childName = userInfo.child.text_2;
+              autoSendSms(phone, type, childName, time);//, teacherName
+            }
+          }
+          if(isnoPhone){
             noPhoneList.push(item);
-            continue;
-          } else {
-            let codenum = userInfo.monther.subForm_1[0].text_1.text;
-            console.log('phonetype:;:' + codenum);
-            phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
-            let type = userInfo.monther.text_8.value;
-            let childName = userInfo.child.text_2;
-            autoSendSms(phone, type, childName, time);//, teacherName
           }
         } else {
           noPhoneList.push(item);
@@ -173,6 +185,8 @@ async function remind(id,sub_eventid, users, time, title) {
         } else {
           noPhoneList.push(item);
         }
+      }else{
+        noPhoneList.push(item);
       }
     }
     if (noPhoneList.length > 0) {

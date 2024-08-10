@@ -87,7 +87,7 @@
     <p class="loading">Loading data, please wait...</p>
     <div class="container" id="container">
         <h1>Course Attendance and Feedback</h1>
-
+        <h2>Teacher name: Faith</h2>
         <div class="attendance-section">
             <h2>Course Attendance Confirmation</h2>
             <label for="date">Date selection</label>
@@ -317,7 +317,6 @@
 
         async function confirmAttendance() {
             const attendance = document.getElementById('attendance').value;
-            alert(`Attendance confirmed: ${attendance}`);
             const response = await fetch(url + '/course/EditData', {
                 method: 'POST',
                 headers: {
