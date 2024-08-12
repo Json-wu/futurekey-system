@@ -3,7 +3,6 @@ const express = require('express');
 const path = require('path');
 const moment = require('moment');
 const db = require('./libs/db');
-const smsRoutes = require('./routes/sms');
 const courseRoutes = require('./routes/course');
 require('./libs/scheduler');
 // require('./service/emailService');
@@ -11,7 +10,7 @@ require('./libs/scheduler');
 // require('./service/xbbService');
 // require('./service/teamupService');
 const bodyParser = require('body-parser');
-const config = require('./config/config');
+const { logMessage } = require('./libs/logger');
 
 const app = express();
 
@@ -21,7 +20,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
-// app.use('/sms', smsRoutes);
 app.use('/classroom/course', courseRoutes);
 
 
@@ -65,6 +63,24 @@ app.get('/classroom/view-logs', (req, res) => {
 // 反馈表
 app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));
+});
+
+app.get('/', (req, res) => {
+  res.redirect('/classroom/view-logs');
+});
+ 
+// 错误处理中间件
+app.use((err, req, res, next) => {
+  // 设置响应的状态码和内容
+  // 可以将错误信息记录到日志中
+  console.error(err.stack);
+  logMessage(err.stack,'error');
+  res.status(500).send('Server Error');
+});
+
+process.on('uncaughtException', (err)=>{
+  console.error(err.stack);
+  logMessage('uncaughtException'+err.stack,'error');
 });
 
 app.listen(process.env.PORT, () => {
