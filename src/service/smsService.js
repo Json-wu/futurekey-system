@@ -29,6 +29,9 @@ const client_USA = new Core({
 // Send SMS
 const sendSms = async (phoneNumber, templateParam) => {
   try {
+    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}于${templateParam.time}参加课程。若有任何问题，可联系专属课程顾问。若请假，请忽略。`;
+    console.log(`begin send SMS `+SMSmsg);
+    logMessage(`begin send SMS `+SMSmsg,'info');
     if(!smsConfig.enable){
       logMessage('SMS send is not enable.','info');
       return;
@@ -40,7 +43,7 @@ const sendSms = async (phoneNumber, templateParam) => {
       TemplateParam: JSON.stringify(templateParam)
     };
     const result = await client.sendSMS(msg);
-    logMessage('SMS sent successfully:'+JSON.stringify(msg),'info');
+    logMessage('SMS sent successfully，'+SMSmsg,'info');
     console.log('SMS sent successfully:', result);
   } catch (err) {
     logMessage('Error sending SMS:'+err.message,'error');
@@ -49,6 +52,8 @@ const sendSms = async (phoneNumber, templateParam) => {
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
+    console.log(`begin send SMS to:${phoneNumber}，msg：`+message);
+    logMessage(`begin send SMS to:${phoneNumber}，msg：`+message,'info');
     if(!smsConfig.enable){
       logMessage('SMS send is not enable.','info');
       return;
@@ -68,7 +73,7 @@ const sendSms_USA = async (phoneNumber, message) => {
     };
     let result = await client_USA.request("SendMessageToGlobe", params, requestOption);
     
-    logMessage('SMS_USA sent successfully:'+JSON.stringify(result),'info');
+    logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：`+message,'info');
     console.log('SMS_USA sent successfully:', result);
   } catch (err) {
     logMessage('Error sending SMS_USA:'+err.message,'error');
@@ -81,9 +86,6 @@ const autoSendSms = async(phone,type,user,time)=>{
     const phoneNumber = phone;
     const templateParam = { user,time };
 
-    console.log(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`);
-    logMessage(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`,'info');
-    // return;
     // 中国内地
     if(type==1){
       sendSms(phoneNumber, templateParam);
@@ -106,9 +108,6 @@ const SendSms_teacher = async(phone,type,user,time)=>{
     const phoneNumber = phone;
     const templateParam = { user,time };
 
-    console.log(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`);
-    logMessage(`开始发送短信:phoneNumber-${phoneNumber},type-${type},templateParam-${JSON.stringify(templateParam)}`,'info');
-    // return;
     // 中国内地
     if(type==1){
       sendSms(phoneNumber, templateParam);
