@@ -68,11 +68,11 @@ app.get('/classroom/back', (req, res) => {
 app.get('/classroom', (req, res) => {
   res.redirect('/classroom/view-logs');
 });
-app.get('/classroom/register', (req, res) => {
+app.get('/classroom/register/subscribe', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/subscribe.html`));
 });
-app.get('/classroom/verify', (req, res) => {
-  res.sendFile(path.join(__dirname, `/public/verify.html?phone=${req.query.phone}`));
+app.get('/classroom/register/verify', (req, res) => {
+  res.sendFile(path.join(__dirname, `/public/verify.html`));
 });
  
 // 错误处理中间件
