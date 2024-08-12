@@ -65,7 +65,7 @@ app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));
 });
 
-app.get('/', (req, res) => {
+app.get('/classroom', (req, res) => {
   res.redirect('/classroom/view-logs');
 });
  
