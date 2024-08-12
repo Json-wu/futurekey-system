@@ -1,0 +1,145 @@
+<!-- 第二个页面：verify.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Phone Number</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        /* 其他样式保持不变 */
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #c2bfbf;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .input-code {
+            display: inline-block;
+            margin: 0 5px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1.2em;
+        }
+        .numeric-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .numeric-pad button {
+            width: 100%;
+            height: 40px;
+            line-height: 40px;
+            font-size: 1.2em;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+        button:active {
+            background: #ddd;
+        }
+        .submit-group {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Confirm Your Phone Number</h2>
+        <p>We sent a text message to you at [<span id="phone"></span>]. Enter the Six-digit code in that message to confirm your phone number. Message and data rates may apply. Msg freq may vary. Reply *HELP* for help, Reply "STOP" to cancel.</p>
+        <form id="verificationForm" action="#" method="post">
+            <div class="form-group">
+                <!-- 验证码输入框 -->
+                <input type="text" class="input-code" id="code1" name="code1" maxlength="1" required>
+                <input type="text" class="input-code" id="code2" name="code2" maxlength="1" required>
+                <input type="text" class="input-code" id="code3" name="code3" maxlength="1" required>
+                <input type="text" class="input-code" id="code4" name="code4" maxlength="1" required>
+                <input type="text" class="input-code" id="code5" name="code5" maxlength="1" required>
+                <input type="text" class="input-code" id="code6" name="code6" maxlength="1" required>
+            </div>
+            <div class="numeric-pad">
+                <!-- 数字键盘 -->
+                <button type="button" onclick="fillInput(1)">1</button>
+                <button type="button" onclick="fillInput(2)">2</button>
+                <button type="button" onclick="fillInput(3)">3</button>
+                <button type="button" onclick="fillInput(4)">4</button>
+                <button type="button" onclick="fillInput(5)">5</button>
+                <button type="button" onclick="fillInput(6)">6</button>
+                <button type="button" onclick="fillInput(7)">7</button>
+                <button type="button" onclick="fillInput(8)">8</button>
+                <button type="button" onclick="fillInput(9)">9</button>
+            </div>
+            <div class="submit-group">
+                <button type="submit">Submit</button>
+                <button type="button" onclick="resendCode()">Resend Code</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // 这个函数在页面加载完毕后执行
+        window.onload = function() {
+            // 获取URL中的查询字符串部分
+            const queryString = window.location.search;
+            
+            // 解析查询字符串为一个搜索参数对象
+            const urlParams = new URLSearchParams(queryString);
+            
+            // 从查询参数中获取phone的值
+            const phone = urlParams.get('phone');
+            
+            // 如果phone参数存在，你可以在这里使用它
+            if (phone) {
+                // 例如，显示手机号码，或者将其用于其他逻辑
+                console.log('Phone number from query parameter:', phone);
+                
+                // 如果你想在页面的某个元素中显示这个手机号码，可以这样做：
+                 document.getElementById('phone').innerText = phone;
+            }
+        };
+        function fillInput(value) {
+            // 获取所有输入框
+            var inputs = document.querySelectorAll('.input-code');
+            // 找到第一个没有填写的输入框
+            var emptyInput = Array.from(inputs).find(input => input.value === '');
+            if (emptyInput) {
+                emptyInput.value = value;
+                emptyInput.focus();
+            }
+        }
+
+        function resendCode() {
+            alert('Code has been resent.');
+            // 实际的重发验证码逻辑会在这里
+            var inputs = document.querySelectorAll('.input-code');
+            // 找到第一个没有填写的输入框
+            var emptyInput = Array.from(inputs).forEach(x=>{
+                x.value ='';
+            })
+        }
+
+        document.getElementById('verificationForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // 这里可以添加表单提交的逻辑
+            alert('Code entered is incorrect. Please try again.');
+        });
+    </script>
+</body>
+</html>

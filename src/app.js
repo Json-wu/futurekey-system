@@ -68,6 +68,12 @@ app.get('/classroom/back', (req, res) => {
 app.get('/classroom', (req, res) => {
   res.redirect('/classroom/view-logs');
 });
+app.get('/classroom/register', (req, res) => {
+  res.sendFile(path.join(__dirname, `/public/subscribe.html`));
+});
+app.get('/classroom/verify', (req, res) => {
+  res.sendFile(path.join(__dirname, `/public/verify.html?phone=${req.query.phone}`));
+});
  
 // 错误处理中间件
 app.use((err, req, res, next) => {
