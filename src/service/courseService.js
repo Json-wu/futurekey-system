@@ -151,7 +151,7 @@ function sendMail(couData) {
     try {
         let students = JSON.parse(couData.student).map(x => x.name).join(',');
         sendEmail(emailConfig.receive, '老师课程不出席提醒', '', `参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`);
-        logMessage(`老师课程不出席提醒  .参与人：${students}     课程标题：${couData.titletitle}     课程时间：${couData.title}  ${couData.tz}`, 'info');
+        logMessage(`老师课程不出席提醒  .参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`, 'info');
     } catch (error) {
         logMessage(`老师课程不出席提醒邮件发送失败，，${error.message}`, 'error');
     }
@@ -163,7 +163,7 @@ async function sendMailSignStatus(id, studentName, state) {
 
         let msg = state == 1 ? `学生[${studentName}]迟到提醒` : `学生[${studentName}]缺课提醒`;
         sendEmail(emailConfig.receive, msg, '', `参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`);
-        logMessage(`${msg}  .参与人：${students}     课程标题：${couData.titletitle}     课程时间：${couData.title}  ${couData.tz}`, 'info');
+        logMessage(`${msg}  .参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`, 'info');
     } catch (error) {
         logMessage(`老师课程不出席提醒邮件发送失败，，${error.message}`, 'error');
     }
