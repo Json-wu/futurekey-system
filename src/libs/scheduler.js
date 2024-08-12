@@ -59,7 +59,7 @@ async function classReminder() {
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
         //let dt = new Date(item.start_dt);
-        console.log(momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
+        console.log(item.start_dt+"--"+momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
         console.log(dt);
         console.log(dateNow);
         console.log(date_end);
@@ -114,7 +114,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
       teacherName = teacherInfo.name;
       // send msg to teacher  teacherName
       try {
-        SendSms_teacher(teacherInfo.phone, teacherInfo.type, teacherName, time);
+        //SendSms_teacher(teacherInfo.phone, teacherInfo.type, teacherName, time);
         sendEmail(teacherInfo.email, 'New Class Notification', '', 
         `<!DOCTYPE html>
         <html lang="en">
