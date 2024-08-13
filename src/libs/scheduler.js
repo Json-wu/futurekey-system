@@ -16,7 +16,14 @@ const calendarKeyOrId = process.env.TEAMUP_KEY;
 const apiKey = process.env.TEAMUP_APIKEY;
 const emailConfig = config.email;
 
-// 定时规则
+/*
+  * 定义规则
+  * minute: 0-59
+  * hour: 0-23
+  * date: 1-31
+  * month: 0-11
+  * dayOfWeek: 0-6
+  */
 const rule = new schedule.RecurrenceRule();
 // rule.minute = [0, 15, 30, 45];
 rule.minute = [0, 30];
@@ -38,7 +45,7 @@ schedule.scheduleJob(rule, task);
 async function classReminder() {
   try {
     console.log('课程开始前15分钟，给老师和学生发送短信提醒；')
-    logMessage(new Date()+'开始校验提前课程提醒,','info');
+    logMessage(new Date()+'开始校验提前课程提醒.','info');
     const data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey);
     if (data != null && data.length > 0) {
       let title = "";
@@ -48,6 +55,7 @@ async function classReminder() {
       let noWhoList = [];
       let dateNow = moment().seconds(0).milliseconds(0).utc();//new Date(moment().seconds(0).milliseconds(0));
       let date_end= moment(dateNow).add(30, 'minute').utc();
+      logMessage(`查询到当天日历条数：${data.length}`,'info');
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
         //let dt = new Date(item.start_dt);
@@ -55,7 +63,7 @@ async function classReminder() {
         console.log(dt);
         console.log(dateNow);
         console.log(date_end);
-        return dt >= dateNow && dt <= date_end
+        return dt > dateNow && dt <= date_end
       }).map(item => {
         return {
           id: item.id,
@@ -67,7 +75,7 @@ async function classReminder() {
           end_dt: item.end_dt
         };
       });
-
+      logMessage(`筛选出30分钟后开始课程日历条数：${sendData.length}`,'info');
       for (let index = 0; index < sendData.length; index++) {
         const info = sendData[index];
         title = info.title;
@@ -150,18 +158,19 @@ async function remind(id,sub_eventid, users, time, title, tz) {
       const item = users[index].trim();
       if (item == '')
         continue;
+      let isnoPhone = true;
+      let isnoEmail = true;
       let userInfo = await getCustomerDetail(item);
       if (userInfo) {
         // send sms
         if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
           let phones = userInfo.monther.subForm_1;
-          let isnoPhone = false;
+          
           for (let index = 0; index < phones.length; index++) {
             const subForm = phones[index];
             let phone = subForm.text_2;
-            if (phone.trim().length == 0) {
-              isnoPhone = true;
-            } else {
+            if (phone.trim().length > 0) {
+              isnoPhone = false;
               let codenum = subForm.text_1.text;
               console.log('phonetype:;:' + codenum);
               phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
@@ -170,17 +179,14 @@ async function remind(id,sub_eventid, users, time, title, tz) {
               autoSendSms(phone, type, childName, time);//, teacherName
             }
           }
-          if(isnoPhone){
-            noPhoneList.push(item);
-          }
-        } else {
-          noPhoneList.push(item);
-        }
+        } 
         // send email
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
         if (email_address && email_address.length > 0) {
+          isnoEmail = false;
           sendEmail(email_address, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
-        } else {
+        }
+        if(isnoPhone && isnoEmail){
           noPhoneList.push(item);
         }
       }else{
@@ -189,8 +195,8 @@ async function remind(id,sub_eventid, users, time, title, tz) {
     }
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
-      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`);
-      logMessage(`参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time}`, 'info');
+      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`);
+      logMessage(`参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`, 'info');
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');

@@ -20,6 +20,9 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendEmail(toMail, title, text, html) {
+  console.log(`开始发送邮件:toMail-${toMail},title-${title},html-${html}`);
+  logMessage(`开始发送邮件:toMail-${toMail},title-${title},html-${html}`,'info');
+
   if (!emailConfig.enable) {
     logMessage(`Email send is not enable. message:toMail-${toMail}, title-${title}, text-${text}, html-${html}`, 'info');
     return;
