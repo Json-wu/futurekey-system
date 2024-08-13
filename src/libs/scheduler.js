@@ -133,11 +133,9 @@ async function remind(id,sub_eventid, users, time, title, tz) {
             
             <p>FutureKey School<br>
             <em>[${time} ${tz}]</em></p>
-
         </body>
         </html>
         `);
-        logMessage(`Successfuly send msg to teacher.`, 'info');
       } catch (error) {
         console.log('Failed send msg to teacher.');
         logMessage(`Failed send msg to teacher.: ${error.message}`, 'error');
