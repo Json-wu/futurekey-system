@@ -3,9 +3,10 @@ const axios = require('axios');
 const config = require('../config/config');
 const { logMessage } = require('../libs/logger');
 const { sign } = require('../libs/common');
+const { sendEmail } = require('./emailService');
 
 
-const xbbConfig = config.xbb;
+const emailConfig = config.email;
 const token = process.env.XBB_TOKEN;
 const corpid = process.env.XBB_CORPID;
 const userid = process.env.XBB_USERID;
@@ -14,20 +15,27 @@ async function getCustomerDetail(userName){
   try {
     let userData = await getStudentData(userName);
     if(userData && userData.code==1 && userData.result.list.length>0){
-      let dataId = userData.result.list[0].dataId;
-      let studentDetail = await getStudentDetail(dataId);
-      let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
-      if(userinfo.code==1){
-        return {
-          monther: userinfo.result.data,
-          child: studentDetail.result.data
+      if(userData.result.list.length==1){
+        let dataId = userData.result.list[0].dataId;
+        let studentDetail = await getStudentDetail(dataId);
+        let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
+        if(userinfo.code==1){
+          return {
+            monther: userinfo.result.data,
+            child: studentDetail.result.data
+          }
         }
+      }else{
+        // 学生重名，邮件提醒
+        sendEmail(emailConfig.receive, '学生姓名重名提醒', '', `学生姓名：${userName}`);
+        logMessage('学生姓名重名提醒', '', `学生姓名：${userName}`, 'info');
       }
+     
       return null;
     }
   } catch (error) {
-    logMessage(`Error getStudentData: ${error.message}`,'error');
-    console.log(`Error getStudentData: ${error.message}`);
+    logMessage(`Error getCustomerDetail: ${error.message}`,'error');
+    console.log(`Error getCustomerDetail: ${error.message}`);
     return null;
   }
 }
@@ -47,13 +55,13 @@ async function getCustomerInfo(dataId) {
     const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/customer/detail`,body, headers);
   
     if (!response.status==200) {
-      logMessage(`Error fetching customerDetail: ${response.statusText}`,'error');
+      logMessage(`Error fetching getCustomerInfo: ${response.statusText}`,'error');
       // throw new Error(`Error fetching customerDetail: ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
-    logMessage(`Error getStudentData: ${error.message}`,'error');
-    console.log(`Error getStudentData: ${error.message}`);
+    logMessage(`Error getCustomerInfo: ${error.message}`,'error');
+    console.log(`Error getCustomerInfo: ${error.message}`);
     return null;
   }
 }

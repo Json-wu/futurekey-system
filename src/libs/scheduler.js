@@ -184,7 +184,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
         if (email_address && email_address.length > 0) {
           isnoEmail = false;
-          sendEmail(email_address, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
+          //sendEmail(email_address, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
         }
         if(isnoPhone && isnoEmail){
           noPhoneList.push(item);
