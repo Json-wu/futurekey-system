@@ -9,7 +9,7 @@
     "sms_msg":""
   },
   "email": {
-    "enable": true,
+    "enable": false,
     "service": "gmail",
     "host": "smtp.gmail.com",
     "port": 587,

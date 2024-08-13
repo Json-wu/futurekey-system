@@ -17,7 +17,7 @@ async function fetchTeamUpCalendar(calendarKeyOrId, apiKey) {
     });
 
     try {
-      logMessage(`fetchTeamUpCalendar:response:::${JSON.stringify(response.data)}`, 'info');
+      //logMessage(`fetchTeamUpCalendar:response:::${JSON.stringify(response.data)}`, 'info');
       const stmt = db.prepare("INSERT INTO teamup_data (data) VALUES (?)");
       stmt.run(JSON.stringify(response.data)); stmt.finalize();
     } catch (error) {
