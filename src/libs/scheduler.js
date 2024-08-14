@@ -155,7 +155,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
     InsertData(id,sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
     for (let index = 0; index < users.length; index++) {
-      const item = users[index].trim();
+      const item = users[index] ? users[index].trim(): '';
       if (item == '')
         continue;
       let isnoPhone = true;
@@ -168,8 +168,8 @@ async function remind(id,sub_eventid, users, time, title, tz) {
           
           for (let index = 0; index < phones.length; index++) {
             const subForm = phones[index];
-            let phone = subForm.text_2;
-            if (phone.trim().length > 0) {
+            let phone = subForm.text_2 ? subForm.text_2.trim(): '';
+            if (phone.length > 0) {
               isnoPhone = false;
               let codenum = subForm.text_1.text;
               console.log('phonetype:;:' + codenum);
