@@ -28,11 +28,38 @@ async function getCustomerDetail(userName){
       }else{
         // 学生重名，邮件提醒
         sendEmail(emailConfig.receive, '学生姓名重名提醒', '', `学生姓名：${userName}`);
-        logMessage('学生姓名重名提醒', '', `学生姓名：${userName}`, 'info');
       }
-     
-      return null;
     }
+    return null;
+  } catch (error) {
+    logMessage(`Error getCustomerDetail: ${error.message}`,'error');
+    console.log(`Error getCustomerDetail: ${error.message}`);
+    return null;
+  }
+}
+async function getCustomerDetail_check(userName){
+  try {
+    let userData = await getStudentData(userName);
+    if(userData && userData.code==1 && userData.result.list.length>0){
+      if(userData.result.list.length==1){
+        let dataId = userData.result.list[0].dataId;
+        let studentDetail = await getStudentDetail(dataId);
+        let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
+        if(userinfo.code==1){
+          return {
+            code: 0,
+            monther: userinfo.result.data,
+            child: studentDetail.result.data
+          }
+        }
+      }else{
+        return {
+          code: 1,
+          name: userName
+        }
+      }
+    }
+    return null;
   } catch (error) {
     logMessage(`Error getCustomerDetail: ${error.message}`,'error');
     console.log(`Error getCustomerDetail: ${error.message}`);
@@ -163,4 +190,4 @@ async function getStudentDetail(dataId) {
 
 //getCustomerDetail('anne_808');
 
-module.exports = { getCustomerDetail };
+module.exports = { getCustomerDetail, getCustomerDetail_check };

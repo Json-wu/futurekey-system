@@ -6,9 +6,9 @@ const db = require('../libs/db');
 const { getCustomerDetail } = require('../service/xbbService');
 
 
-async function fetchTeamUpCalendar(calendarKeyOrId, apiKey) {
+async function fetchTeamUpCalendar(calendarKeyOrId, apiKey, sDate, eDate) {
   try {
-    let url = `https://api.teamup.com/${calendarKeyOrId}/events?startDate=${getDateNow()}&endDate=${getDateNow()}`;
+    let url = `https://api.teamup.com/${calendarKeyOrId}/events?startDate=${sDate}&endDate=${eDate}`;
     logMessage(`fetchTeamUpCalendar:url-${url},Teamup-Token-${apiKey}`, 'info');
     const response = await axios.get(url, {
       headers: {

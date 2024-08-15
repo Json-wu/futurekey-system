@@ -11,6 +11,7 @@ require('./libs/scheduler');
 // require('./service/teamupService');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
+const { GetStudentNoInfo } = require('./service/studentService');
 
 const app = express();
 
@@ -73,6 +74,11 @@ app.get('/classroom/register/subscribe', (req, res) => {
 });
 app.get('/classroom/register/verify', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/verify.html`));
+});
+
+app.get('/classroom/checkstudent', async (req, res) => {
+  let studentNo = await GetStudentNoInfo(req.query.date);
+  res.json(studentNo);
 });
  
 // 错误处理中间件

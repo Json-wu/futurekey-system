@@ -30,12 +30,13 @@ const client_USA = new Core({
 const sendSms = async (phoneNumber, templateParam) => {
   try {
     let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}于${templateParam.time}参加课程。若有任何问题，可联系专属课程顾问。若请假，请忽略。`;
-    console.log(`begin send SMS `+SMSmsg);
-    logMessage(`begin send SMS `+SMSmsg,'info');
+   
     if(!smsConfig.enable){
-      logMessage('SMS send is not enable.','info');
+      logMessage('SMS send is not enable. content::'+SMSmsg,'info');
       return;
     }
+    console.log(`begin send SMS `+SMSmsg);
+    logMessage(`begin send SMS `+SMSmsg,'info');
     let msg = {
       PhoneNumbers: phoneNumber,
       SignName: smsConfig.signName,
@@ -52,13 +53,12 @@ const sendSms = async (phoneNumber, templateParam) => {
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
-    console.log(`begin send SMS to:${phoneNumber}，msg：`+message);
-    logMessage(`begin send SMS to:${phoneNumber}，msg：`+message,'info');
     if(!smsConfig.enable){
-      logMessage('SMS send is not enable.','info');
+      logMessage(`SMS send is not enable.content::to:${phoneNumber}，msg：`+message,'info');
       return;
     }
-    
+    console.log(`begin send SMS to:${phoneNumber}，msg：`+message);
+    logMessage(`begin send SMS to:${phoneNumber}，msg：`+message,'info');
     const params = {
       "To": phoneNumber,//接收短信号码。号码格式为：国际区号+号码
       "From": "1234****90",//发送方标识。支持SenderID的发送，只允许数字+字母，含有字母标识最长11位，纯数字标识支持15位,美国、加拿大需要填写10dlc注册后运营商提供的SenderID

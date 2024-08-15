@@ -10,6 +10,7 @@ const { autoSendSms, SendSms_teacher } = require('../service/smsService');
 const { sendEmail } = require('../service/emailService');
 const teacherData = require('../config/teacher');
 const { InsertData } = require('../service/courseService');
+const { getDateNow } = require('./common');
 
 
 const calendarKeyOrId = process.env.TEAMUP_KEY;
@@ -46,7 +47,7 @@ async function classReminder() {
   try {
     console.log('课程开始前15分钟，给老师和学生发送短信提醒；')
     logMessage(new Date()+'开始校验提前课程提醒.','info');
-    const data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey);
+    const data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey, getDateNow(), getDateNow());
     if (data != null && data.length > 0) {
       let title = "";
       let users = [];

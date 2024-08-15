@@ -20,13 +20,11 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendEmail(toMail, title, text, html) {
-  logMessage(`开始发送邮件:toMail-${toMail},title-${title},html-${html}`,'info');
-
   if (!emailConfig.enable) {
     logMessage(`Email send is not enable. message:toMail-${toMail}, title-${title}, text-${text}, html-${html}`, 'info');
     return;
   }
-  
+  logMessage(`开始发送邮件:toMail-${toMail},title-${title},html-${html}`,'info');
   // 配置邮件选项
   const mailOptions = {
     from: emailConfig.auth.user, // 发件人地址
@@ -35,7 +33,6 @@ function sendEmail(toMail, title, text, html) {
     text: text, // 邮件内容的文本部分
     html: html // 邮件内容的 HTML 部分
   };
-  console.log(`准备发送邮件：${JSON.stringify(mailOptions)}`);
   // return;
   // 发送邮件
   transporter.sendMail(mailOptions, (error, info) => {
