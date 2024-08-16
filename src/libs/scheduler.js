@@ -157,7 +157,7 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         continue;
       let isnoPhone = true;
       let isnoEmail = true;
-      let usercode  = item.match(/\d{8}/);
+      let usercode  = item.match(/\d{8,10}/);
       let userInfo = null;
       if(usercode != null){
         userInfo = await getCustomerDetail(usercode[0],1);
