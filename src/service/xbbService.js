@@ -17,42 +17,38 @@ async function getCustomerDetail(userName, type){
     let names=[];
     let userData = await getStudentData(userName, type);
     if(userData && userData.code==1 && userData.result.list.length>0){
-      for (let index = 0; index < userData.result.list.length; index++) {
-        const element = userData.result.list[index];
-        let dataId = element.dataId;
+      if(userData.result.list.length==1){
+        let dataId = userData.result.list[0].dataId;
         let studentDetail = await getStudentDetail(dataId);
         let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
-        if(studentDetail.result.data.text_17 && studentDetail.result.data.text_17.text=='在读'){
-          names.push(userName);
-          resData = {
+        if(userinfo.code==1){
+          return {
             monther: userinfo.result.data,
             child: studentDetail.result.data
-          };
+          }
+        }
+      }else{
+        for (let index = 0; index < userData.result.list.length; index++) {
+          const element = userData.result.list[index];
+          let dataId = element.dataId;
+          let studentDetail = await getStudentDetail(dataId);
+          let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
+          if(studentDetail.result.data.text_17 && studentDetail.result.data.text_17.text=='在读'){
+            names.push(userName);
+            resData = {
+              monther: userinfo.result.data,
+              child: studentDetail.result.data
+            };
+          }
+        }
+        if(names.length>1){
+          // 学生重名，邮件提醒
+          sendEmail(emailConfig.receive, '学生姓名重名提醒', '', `学生姓名：${userName}`);
+        }else{
+          return resData;
         }
       }
-      if(names.length>1){
-        // 学生重名，邮件提醒
-        sendEmail(emailConfig.receive, '学生姓名重名提醒', '', `学生姓名：${userName}`);
-      }else{
-        return resData;
-      }
     }
-    // if(userData && userData.code==1 && userData.result.list.length>0){
-    //   if(userData.result.list.length==1){
-    //     let dataId = userData.result.list[0].dataId;
-    //     let studentDetail = await getStudentDetail(dataId);
-    //     let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
-    //     if(userinfo.code==1){
-    //       return {
-    //         monther: userinfo.result.data,
-    //         child: studentDetail.result.data
-    //       }
-    //     }
-    //   }else{
-    //     // 学生重名，邮件提醒
-    //     sendEmail(emailConfig.receive, '学生姓名重名提醒', '', `学生姓名：${userName}`);
-    //   }
-    // }
     return null;
   } catch (error) {
     logMessage(`Error getCustomerDetail: ${error.message}`,'error');
@@ -184,7 +180,7 @@ async function getStudentData(userName, type) {
       body = {
         "conditions": [
         {
-          "attr": "text_1",
+          "attr": "serialNo",
           "symbol": "equal",
           "value": [
             userName
