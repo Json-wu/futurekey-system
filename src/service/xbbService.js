@@ -11,9 +11,9 @@ const token = process.env.XBB_TOKEN;
 const corpid = process.env.XBB_CORPID;
 const userid = process.env.XBB_USERID;
 
-async function getCustomerDetail(userName){
+async function getCustomerDetail(userName, type){
   try {
-    let userData = await getStudentData(userName);
+    let userData = await getStudentData(userName, type);
     if(userData && userData.code==1 && userData.result.list.length>0){
       if(userData.result.list.length==1){
         let dataId = userData.result.list[0].dataId;
@@ -39,25 +39,50 @@ async function getCustomerDetail(userName){
 }
 async function getCustomerDetail_check(userName){
   try {
+    let resData={};
+    let names=[];
     let userData = await getStudentData(userName);
     if(userData && userData.code==1 && userData.result.list.length>0){
-      if(userData.result.list.length==1){
-        let dataId = userData.result.list[0].dataId;
+      for (let index = 0; index < userData.result.list.length; index++) {
+        const element = userData.result.list[index];
+        let dataId = element.dataId;
         let studentDetail = await getStudentDetail(dataId);
         let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
-        if(userinfo.code==1){
-          return {
+        if(studentDetail.result.data.text_17 && studentDetail.result.data.text_17.text=='在读'){
+          names.push(userName);
+          resData = {
             code: 0,
             monther: userinfo.result.data,
             child: studentDetail.result.data
-          }
+          };
         }
-      }else{
+      }
+      if(names.length>1){
         return {
           code: 1,
           name: userName
         }
+      }else{
+        return resData;
       }
+      // if(userData.result.list.length >0){
+      //   let dataId = userData.result.list[0].dataId;
+      //   let studentDetail = await getStudentDetail(dataId);
+      //   let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
+      //   if(userinfo.code==1){
+      //     return {
+      //       code: 0,
+      //       monther: userinfo.result.data,
+      //       child: studentDetail.result.data
+      //     }
+      //   }
+      // }else{
+        
+      //   return {
+      //     code: 1,
+      //     name: userName
+      //   }
+      // }
     }
     return null;
   } catch (error) {
@@ -116,9 +141,9 @@ async function getPassList() {
   return response.data;
 }
 // 获取学生数据列表
-async function getStudentData(userName) {
+async function getStudentData(userName, type) {
   try {
-    const body = {
+    let body = {
       "conditions": [
       {
         "attr": "text_2",
@@ -126,19 +151,28 @@ async function getStudentData(userName) {
         "value": [
           userName
         ]
-      },
-      // {
-      //   "attr": "serialNo",
-      //   "symbol": "equal",
-      //   "value": [
-      //     "202408441"
-      //   ]
-      // }
+      }
     ],
       "formId": '9474161',
       "corpid": corpid,
       "userId": userid
     };
+    if(type==1){
+      body = {
+        "conditions": [
+        {
+          "attr": "text_1",
+          "symbol": "equal",
+          "value": [
+            userName
+          ]
+        }
+      ],
+        "formId": '9474161',
+        "corpid": corpid,
+        "userId": userid
+      };
+    }
     const headers = {
       headers: {
         'sign': sign(JSON.stringify(body), token)

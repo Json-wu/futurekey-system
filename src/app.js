@@ -80,6 +80,12 @@ app.get('/classroom/checkstudent', async (req, res) => {
   let studentNo = await GetStudentNoInfo(req.query.date);
   res.json(studentNo);
 });
+app.get('/classroom/test', async (req, res) => {
+  let item ='Melody asdad';
+  let usercode  = item.match(/\d{8}/);
+  console.log(usercode);
+  res.json(usercode);
+});
  
 // 错误处理中间件
 app.use((err, req, res, next) => {

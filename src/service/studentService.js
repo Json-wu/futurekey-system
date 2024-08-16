@@ -27,6 +27,7 @@ async function GetStudentNoInfo(date){
                 for (let j = 0; j < users.length; j++) {
                     const username = users[j];
                     if(username!=''){
+                        console.log('username：'+username);
                         let isnoPhone = true;
                         let isnoEmail = true;
                         let userInfo = await getCustomerDetail_check(username);

@@ -34,6 +34,10 @@ async function task() {
   console.log('任务执行:', new Date());
   // test();
   classReminder();
+  // let item ='Melody_65967827';
+  // let usercode  = item.match(/\d{8}/)[0];
+  // let userInfo = await getCustomerDetail(usercode);
+  // console.log(userInfo);
 }
 
 // 调度任务
@@ -125,18 +129,12 @@ async function remind(id,sub_eventid, users, time, title, tz) {
             <title>New Class Notification</title>
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-
             <p>Hi Teacher <strong>[${teacherName}]</strong>,</p>
-
             <p>You have a new class with <strong>[${users.join(',')}]</strong>.</p>
-            
             <p>Please check out the <a href=${emailConfig.back_url}?subid=${sub_eventid} style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
-            
             <p>FutureKey School<br>
             <em>[${time} ${tz}]</em></p>
-        </body>
-        </html>
-        `);
+        </body></html>`);
       } catch (error) {
         console.log('Failed send msg to teacher.');
         logMessage(`Failed send msg to teacher.: ${error.message}`, 'error');
@@ -159,7 +157,13 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         continue;
       let isnoPhone = true;
       let isnoEmail = true;
-      let userInfo = await getCustomerDetail(item);
+      let usercode  = item.match(/\d{8}/);
+      let userInfo = null;
+      if(usercode != null){
+        userInfo = await getCustomerDetail(usercode[0],1);
+      }else{
+        userInfo = await getCustomerDetail(item);
+      }
       if (userInfo) {
         // send sms
         if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
