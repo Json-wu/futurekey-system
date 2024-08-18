@@ -3,12 +3,21 @@ const router = express.Router();
 const smsService = require('../service/smsService');
 
 router.post('/sendSms', async (req, res) => {
-  const { phoneNumber, templateParam } = req.body;
+  const { phone } = req.body;
   try {
-    const result = await smsService.sendSms(phoneNumber, templateParam);
+    const result = await smsService.sendSms_val(phone);
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+router.post('/verifyCode', (req, res) => {
+  const { phone, code } = req.body;
+  const isValid = smsService.verifyCode(phone, code);
+  if (isValid) {
+    res.status(200).json({ success: true });
+  } else {
+    res.status(400).json({ success: false });
   }
 });
 

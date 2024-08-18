@@ -2,9 +2,9 @@
   "sms": {
     "enable": false,
     "signName": "科爱信",
-    "templateCode": "SMS_471440216",
+    "templateCode": "SMS_471805199",
     "signName_USA": "FutureKey",
-    "templateCode_USA": "SMS_471430206",
+    "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": ""
   },
   "email": {
@@ -16,7 +16,7 @@
     "auth": {
       "user": "no_reply@gdfdlearning.org"
     },
-    "receive": "yongqiangwu1@163.com",
+    "receive": "info@futurekey.com",
     "back_url": "https://futurekey.com/classroom/back"
   }
 }

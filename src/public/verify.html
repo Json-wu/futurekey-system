@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify Your Phone Number</title>
     <style>
-        body, html {
+        body,
+        html {
             height: 100%;
             margin: 0;
             padding: 0;
@@ -13,97 +15,114 @@
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
-            background-color: #f3e5f5; /* 浅紫色背景 */
-            line-height: 1.6; /* 调整行间距 */
+            background-color: #f3e5f5;
+            line-height: 1.6;
         }
+
         .container {
             width: 90%;
-            max-width: 450px; /* 增大框体宽度 */
+            max-width: 450px;
             margin: auto;
-            padding: 30px; /* 增大内边距 */
+            padding: 15px;
             border: 1px solid #c2bfbf;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             background-color: #fff;
             text-align: center;
         }
+
         h2 {
             color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5em; /* 增大字体 */
+            margin-bottom: 15px;
+            font-size: 1.5em;
         }
+
         p {
             color: #666;
-            font-size: 1em; /* 增大字体 */
-            margin-bottom: 20px;
+            font-size: 1em;
+            margin-bottom: 15px;
         }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
+
         .input-code {
             display: inline-block;
-            margin: 0 5px;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
+            margin: 0 3px;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
             text-align: center;
             border: 1px solid #ddd;
             font-size: 1.2em;
         }
+
         .numeric-pad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
+            gap: 5px;
+            margin-top: 15px;
         }
+
         .numeric-pad button {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 40px;
+            height: 35px;
             font-size: 1.2em;
             border: 1px solid #ddd;
             background: #f9f9f9;
         }
+
         button:active {
             background: #ddd;
         }
+
         .submit-group {
-            margin-top: 20px;
+            margin-top: 15px;
         }
+
         button {
-            margin-top: 20px;
-            padding: 12px 24px; /* 增大按钮尺寸 */
+            margin-top: 15px;
+            padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 1.1em; /* 增大字体 */
+            font-size: 1.1em;
         }
+
         .submit-button {
-            background-color: #6f42c1; /* 紫色背景 */
+            background-color: #6f42c1;
             color: #fff;
             width: 160px;
-            margin-left: 10px;
+            margin-left: 5px;
         }
+
         .submit-button:hover {
             background-color: #5a3791;
         }
+
         .resend-button {
-            background-color: #fff; /* 白色背景 */
-            color: #6f42c1; /* 紫色字体 */
+            background-color: #fff;
+            color: #6f42c1;
             border: 1px solid #6f42c1;
             width: 160px;
         }
+
         .resend-button:hover {
             background-color: #f3e5f5;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h2>Confirm Your Phone Number</h2>
-        <p>We sent a text message to you at [<span id="phone"></span>]. Enter the Six-digit code in that message to confirm your phone number. The frequency of information may vary. Click "Submit" to agree to the registration, and Click  "Resend Code" to get the verification code again.</p>
+        <p>We sent a text message to you at [<span id="phone"></span>]. Enter the Six-digit code in that message to
+            confirm your phone number. The frequency of information may vary. Click "Submit" to agree to the
+            registration, and Click "Resend Code" to get the verification code again.</p>
         <form id="verificationForm" action="#" method="post">
             <div class="form-group">
                 <!-- 验证码输入框 -->
@@ -125,35 +144,55 @@
                 <button type="button" onclick="fillInput(7)">7</button>
                 <button type="button" onclick="fillInput(8)">8</button>
                 <button type="button" onclick="fillInput(9)">9</button>
+                <button type="button" disabled>+*#</button>
+                <button type="button" onclick="fillInput(0)">0</button>
+                <button type="button" onclick="deleteInput()">⬅</button>
             </div>
             <div class="submit-group">
-                <button type="button" class="resend-button" onclick="resendCode()">Resend Code</button>
+                <button type="button" class="resend-button" id="resendCode">Resend Code</button>
                 <button type="submit" class="submit-button">Submit</button>
             </div>
         </form>
     </div>
 
     <script>
+        const url = "/classroom";
         // 这个函数在页面加载完毕后执行
-        window.onload = function() {
+        window.onload = function () {
             // 获取URL中的查询字符串部分
             const queryString = window.location.search;
-            
+
             // 解析查询字符串为一个搜索参数对象
             const urlParams = new URLSearchParams(queryString);
-            
+
             // 从查询参数中获取phone的值
             const phone = urlParams.get('phone');
-            
+
             // 如果phone参数存在，你可以在这里使用它
             if (phone) {
                 // 例如，显示手机号码，或者将其用于其他逻辑
                 console.log('Phone number from query parameter:', phone);
-                
+
                 // 如果你想在页面的某个元素中显示这个手机号码，可以这样做：
-                 document.getElementById('phone').innerText = phone;
+                document.getElementById('phone').innerText = phone;
+                var button = document.getElementById('resendCode');
+                button.addEventListener('click', function () {
+                    alert('Code has been resent.');
+                    // 实际的重发验证码逻辑会在这里
+                    var inputs = document.querySelectorAll('.input-code');
+                    // 清空所有输入框
+                    inputs.forEach(input => input.value = '');
+                    sendSmsCode(phone);
+                });
             }
+
+            document.getElementById('verificationForm').addEventListener('submit', function (event) {
+                event.preventDefault();
+                // 这里可以添加表单提交的逻辑
+                verifyCode(phone, Array.from(document.querySelectorAll('.input-code')).map(input => input.value).join(''));
+            });
         };
+
         function fillInput(value) {
             // 获取所有输入框
             var inputs = document.querySelectorAll('.input-code');
@@ -165,19 +204,49 @@
             }
         }
 
-        function resendCode() {
-            alert('Code has been resent.');
-            // 实际的重发验证码逻辑会在这里
+        function deleteInput() {
+            // 获取所有输入框
             var inputs = document.querySelectorAll('.input-code');
-            // 清空所有输入框
-            inputs.forEach(input => input.value = '');
+            // 找到最后一个填写的输入框
+            var filledInput = Array.from(inputs).reverse().find(input => input.value !== '');
+            if (filledInput) {
+                filledInput.value = '';
+                filledInput.focus();
+            }
         }
 
-        document.getElementById('verificationForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            // 这里可以添加表单提交的逻辑
-            alert('Code entered is incorrect. Please try again.');
-        });
+        function sendSmsCode(phoneNumber) {
+            fetch(url + '/sms/sendSms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone: phoneNumber })
+            });
+        }
+
+        function verifyCode(phone, code) {
+            fetch(url + '/sms/verifyCode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone, code })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Verification successful!');
+                        window.location.href = "https://futurekey.com/";
+                    } else {
+                        alert('Verification failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error verifying code:', error);
+                });
+        }
     </script>
 </body>
+
 </html>

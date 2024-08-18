@@ -20,11 +20,12 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendEmail(toMail, title, text, html) {
+  let msg = `参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`;
   if (!emailConfig.enable) {
-    logMessage(`Email send is not enable. message:toMail-${toMail}, title-${title}, text-${text}, html-${html}`, 'info');
+    logMessage(`Email send is not enable. message:toMail-${toMail}, content-${msg}`, 'info');
     return;
   }
-  logMessage(`开始发送邮件:toMail-${toMail},title-${title},html-${html}`,'info');
+  logMessage(`开始发送邮件:toMail-${toMail},content-${msg}`,'info');
   // 配置邮件选项
   const mailOptions = {
     from: emailConfig.auth.user, // 发件人地址
@@ -38,10 +39,11 @@ function sendEmail(toMail, title, text, html) {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       logMessage(`发送邮件出错:` + error.message, 'error');
-      return console.log('发送邮件出错:', error);
+      //console.log('发送邮件出错:', error);
+      return;
     }
-    logMessage(`邮件发送成功,req:${JSON.stringify(mailOptions)}，res:${JSON.stringify(info.response)}`, 'info');
-    console.log('邮件发送成功:', info.response);
+    logMessage(`邮件发送成功,res:${JSON.stringify(info.response)}`, 'info');
+    //console.log('邮件发送成功:', info.response);
   });
 }
 

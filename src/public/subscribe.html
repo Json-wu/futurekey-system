@@ -20,7 +20,7 @@
 
         .container {
             width: 90%;
-            max-width: 450px; /* 增大框体宽度 */
+            max-width: 450px; /* 调小框体宽度 */
             margin: auto;
             padding: 30px; /* 增大内边距 */
             border: 1px solid #c2bfbf;
@@ -139,6 +139,7 @@
     </div>
 
     <script>
+        const url = "/classroom";
         document.getElementById('subscriptionForm').addEventListener('submit', function(event) {
             // 阻止表单的默认提交行为
             event.preventDefault();
@@ -146,12 +147,24 @@
             // 获取输入的手机号码
             var phoneNumber = document.getElementById('phone').value;
 
+            // 发送手机验证码
+            sendSmsCode(phoneNumber);
             // 构建跳转URL，包含手机号码作为查询参数
             var redirectUrl = 'verify?phone=' + encodeURIComponent(phoneNumber);
 
             // 跳转到第二个页面
             window.location.href = redirectUrl;
         });
+
+        function sendSmsCode(phoneNumber){
+            fetch(url + '/sms/sendSms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ phone: phoneNumber })
+            });
+        }
     </script>
 </body>
 

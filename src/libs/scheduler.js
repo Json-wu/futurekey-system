@@ -199,7 +199,6 @@ async function remind(id,sub_eventid, users, time, title, tz) {
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
       sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`);
-      logMessage(`参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`, 'info');
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');
