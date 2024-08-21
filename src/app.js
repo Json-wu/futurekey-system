@@ -5,6 +5,7 @@ const moment = require('moment');
 const db = require('./libs/db');
 const courseRoutes = require('./routes/course');
 const smsRoutes = require('./routes/sms');
+const emailRoutes = require('./routes/email');
 require('./libs/scheduler');
 // require('./service/emailService');
 // require('./service/smsService');
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use('/classroom/course', courseRoutes);
 app.use('/classroom/sms', smsRoutes);
+app.use('/classroom/email', emailRoutes);
 
 
 
