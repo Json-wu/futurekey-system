@@ -45,10 +45,10 @@ router.post('/sendEmail', async (req, res) => {
 function generateEmailContent(formData) {
   return `
       <h2>新的联系表单提交</h2>
-      <p><strong>昵称:</strong> ${formData.nickname}</p>
-      <p><strong>邮箱:</strong> ${formData.email}</p>
+      <p><strong>名字:</strong> ${formData.nickname}</p>
+      <p><strong>联系方式:</strong> ${formData.email}</p>
       <p><strong>角色:</strong> ${formData.role}</p>
-      <p><strong>备注:</strong> ${formData.remarks}</p>
+      <p><strong>留言内容:</strong> ${formData.remarks}</p>
   `;
 }
 
