@@ -1,21 +1,19 @@
 // app.js
 const express = require('express');
 const path = require('path');
+const cors = require('cors'); 
 const moment = require('moment');
 const db = require('./libs/db');
 const courseRoutes = require('./routes/course');
 const smsRoutes = require('./routes/sms');
 const emailRoutes = require('./routes/email');
 require('./libs/scheduler');
-// require('./service/emailService');
-// require('./service/smsService');
-// require('./service/xbbService');
-// require('./service/teamupService');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
 
 const app = express();
+app.use(cors());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 

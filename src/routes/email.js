@@ -8,7 +8,7 @@ const emailConfig = config.email;
 
 router.post('/sendEmail', async (req, res) => {
   try {
-    const emailContent = generateEmailContent(formData);
+    const emailContent = generateEmailContent(req.body);
 
     const transporter = nodemailer.createTransport({
       service: emailConfig.service,
@@ -25,21 +25,21 @@ router.post('/sendEmail', async (req, res) => {
     const mailOptions = {
       from: emailConfig.auth.user,
       to: emailConfig.receive,
-      subject: title,
+      subject: "新的联系表单提交-来自官网",
       text: '',
       html: emailContent
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        logMessage(`表单提交邮件发送失败,error:${error.message}}`, 'error');
-        return res.status(500).send('邮件发送失败');
+        logMessage(`表单提交邮件发送失败,error:${error.message}`, 'error');
+        return res.status(500).send({"success": false, msg:'邮件发送失败'});
       }
-      logMessage(`表单提交邮件发送成功,success!}`, 'info');
-      res.send('邮件发送成功');
+      logMessage(`表单提交邮件发送成功,success!`, 'info');
+      res.send({"success": true, msg: '邮件发送成功'});
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ "success": false, "msg": error.message });
   }
 });
 function generateEmailContent(formData) {
