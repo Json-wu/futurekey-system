@@ -196,9 +196,12 @@ async function remind(id,sub_eventid, users, time, title, tz) {
         noPhoneList.push(item);
       }
     }
+    console.log('noPhoneList:', noPhoneList);
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
-      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`);
+      if(pers && pers.length > 0){
+        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`);
+      }
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');
