@@ -37,7 +37,6 @@ async function task() {
   // let item ='Melody_65967827';
   // let usercode  = item.match(/\d{8}/)[0];
   // let userInfo = await getCustomerDetail(usercode);
-  // console.log(userInfo);
 }
 
 // 调度任务
@@ -64,10 +63,10 @@ async function classReminder() {
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
         //let dt = new Date(item.start_dt);
-        console.log(item.start_dt+"--"+momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
-        console.log(dt);
-        console.log(dateNow);
-        console.log(date_end);
+        // console.log(item.start_dt+"--"+momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
+        // console.log(dt);
+        // console.log(dateNow);
+        // console.log(date_end);
         return dt > dateNow && dt <= date_end
       }).map(item => {
         return {
@@ -91,7 +90,7 @@ async function classReminder() {
           users = userName.split(/[,，]+/);
           await remind(info.id,sub_eventId, users, time, title, info.tz);
         } else { // who为空，发送邮件
-          console.log('field who is null,sended administartor email');
+          // console.log('field who is null,sended administartor email');
           noWhoList.push(title);
         }
         logMessage(`classInfo:>> title: ${title},time: ${time}, sub_eventId:${sub_eventId},who:${userName}`,'info');
@@ -136,7 +135,6 @@ async function remind(id,sub_eventid, users, time, title, tz) {
             <em>[${time} ${tz}]</em></p>
         </body></html>`);
       } catch (error) {
-        console.log('Failed send msg to teacher.');
         logMessage(`Failed send msg to teacher.: ${error.message}`, 'error');
       }
     }
@@ -174,9 +172,12 @@ async function remind(id,sub_eventid, users, time, title, tz) {
             let phone = subForm.text_2 ? subForm.text_2.trim(): '';
             if (phone.length > 0) {
               isnoPhone = false;
-              let codenum = subForm.text_1.text;
-              console.log('phonetype:;:' + codenum);
-              phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
+              console.log(' subForm.text_1:;:' +  subForm.text_1);
+              if(subForm.text_1){
+                let codenum = subForm.text_1.text;
+                console.log('phonetype:;:' + codenum);
+                phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
+              }
               let type = userInfo.monther.text_8.value;
               let childName = userInfo.child.text_2;
               autoSendSms(phone, type, childName, time);//, teacherName

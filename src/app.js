@@ -7,7 +7,7 @@ const db = require('./libs/db');
 const courseRoutes = require('./routes/course');
 const smsRoutes = require('./routes/sms');
 const emailRoutes = require('./routes/email');
-require('./libs/scheduler');
+// require('./libs/scheduler');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
@@ -28,25 +28,77 @@ app.use('/classroom/email', emailRoutes);
 
 
 // 日志分页接口
-app.get('/classroom/logs', (req, res) => {
+app.post('/classroom/logs', (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
-  db.all(`SELECT * FROM logs ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit} `, (err, rows) => {
+  const body = req.body;
+  let search = body.message ? ` message LIKE '%${body.message}%' ` : ' 1=1 ';
+  db.all(`SELECT * FROM logs WHERE ${search} ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit}`, (err, rows) => {
     if (err) {
       return res.status(500).send('Failed to retrieve logs.');
     }
-    db.get(`SELECT COUNT(*) AS count FROM logs`, (err, row) => {
+    db.get(`SELECT COUNT(*) AS count FROM logs WHERE ${search} `, (err, row) => {
       if (err) {
-          return res.status(500).send('Failed to retrieve logs.');
+        return res.status(500).send('Failed to retrieve logs.');
       }
-      rows = rows.map((item)=>{
+      rows = rows.map((item) => {
         const dt = new Date(item.timestamp);
         dt.setHours(dt.getHours() + 8);
         item.timestamp = moment(dt).format('YYYY-MM-DD HH:mm:ss');
         return item;
-      })
-      
-    res.json({logs:rows, totalPages:row.count});
+      });
+
+      res.json({ logs: rows, totalPages: row.count });
+    });
+  });
+});
+// sms日志分页接口
+app.post('/classroom/sms-logs', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const body = req.body;
+  let search = body.message ? ` message LIKE '%${body.message}%' ` : ' 1=1 ';
+  db.all(`SELECT * FROM sms_his WHERE ${search} ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit}`, (err, rows) => {
+    if (err) {
+      return res.status(500).send('Failed to retrieve logs.');
+    }
+    db.get(`SELECT COUNT(*) AS count FROM sms_his WHERE ${search} `, (err, row) => {
+      if (err) {
+        return res.status(500).send('Failed to retrieve logs.');
+      }
+      rows = rows.map((item) => {
+        const dt = new Date(item.timestamp);
+        dt.setHours(dt.getHours() + 8);
+        item.timestamp = moment(dt).format('YYYY-MM-DD HH:mm:ss');
+        return item;
+      });
+
+      res.json({ logs: rows, totalPages: row.count });
+    });
+  });
+});
+// sms日志分页接口
+app.post('/classroom/email-logs', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const body = req.body;
+  let search = body.message ? ` content LIKE '%${body.message}%' ` : ' 1=1 ';
+  db.all(`SELECT * FROM email_his WHERE ${search} ORDER BY id DESC LIMIT ${limit} OFFSET ${(page - 1) * limit}`, (err, rows) => {
+    if (err) {
+      return res.status(500).send('Failed to retrieve logs.');
+    }
+    db.get(`SELECT COUNT(*) AS count FROM email_his WHERE ${search} `, (err, row) => {
+      if (err) {
+        return res.status(500).send('Failed to retrieve logs.');
+      }
+      rows = rows.map((item) => {
+        const dt = new Date(item.timestamp);
+        dt.setHours(dt.getHours() + 8);
+        item.timestamp = moment(dt).format('YYYY-MM-DD HH:mm:ss');
+        return item;
+      });
+
+      res.json({ logs: rows, totalPages: row.count });
     });
   });
 });
@@ -63,6 +115,13 @@ app.get('/classroom/teamup-data', (req, res) => {
 app.get('/classroom/view-logs', (req, res) => {
   res.sendFile(path.join(__dirname, '/public/logs.html'));
 });
+app.get('/classroom/sms-logs', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/sms-logs.html'));
+});
+app.get('/classroom/email-logs', (req, res) => {
+  res.sendFile(path.join(__dirname, '/public/email-logs.html'));
+});
+
 // 反馈表
 app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));

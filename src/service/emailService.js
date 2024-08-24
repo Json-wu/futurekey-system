@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const config = require('../config/config');
 const { logMessage } = require('../libs/logger');
+const db = require('../libs/db');
 
 const emailConfig = config.email;
 
@@ -20,12 +21,11 @@ const transporter = nodemailer.createTransport({
 });
 
 function sendEmail(toMail, title, text, html) {
-  let msg = `参与人联系方式缺失  .参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`;
   if (!emailConfig.enable) {
-    logMessage(`Email send is not enable. message:toMail-${toMail}, content-${msg}`, 'info');
+    logMessage(`Email send is not enable. message:toMail-${toMail}, content-${html}`, 'info');
     return;
   }
-  logMessage(`开始发送邮件:toMail-${toMail},content-${msg}`,'info');
+  logMessage(`开始发送邮件:toMail-${toMail},content-${html}`,'info');
   // 配置邮件选项
   const mailOptions = {
     from: emailConfig.auth.user, // 发件人地址
@@ -39,15 +39,29 @@ function sendEmail(toMail, title, text, html) {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       logMessage(`发送邮件出错:` + error.message, 'error');
+      InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'fail');
       //console.log('发送邮件出错:', error);
       return;
     }
+    InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'success');
     logMessage(`邮件发送成功,res:${JSON.stringify(info.response)}`, 'info');
     //console.log('邮件发送成功:', info.response);
   });
 }
 
-//sendEmail('1056836206@qq.com','测试邮件','邮件内容的文本部分','邮件内容:https://teamup.com/c/hchhpv/welcome-calendar');
+function InsertData(fromMail, toMail, title, html, status) {
+  try {
+      const stmt = db.prepare("INSERT INTO email_his (fromEmail,toEmail,title,content,status) VALUES (?,?,?,?,?)");
+      stmt.run(fromMail, toMail, title, html, status);
+      stmt.finalize();
+      return true;
+  } catch (error) {
+      logMessage(`InsertData-mail error，${error.message}`, 'error');
+      return false;
+  }
+}
+
+// sendEmail('1056836206@qq.com','测试邮件','邮件内容的文本部分','邮件内容:https://teamup.com/c/hchhpv/welcome-calendar');
 // sendEmail('1056836206@qq.com','参与人信息缺失提醒','',`课程标题：faith with  Joe G1     课程时间：2024-08-06 16:00<br>`);
 
 module.exports = { sendEmail };

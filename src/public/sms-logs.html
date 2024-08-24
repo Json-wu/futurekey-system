@@ -1,32 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logs</title>
+  <title>SMS-Logs</title>
   <style>
     body {
       font-family: Arial, sans-serif;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
     }
-    th, td {
+
+    th,
+    td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
       overflow: hidden;
-      word-break: break-word; /* Ensures content will wrap within the cell */
+      word-break: break-word;
+      /* Ensures content will wrap within the cell */
     }
+
     th {
       background-color: #f2f2f2;
     }
+
     .pagination {
       margin: 20px 0;
       text-align: center;
     }
+
     .pagination button {
       padding: 8px 16px;
       margin: 0 4px;
@@ -34,6 +42,7 @@
       background-color: #f2f2f2;
       cursor: pointer;
     }
+
     .pagination button.disabled {
       background-color: #eaeaea;
       cursor: not-allowed;
@@ -41,11 +50,12 @@
     }
   </style>
 </head>
+
 <body>
-  <h1>Logs</h1>
+  <h1>SMS-Logs</h1>
   <label for="search-input">Search by Message:</label>
-    <input type="text" id="search-input">
-    <button id="search-btn">Search</button>
+  <input type="text" id="search-input">
+  <button id="search-btn">Search</button>
   <div class="pagination">
     <button id="prev-page" disabled>Previous</button>
     <span id="page-info"></span>
@@ -55,15 +65,16 @@
     <thead>
       <tr>
         <th style="width: 5%;">ID</th>
-        <th style="width: 75%;">Message</th>
-        <th style="width: 5%;">Level</th>
+        <th style="width: 10%;">phoneNumber</th>
+        <th style="width: 65%;">Message</th>
+        <th style="width: 5%;">Status</th>
         <th style="width: 15%;">Timestamp</th>
       </tr>
     </thead>
     <tbody id="log-entries">
     </tbody>
   </table>
- 
+
   <script>
     const logEntries = document.getElementById('log-entries');
     const prevPageBtn = document.getElementById('prev-page');
@@ -75,32 +86,33 @@
 
     function loadLogs(page) {
       const message = document.getElementById('search-input').value;
-      fetch(`/classroom/logs?page=${page}&limit=${logsPerPage}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: message
+      fetch(`/classroom/sms-logs?page=${page}&limit=${logsPerPage}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: message
+        })
       })
-      })
-      .then(response => response.json())
-      .then(data => {
-        logEntries.innerHTML = '';
-        data.logs.forEach(log => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+        .then(response => response.json())
+        .then(data => {
+          logEntries.innerHTML = '';
+          data.logs.forEach(log => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
           <td>${log.id}</td>
+          <td>${log.phoneNumber}</td>
           <td>${log.message}</td>
-          <td>${log.level}</td>
+          <td>${log.status}</td>
           <td>${log.timestamp}</td>
         `;
-        logEntries.appendChild(row);
+            logEntries.appendChild(row);
+          });
+          pageInfo.textContent = `Page ${page} of ${data.totalPages}`;
+          prevPageBtn.disabled = page <= 1;
+          nextPageBtn.disabled = page >= Math.ceil(data.totalPages / 10);
         });
-        pageInfo.textContent = `Page ${page} of ${data.totalPages}`;
-        prevPageBtn.disabled = page <= 1;
-        nextPageBtn.disabled = page >= Math.ceil(data.totalPages/10);
-      });
     }
 
     searchBtn.addEventListener('click', () => {
@@ -122,4 +134,5 @@
     loadLogs(currentPage);
   </script>
 </body>
+
 </html>

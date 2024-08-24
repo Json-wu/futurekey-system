@@ -14,7 +14,7 @@ async function InsertData(id, subid, title, teacher, student, attend, time,tz) {
         stmt.finalize();
         return true;
     } catch (error) {
-        logMessage(`InsertData error，${error.message}`, 'error');
+        logMessage(`InsertData-course error，${error.message}`, 'error');
         return false;
     }
 }

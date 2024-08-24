@@ -2,6 +2,7 @@ const SMSClient = require('@alicloud/sms-sdk');
 const Core = require('@alicloud/pop-core');
 const config = require('../config/config');
 const { logMessage } = require('../libs/logger');
+const db = require('../libs/db');
 
 const smsConfig = config.sms;
 const accessKeyId = process.env.SMS_ACCESSKEYID;
@@ -43,8 +44,13 @@ const sendSms = async (phoneNumber, templateParam) => {
       TemplateParam: JSON.stringify(templateParam)
     };
     const result = await client.sendSMS(msg);
-    logMessage('SMS sent successfully，' + SMSmsg, 'info');
-    console.log('SMS sent successfully:', result);
+    if(result.Code != 'OK'){
+      InsertData(phoneNumber, SMSmsg, 'fail');
+      logMessage('SMS sent fail' + JSON.stringify(result), 'error');
+    }else{
+      InsertData(phoneNumber, SMSmsg, 'success');
+      logMessage('SMS sent successfully，' + JSON.stringify(result), 'info');
+    }
   } catch (err) {
     logMessage('Error sending SMS:' + err.message, 'error');
     //console.error('Error sending SMS:', err.message);
@@ -52,17 +58,17 @@ const sendSms = async (phoneNumber, templateParam) => {
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
-    if (!smsConfig.enable) {
-      logMessage(`SMS send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
-      return;
-    }
+    // if (!smsConfig.enable) {
+    //   logMessage(`SMS send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
+    //   return;
+    // }
     //console.log(`begin send SMS to:${phoneNumber}，msg：`+message);
     //logMessage(`begin send SMS to:${phoneNumber}，msg：`+message,'info');
     const params = {
       "To": phoneNumber,//接收短信号码。号码格式为：国际区号+号码
-      "From": "1234****90",//发送方标识。支持SenderID的发送，只允许数字+字母，含有字母标识最长11位，纯数字标识支持15位,美国、加拿大需要填写10dlc注册后运营商提供的SenderID
-      "Message": message,//短信的完整内容
-      "Type": "NOTIFY" //短信类型OTP：验证码NOTIFY：短信通知MKT：推广短信
+      "From": "18773124359",//发送方标识。支持SenderID的发送，只允许数字+字母，含有字母标识最长11位，纯数字标识支持15位,美国、加拿大需要填写10dlc注册后运营商提供的SenderID
+      "Message": 'have a test',//短信的完整内容
+      "Type": "OTP" //短信类型OTP：验证码NOTIFY：短信通知MKT：推广短信
     };
 
     var requestOption = {
@@ -87,14 +93,14 @@ const autoSendSms = async (phone, type, user, time) => {
 
     // 中国内地
     if (type == 1) {
-      sendSms(phoneNumber, templateParam);
+      sendSms(phoneNumber, {user: user});
     }
     else if (type == 2) { // 美国
       let message = `Please remind your child ${templateParam.user} to attend ${templateParam.time}’s class. Pls ignore if you have already reported an absence.`;
       sendSms_USA(phoneNumber, message);
     }
     else if (type == 9) { // 港澳台
-      sendSms(phoneNumber, templateParam);
+      sendSms(phoneNumber, {user: user});
     }
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
@@ -121,6 +127,19 @@ const SendSms_teacher = async (phone, type, user, time) => {
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
     //console.error('Error autoSendSms:', error.message);
+  }
+}
+
+
+function InsertData(phone, msg, status) {
+  try {
+      const stmt = db.prepare("INSERT INTO sms_his (phoneNumber,message,status) VALUES (?,?,?)");
+      stmt.run(phone, msg, status);
+      stmt.finalize();
+      return true;
+  } catch (error) {
+      logMessage(`InsertData-sms error，${error.message}`, 'error');
+      return false;
   }
 }
 
@@ -187,8 +206,10 @@ const verifyCode = (phoneNumber, code) => {
   return false;
 };
 // Example usage
-// sendSms('13052515651', { user: '张小明',time:'2024/08/06 19:00'});
-// sendSms_USA('16503089650', { user: '张小明',time:'2024/08/06 19:00'});
+// autoSendSms('13052515651',1, '张小明','2024/08/06 19:00');
+// const code = generateVerificationCode();
+// sendSms_USA('16503089650', `
+// Your registration code is: ${code}, if you are not operating by yourself, please ignore this SMS!`);
 // sendSms_val('16503089650');
 
 
