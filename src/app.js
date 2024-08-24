@@ -7,7 +7,7 @@ const db = require('./libs/db');
 const courseRoutes = require('./routes/course');
 const smsRoutes = require('./routes/sms');
 const emailRoutes = require('./routes/email');
-// require('./libs/scheduler');
+require('./libs/scheduler');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
