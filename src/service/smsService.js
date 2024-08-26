@@ -33,7 +33,7 @@ const sendSms = async (phoneNumber, templateParam) => {
 
     if (!smsConfig.enable) {
       logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
-      return;
+      return false;
     }
     console.log(`begin send SMS ` + SMSmsg);
     logMessage(`begin send SMS ` + SMSmsg, 'info');
@@ -47,12 +47,15 @@ const sendSms = async (phoneNumber, templateParam) => {
     if(result.Code != 'OK'){
       InsertData(phoneNumber, SMSmsg, 'fail');
       logMessage('SMS sent fail' + JSON.stringify(result), 'error');
+      return false;
     }else{
       InsertData(phoneNumber, SMSmsg, 'success');
       logMessage('SMS sent successfully，' + JSON.stringify(result), 'info');
+      return true;
     }
   } catch (err) {
     logMessage('Error sending SMS:' + err.message, 'error');
+    return false;
     //console.error('Error sending SMS:', err.message);
   }
 };
@@ -79,9 +82,11 @@ const sendSms_USA = async (phoneNumber, message) => {
     let result = await client_USA.request("SendMessageToGlobe", params, requestOption);
 
     logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
+    return true;
     //console.log('SMS_USA sent successfully:', result);
   } catch (err) {
     logMessage('Error sending SMS_USA:' + err.message, 'error');
+    return false;
     //console.error('Error sending SMS_USA:', err.message);
   }
 };
@@ -91,19 +96,19 @@ const autoSendSms = async (phone, type, user, time) => {
     const phoneNumber = phone;
     const templateParam = { user, time };
 
-    // 中国内地
-    if (type == 1) {
-      sendSms(phoneNumber, {user: user});
+    // 1.中国内地 9. 港澳台
+    if (type == 1 || type == 9) {
+      return await sendSms(phoneNumber, {user: user});
     }
     else if (type == 2) { // 美国
       let message = `Please remind your child ${templateParam.user} to attend ${templateParam.time}’s class. Pls ignore if you have already reported an absence.`;
-      sendSms_USA(phoneNumber, message);
+      return await sendSms_USA(phoneNumber, message);
     }
-    else if (type == 9) { // 港澳台
-      sendSms(phoneNumber, {user: user});
-    }
+    logMessage('Error autoSendSms: not found areacode ' + type, 'info');
+    return false;
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
+    return false;
     //console.error('Error autoSendSms:', error.message);
   }
 }

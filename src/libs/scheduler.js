@@ -11,6 +11,9 @@ const { sendEmail } = require('../service/emailService');
 const teacherData = require('../config/teacher');
 const { InsertData } = require('../service/courseService');
 const { getDateNow } = require('./common');
+const ejs = require('ejs');
+const path = require('path');
+const fs = require('fs');
 
 
 const calendarKeyOrId = process.env.TEAMUP_KEY;
@@ -26,21 +29,27 @@ const emailConfig = config.email;
   * dayOfWeek: 0-6
   */
 const rule = new schedule.RecurrenceRule();
-// rule.minute = [0, 15, 30, 45];
+// rule.second = [0, 15, 30, 45];
 rule.minute = [0, 30];
 
 // 定义任务
 async function task() {
   console.log('任务执行:', new Date());
-  // test();
   classReminder();
+  // test();
   // let item ='Melody_65967827';
   // let usercode  = item.match(/\d{8}/)[0];
   // let userInfo = await getCustomerDetail(usercode);
 }
 
 // 调度任务
-schedule.scheduleJob(rule, task);
+if(process.env.NODE_ENV === 'production'){
+  console.log('当前生产环境，启动定时任务计划！！！', new Date());
+  schedule.scheduleJob(rule, task);
+}else{
+  console.log('非生产环境，不启动定时任务计划！！！');
+}
+
 
 /**
  * 课程开始前15分钟，给老师和学生发送短信提醒；
@@ -118,24 +127,13 @@ async function remind(id,sub_eventid, users, time, title, tz) {
       teacherName = teacherInfo.name;
       // send msg to teacher  teacherName
       try {
-        //SendSms_teacher(teacherInfo.phone, teacherInfo.type, teacherName, time);
-        sendEmail(teacherInfo.email, 'New Class Notification', '', 
-        `<!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>New Class Notification</title>
-        </head>
-        <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-            <p>Hi Teacher <strong>[${teacherName}]</strong>,</p>
-            <p>You have a new class with <strong>[${users.join(',')}]</strong>.</p>
-            <p>Please check out the <a href=${emailConfig.back_url}?subid=${sub_eventid} style="color: #007bff; text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.</p>
-            <p>FutureKey School<br>
-            <em>[${time} ${tz}]</em></p>
-        </body></html>`);
+        var fpath = path.join(__dirname, `../public/email.html`);
+        var html_source = fs.readFileSync(fpath,'utf-8');
+        var dt = moment(new Date(time)).format('YYYY-MM-DD'); 
+        const html = ejs.render(html_source, { teacherName, users, emailConfig, sub_eventid, time, tz, dt });
+        sendEmail(teacherInfo.email, 'New Class Notification', '', html);
       } catch (error) {
-        logMessage(`Failed send msg to teacher.: ${error.message}`, 'error');
+        logMessage(`Failed send email to teacher.: ${error.message}`, 'error');
       }
     }
     // Record course information to database

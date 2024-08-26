@@ -1,6 +1,6 @@
 {
   "sms": {
-    "enable": true,
+    "enable": false,
     "signName": "科爱信",
     "templateCode": "SMS_471805199",
     "signName_USA": "FutureKey",
@@ -9,7 +9,7 @@
     "sms_msg":""
   },
   "email": {
-    "enable": false,
+    "enable": true,
     "service": "gmail",
     "host": "smtp.gmail.com",
     "port": 587,
@@ -18,6 +18,6 @@
       "user": "no_reply@gdfdlearning.org"
     },
     "receive": "info@futurekey.com",
-    "back_url": "/classroom/back"
+    "back_url": "http://localhost:3000/classroom/back"
   }
 }

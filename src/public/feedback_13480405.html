@@ -176,7 +176,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ date: formatDate(), subid })
+                    body: JSON.stringify({ date: dt, subid })
                 });
                 const result = await response.json();
 
@@ -184,7 +184,7 @@
                     alert('Network response was not ok ' + response.statusText);
                 }
                 classData = result.data;
-                current_date = formatDate();
+                current_date = dt;
                 if (classData.length > 0) {
                     classData.map(item => {
                         DateItems.add(item.date);
