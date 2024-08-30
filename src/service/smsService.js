@@ -95,17 +95,15 @@ const autoSendSms = async (phone, type, user, time) => {
   try {
     const phoneNumber = phone;
     const templateParam = { user, time };
-
+    logMessage(`phone:${phone}, type:${type}, user:${user}, time:${time}`, 'info');
     // 1.中国内地 9. 港澳台
-    if (type == 1 || type == 9) {
+    if (type == 1) {
       return await sendSms(phoneNumber, {user: user});
     }
-    else if (type == 2) { // 美国
+    else { // 2 美国
       let message = `Please remind your child ${templateParam.user} to attend ${templateParam.time}’s class. Pls ignore if you have already reported an absence.`;
       return await sendSms_USA(phoneNumber, message);
     }
-    logMessage('Error autoSendSms: not found areacode ' + type, 'info');
-    return false;
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
     return false;

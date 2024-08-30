@@ -47,13 +47,12 @@ async function sendEmail(toMail, title, text, html) {
           logMessage(`发送邮件出错:` + error.message, 'error');
           InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'fail');
           console.log('发送邮件出错:', error);
-          resolve('Email sent error');
+          return resolve('Email sent error');
         }
         InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'success');
         logMessage(`邮件发送成功,res:${JSON.stringify(info.response)}`, 'info');
-        console.log('邮件发送成功:', info.response);
-        resolve('Email sent');
-        
+        //console.log('邮件发送成功:', info.response);
+        return resolve('Email sent');
       });
     });
   } catch (error) {

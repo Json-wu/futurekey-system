@@ -61,6 +61,7 @@ function scheduleLoad() {
     schedule.scheduleJob(rule2, task2);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
+    // classReminder();
     // for (let i = 29; i > 0; i--) {
     //   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
     //   console.log(date);
@@ -76,7 +77,7 @@ function scheduleLoad() {
  */
 async function classReminder() {
   try {
-    console.log('课程开始前15分钟，给老师和学生发送短信提醒；')
+    console.log('课程开始前30分钟，给老师和学生发送短信提醒；')
     logMessage(new Date() + '开始校验提前课程提醒.', 'info');
     const data = await fetchTeamUpCalendar(getDateNow(), getDateNow());
     if (data != null && data.length > 0) {
@@ -174,6 +175,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
       let isnoEmail = true;
       let usercode = item.match(/\d{8,10}/);
       let userInfo = null;
+      let ownerId ='';
       if (usercode != null) {
         userInfo = await getCustomerDetail(usercode[0], 1);
       } else {
@@ -190,16 +192,23 @@ async function remind(id, sub_eventid, users, time, title, tz) {
             if (phone.length > 0) {
               isnoPhone = false;
               console.log(' subForm.text_1:;:' + subForm.text_1);
+              let codenum = '86';
               if (subForm.text_1) {
-                let codenum = subForm.text_1.text;
+                codenum = subForm.text_1.text;
                 console.log('phonetype:;:' + codenum);
                 phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
               }
-              let type = userInfo.monther.text_8.value;
+              let type =1;// userInfo.monther.text_8.value;
+              if(codenum !=='86'){
+                type=2;
+              }
               let childName = userInfo.child.text_2;
               autoSendSms(phone, type, childName, time);//, teacherName
             }
           }
+        }
+        if(userInfo.monther && userInfo.monther.ownerId && userInfo.monther.ownerId.length>0){
+          ownerId = userInfo.monther.ownerId[0].name;
         }
         // send email
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
@@ -218,7 +227,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
       if (pers && pers.length > 0) {
-        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}`);
+        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerId}`);
       }
     }
   } catch (error) {
