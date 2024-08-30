@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Course Preview</title>
-    <link rel="stylesheet" href="../css/classPlan.css">
-    
 </head>
 <header>
     <h1>Course Preview</h1>
@@ -58,5 +56,271 @@
         </section>
     </div>
 </body>
-<script src="../js/classPlan.js"></script>
 </html>
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #4CAF50;
+    font-size: 2.5em;
+}
+
+.course-form,
+.course-list {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.course-form h2,
+.course-list h2 {
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    color: #4CAF50;
+}
+
+.course-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.course-form input,
+.course-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.course-form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.course-form button:hover {
+    background-color: #45a049;
+}
+
+.course-list ul {
+    list-style-type: none;
+}
+
+.course-list li {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border-left: 5px solid #4CAF50;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.course-list button {
+    background-color: #ff6347;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.course-list button.edit {
+    background-color: #ffa500;
+    margin-right: 5px;
+}
+
+.course-list button:hover {
+    opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+    .container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .course-form,
+    .course-list {
+        width: 48%;
+    }
+}
+.course-list ul {
+list-style-type: none;
+max-height: 100%; /* 设置最大高度 */
+overflow-y: auto;  /* 添加垂直滚动条 */
+padding-right: 10px; /* 为了避免与滚动条重叠，添加内边距 */
+}
+
+/* 可选：美化滚动条 */
+.course-list ul::-webkit-scrollbar {
+width: 8px;
+}
+
+.course-list ul::-webkit-scrollbar-thumb {
+background-color: #4CAF50;
+border-radius: 4px;
+}
+
+.course-list ul::-webkit-scrollbar-track {
+background-color: #f1f1f1;
+}
+
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', loadClassPlans);
+document.getElementById('courseForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const courseId = this.dataset.id;
+    const courseTitle = document.getElementById('courseTitle').value;
+    const courseStartTime = document.getElementById('courseStartTime').value;
+    const courseEndTime = document.getElementById('courseEndTime').value;
+    const courseHomework = document.getElementById('courseHomework').value;
+    const who = document.getElementById('who').value;
+    const classLevel = document.getElementById('classLevel').value;
+    const isTrialClass = document.getElementById('isTrialClass').value;
+    const classCategory = document.getElementById('classCategory').value;
+    const classSize = document.getElementById('classSize').value;
+
+    if (courseId) {
+        updateClassPlan(courseId, courseTitle, courseStartTime, courseEndTime, courseHomework, who, classLevel, isTrialClass, classCategory, classSize);
+    } else {
+        addClassPlan(courseTitle, courseStartTime, courseEndTime, courseHomework, who, classLevel, isTrialClass, classCategory, classSize);
+    }
+
+    this.reset();
+    delete this.dataset.id;
+});
+
+function addClassPlan(title, startTime, endTime, homework, who, classLevel, isTrialClass, classCategory, classSize) {
+    fetch('/classroom/plan', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, startTime, endTime, homework, who, classLevel, isTrialClass, classCategory, classSize })
+    })
+        .then(response => response.json())
+        .then(course => {
+            if (course.code == 0) {
+                displayClassPlan({ id: course.data, title, startTime, endTime, homework, who, classLevel, isTrialClass, classCategory, classSize }, 'add');
+            } else {
+                alert(course.msg);
+            }
+        });
+}
+
+function updateClassPlan(id, title, startTime, endTime, homework, who, classLevel, isTrialClass, classCategory, classSize) {
+    fetch(`/classroom/plan/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, startTime, endTime, homework, who, classLevel, isTrialClass, classCategory, classSize })
+    })
+        .then(() => {
+            loadClassPlans();
+        });
+}
+
+function displayClassPlan(course, type) {
+    const courseList = document.getElementById('courseList');
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <div>
+            <strong>${course.title}</strong>
+            <p>Start: ${new Date(course.startTime).toLocaleString()}</p>
+            <p>End: ${new Date(course.endTime).toLocaleString()}</p>
+            <p>Homework: ${course.homework}</p>
+            <p>Who: ${course.who}</p>
+            <p>Class Level: ${course.classLevel}</p>
+            <p>Is Trial Class: ${course.isTrialClass === 'true' ? 'Yes' : 'No'}</p>
+            <p>Class Category: ${course.classCategory}</p>
+            <p>Class Size: ${course.classSize}</p>
+        </div>
+        <div>
+            <button class="edit">Edit</button>
+            <button class="delete">Delete</button>
+        </div>
+    `;
+
+    li.querySelector('.delete').addEventListener('click', () => {
+        deleteClassPlan(course.id);
+    });
+
+    li.querySelector('.edit').addEventListener('click', () => {
+        document.getElementById('courseTitle').value = course.title;
+        document.getElementById('courseStartTime').value = course.startTime;
+        document.getElementById('courseEndTime').value = course.endTime;
+        document.getElementById('courseHomework').value = course.homework;
+        document.getElementById('who').value = course.who;
+        document.getElementById('classLevel').value = course.classLevel;
+        document.getElementById('isTrialClass').value = course.isTrialClass;
+        document.getElementById('classCategory').value = course.classCategory;
+        document.getElementById('classSize').value = course.classSize;
+        document.getElementById('courseForm').dataset.id = course.id;
+    });
+
+    if (type == 'add') {
+        courseList.insertBefore(li, courseList.firstChild);
+    } else {
+        courseList.appendChild(li);
+    }
+}
+
+
+function loadClassPlans() {
+    fetch('/classroom/plan/query')
+        .then(response => response.json())
+        .then(courses => {
+            if (courses.code == 0) {
+                const courseList = document.getElementById('courseList');
+                courseList.innerHTML = '';
+                courses.data.forEach(course => {
+                    displayClassPlan(course);
+                });
+            } else {
+                alert(courses.msg);
+            }
+        });
+}
+
+function deleteClassPlan(id) {
+    fetch(`/classroom/plan/${id}`, {
+        method: 'DELETE'
+    })
+        .then(() => {
+            loadClassPlans();
+        });
+}
+</script>
