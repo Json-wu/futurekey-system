@@ -7,13 +7,18 @@ const db = require('./libs/db');
 const courseRoutes = require('./routes/course');
 const smsRoutes = require('./routes/sms');
 const emailRoutes = require('./routes/email');
-require('./libs/scheduler');
+const planRoutes = require('./routes/plan');
+const totalRoutes = require('./routes/total');
+const { scheduleLoad } = require('./libs/scheduler');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
 
 const app = express();
 app.use(cors());
+
+// 定时任务
+scheduleLoad();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -24,6 +29,8 @@ app.use(bodyParser.json());
 app.use('/classroom/course', courseRoutes);
 app.use('/classroom/sms', smsRoutes);
 app.use('/classroom/email', emailRoutes);
+app.use('/classroom/plan', planRoutes);
+app.use('/classroom/total', totalRoutes);
 
 
 
@@ -126,6 +133,7 @@ app.get('/classroom/email-logs', (req, res) => {
 app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));
 });
+
 
 app.get('/classroom', (req, res) => {
   res.redirect('/classroom/view-logs');

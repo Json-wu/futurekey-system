@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Preview</title>
+    <link rel="stylesheet" href="../css/classPlan.css">
+    
+</head>
+<header>
+    <h1>Course Preview</h1>
+</header>
+
+<body>
+    <div class="container">
+        <section class="course-form">
+            <h2>Add a New Course</h2>
+            <form id="courseForm">
+                <label for="courseTitle">Course Title:</label>
+                <input type="text" id="courseTitle" required>
+
+                <label for="courseStartTime">Start Time:</label>
+                <input type="datetime-local" id="courseStartTime" required>
+
+                <label for="courseEndTime">End Time:</label>
+                <input type="datetime-local" id="courseEndTime" required>
+
+                <label for="courseHomework">Homework:</label>
+                <textarea id="courseHomework" rows="3" required></textarea>
+
+                <label for="who">Who:</label>
+                <input type="text" id="who" required>
+
+                <label for="classLevel">Class Level:</label>
+                <input type="text" id="classLevel" required>
+
+                <label for="isTrialClass">Is Trial Class:</label>
+                <select id="isTrialClass">
+                    <option value="true">Yes</option>
+                    <option value="false">No</option>
+                </select>
+
+                <label for="classCategory">Class Category:</label>
+                <input type="text" id="classCategory" required>
+
+                <label for="classSize">Class Size:</label>
+                <input type="number" id="classSize" required>
+
+                <button type="submit">Save Course</button>
+            </form>
+
+        </section>
+
+        <section class="course-list">
+            <h2>Course List</h2>
+            <ul id="courseList"></ul>
+        </section>
+    </div>
+</body>
+<script src="../js/classPlan.js"></script>
+</html>

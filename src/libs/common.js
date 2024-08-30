@@ -1,5 +1,6 @@
 const moment = require('moment');
 const crypto = require('crypto');
+const teacher = require('../config/teacher');
 
 /*
 * 获取当前日期
@@ -38,4 +39,17 @@ function sign(bodystr, token) {
 
     return signature;
 }
-module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign };
+
+function getSubEventId(teacher_name) {
+    let sub_eventid='';
+    for (const key in teacher) {
+        if (Object.prototype.hasOwnProperty.call(teacher, key)) {
+            const element = teacher[key];
+            if (element.name === teacher_name) {
+                sub_eventid = key;
+            }
+        }
+    }
+    return sub_eventid;
+}
+module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign, getSubEventId };

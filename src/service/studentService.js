@@ -1,10 +1,6 @@
 const moment = require('moment');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
-const config = require('../config/config');
 const { getCustomerDetail_check } = require('../service/xbbService');
-
-const calendarKeyOrId = process.env.TEAMUP_KEY;
-const apiKey = process.env.TEAMUP_APIKEY;
 
 /**
  * 获取家长信息不完整的学生名单
@@ -15,14 +11,13 @@ async function GetStudentNoInfo(date){
         let sameName = new Set();
         let sDate = moment(date).format('YYYY-MM-DD');
         let eDate = moment(date).add(30, 'days').format('YYYY-MM-DD');
-        let data = await fetchTeamUpCalendar(calendarKeyOrId, apiKey, sDate, eDate);
+        let data = await fetchTeamUpCalendar(sDate, eDate);
         if (data != null && data.length > 0) {
             data = data.filter(item=>{
                 return item.who && item.who.length>0;
             });
             for (let i = 0; i < data.length; i++) {
                 const who = data[i].who;
-                console.log(i);
                 let users = who.split(/[,，]+/);
                 for (let j = 0; j < users.length; j++) {
                     const username = users[j];
