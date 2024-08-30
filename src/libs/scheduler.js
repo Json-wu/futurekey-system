@@ -167,6 +167,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     });
     InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
+    let ownerId ='';
     for (let index = 0; index < users.length; index++) {
       const item = users[index] ? users[index].trim() : '';
       if (item == '')
@@ -175,7 +176,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
       let isnoEmail = true;
       let usercode = item.match(/\d{8,10}/);
       let userInfo = null;
-      let ownerId ='';
+      
       if (usercode != null) {
         userInfo = await getCustomerDetail(usercode[0], 1);
       } else {
@@ -195,8 +196,9 @@ async function remind(id, sub_eventid, users, time, title, tz) {
               let codenum = '86';
               if (subForm.text_1) {
                 codenum = subForm.text_1.text;
+                codenum = codenum.split(" ")[1].replace(/^0+/, '');
                 console.log('phonetype:;:' + codenum);
-                phone = codenum.split(" ")[1].replace(/^0+/, '') + phone;
+                phone =  codenum+ phone;
               }
               let type =1;// userInfo.monther.text_8.value;
               if(codenum !=='86'){
