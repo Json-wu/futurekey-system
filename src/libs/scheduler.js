@@ -65,7 +65,7 @@ function scheduleLoad() {
   if (process.env.NODE_ENV === 'production') {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
-    job2 = schedule.scheduleJob('*/30 * * * *', task2);
+    job2 = schedule.scheduleJob('*/30 * * * * *', task2);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
     //job2 = schedule.scheduleJob('*/30 * * * * *', task2);
