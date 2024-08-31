@@ -46,16 +46,16 @@ async function task() {
   // let userInfo = await getCustomerDetail(usercode);
 }
 var job2=null;
-var i =31;
+var i =92;
 async function task2() {
   console.log('任务2执行:', new Date());
   i = i-1;
-  if(i==0){
-    console.log('任务2cancle:', new Date());
+  const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
+  if(i==30 || date=='2024-08-01'){
+    console.log('任务2cancle:'+date, new Date());
     job2.cancel();
     return;
   }
-  const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
   console.log(date,new Date());
   DoRunTotal(date);
 }
@@ -65,10 +65,10 @@ function scheduleLoad() {
   if (process.env.NODE_ENV === 'production') {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
-    job2 = schedule.scheduleJob('*/1 * * * *', task2);
+    job2 = schedule.scheduleJob('*/30 * * * *', task2);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
-    //job2 = schedule.scheduleJob('*/1 * * * *', task2);
+    //job2 = schedule.scheduleJob('*/30 * * * * *', task2);
     //DoRunTotal('2024-08-29');
     // classReminder();
     //for (let i = 29; i > 0; i--) {
