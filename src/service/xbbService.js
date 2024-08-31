@@ -61,11 +61,17 @@ async function getCustomerDetail_check(userName, type){
     let resData={};
     let names=[];
     let userData = await getStudentData(userName, type);
+    if(userData && userData.code==1 && userData.result.list.length==0){
+      userData = await getStudentData(userName.trim(), type);
+    }
     if(userData && userData.code==1 && userData.result.list.length>0){
       for (let index = 0; index < userData.result.list.length; index++) {
         const element = userData.result.list[index];
         let dataId = element.dataId;
         let studentDetail = await getStudentDetail(dataId);
+        if(!studentDetail.result){
+          console.log('studentDetail:'+JSON.stringify(studentDetail));
+        }
         let userinfo = await getCustomerInfo(studentDetail.result.data.text_1);
         if(studentDetail.result.data.text_17 && studentDetail.result.data.text_17.text=='在读'){
           names.push(userName);
@@ -74,6 +80,15 @@ async function getCustomerDetail_check(userName, type){
             monther: userinfo.result.data,
             child: studentDetail.result.data
           };
+        }else{
+          if(userData.result.list.length==1){
+            names.push(userName);
+            resData = {
+              code: 0,
+              monther: userinfo.result.data,
+              child: studentDetail.result.data
+            };
+          }
         }
       }
       if(names.length>1){
@@ -162,6 +177,7 @@ async function getPassList() {
 // 获取学生数据列表
 async function getStudentData(userName, type) {
   try {
+    //userName = userName.trim();
     let body = {
       "conditions": [
       {

@@ -113,6 +113,40 @@
         .status input[type="radio"] {
             margin-right: 5px;
         }
+        .message-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            margin-left: 10px;
+            background-color: rgb(112, 201, 121);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .message-icon.new-message {
+            background-color: rgb(192, 195, 55);
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 2;
+            right: 20px; /* 调整右边距 */
+            top: 20px; /* 调整上边距 */
+            background-color: #fff;
+            padding: 20px;
+            border: 0px solid #888;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -121,6 +155,11 @@
     <div class="container" id="container">
         <h1>Course Attendance and Feedback</h1>
         <p>Teacher name: <span id="teacher_name"></span></p>
+        <!-- <p>Teacher name: <span id="teacher_name"></span><span id="message_icon" class="message-icon" onclick="toggleMessagePopup()"></span></p>
+        <div id="messagePopup" class="popup">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <div id="messageContent"></div>
+        </div> -->
         <div class="attendance-section">
             <h2>Course Attendance Confirmation</h2>
             <label for="date">Date selection</label>
@@ -141,6 +180,8 @@
         <div class="feedback-section">
             <h2>Student Course Feedback</h2>
             <div class="student-list" id="studentList"></div>
+            <h2>Homework</h2>
+            <textarea id="homework"></textarea>
             <button class="button" onclick="submitFeedback()">Submit Feedback</button>
         </div>
     </div>
@@ -207,6 +248,7 @@
                     current_eventId = Current_classData.id;
                     // document.getElementById("btn_attendance").disabled = false;
                     document.getElementById("teacher_name").innerText = Current_classData.teacher;
+                    document.getElementById("homework").innerText = Current_classData.value1;
                     students = JSON.parse(Current_classData.student);
                     displayData(students);
                     Current_attendance = Current_classData.attend;
@@ -220,6 +262,15 @@
                     //display("attendance",Current_attendance);
                     bindDate();
                     bindClass();
+
+                    Current_classData.messages =['test','hello'];
+                    // 设置消息提醒图标状态
+                    const messageIcon = document.getElementById('message_icon');
+                    if (Current_classData.messages.length > 0) {
+                        messageIcon.classList.add('new-message');
+                    } else {
+                        messageIcon.classList.remove('new-message');
+                    }
                 } else {
                     DateItems = [];
                     ClassItems = [];
@@ -402,7 +453,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ id: current_eventId, student: JSON.stringify(feedbackData) })
+                body: JSON.stringify({ id: current_eventId, student: JSON.stringify(feedbackData), value1: document.getElementById('homework').value })
             });
             const result = await response.json();
 
@@ -461,6 +512,25 @@
             } else {
                 alert('SignStatus submitted successfully');
             }
+        }
+        
+        
+        function toggleMessagePopup() {
+            const popup = document.getElementById('messagePopup');
+            if (popup.style.display === 'block') {
+                popup.style.display = 'none';
+            } else {
+                const messageContent = document.getElementById('messageContent');
+                messageContent.innerHTML = Current_classData.messages.map(msg => `<p>${msg}</p>`).join('');
+                popup.style.display = 'block';
+            }
+        }
+
+        function closePopup() {
+            Current_classData.messages=[];
+            const popup = document.getElementById('messagePopup');
+            popup.style.display = 'none';
+            document.getElementById('message_icon').classList.remove('new-message');
         }
     </script>
 

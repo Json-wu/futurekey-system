@@ -218,7 +218,7 @@ function showDetails(name, details) {
 
     details.forEach(detail => {
         const li = document.createElement('li');
-        li.textContent = `title: ${detail.title}, sdate: ${new Date(detail.sdate).toLocaleString()}, edate: ${new Date(detail.edate).toLocaleString()}, time: ${detail.hours} hours， who: ${detail.who}`;
+        li.textContent = `title: ${detail.title}, sdate: ${new Date(detail.sdate).toLocaleString()}, edate: ${new Date(detail.edate).toLocaleString()}, time: ${detail.hours} hours， who: ${detail.who}  ${ detail.type!='teacher' ? '，student:'+detail.student : ''}`;
         detailsList.appendChild(li);
     });
 

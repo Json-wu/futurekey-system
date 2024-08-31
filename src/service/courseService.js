@@ -55,10 +55,10 @@ async function EditData(id, attend) {
         return false;
     }
 }
-async function EditStuData(id, student) {
+async function EditStuData(id, student, value1) {
     try {
         let resdata = await new Promise((resolve, reject) => {
-            db.run(`update courses set student='${student}' where id ='${id}'`, (err, data) => {
+            db.run(`update courses set student='${student}', value1='${value1}' where id ='${id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
@@ -71,7 +71,7 @@ async function EditStuData(id, student) {
                 let students = JSON.parse(student).map(x=>{
                     if(x.state ==0){
                         x.state = 'Normal';
-                    }else  if(x.state ==0){
+                    }else  if(x.state ==1){
                         x.state = 'Late';
                     }else{
                         x.state = 'Absent';
@@ -80,7 +80,7 @@ async function EditStuData(id, student) {
                 });
                 // 渲染 EJS 模板
                 return await new Promise((resolve, reject) => {
-                    ejs.renderFile(path.join(process.cwd(), 'src', 'views', 'report.ejs'), { students }, (err, html) => {
+                    ejs.renderFile(path.join(process.cwd(), 'src', 'views', 'report.ejs'), { students, value1 }, (err, html) => {
                         if (err) {
                             console.error('Error rendering EJS template:', err);
                             // res.status(500).send('Error rendering template');

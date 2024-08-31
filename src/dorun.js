@@ -12,7 +12,18 @@ db.serialize(() => {
    db.run("DROP TABLE IF EXISTS class_his");
 });
 
-for (let i = 29; i > 0; i--) {
-  const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-  DoRunTotal(date);
-}
+// DoRunTotal('2024-08-29');
+
+// for (let i = 30; i > 0; i--) {
+//   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
+//   console.log(date)
+//   DoRunTotal('2024-08-29');
+// }
+
+// var i = 31;
+// setTimeout(() => {
+//   i = i-1;
+//   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
+//   console.log(date,new Date());
+//   DoRunTotal(date);
+// }, 65000);

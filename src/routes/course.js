@@ -43,9 +43,9 @@ router.post('/EditData', async (req, res) => {
     }
 });
 router.post('/EditStuData', async (req, res) => {
-    const { id, student } = req.body;
+    const { id, student, value1 } = req.body;
     try {
-        const result = await courseService.EditStuData(id, student);
+        const result = await courseService.EditStuData(id, student, value1);
         if (result) {
             res.status(200).json({ code: 0, msg: 'ok' });
         } else {

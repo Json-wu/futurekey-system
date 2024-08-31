@@ -45,11 +45,18 @@ async function task() {
   // let usercode  = item.match(/\d{8}/)[0];
   // let userInfo = await getCustomerDetail(usercode);
 }
-
+var job2=null;
+var i =31;
 async function task2() {
   console.log('任务2执行:', new Date());
-  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
-  console.log(date);
+  i = i-1;
+  if(i==0){
+    console.log('任务2cancle:', new Date());
+    job2.cancel();
+    return;
+  }
+  const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
+  console.log(date,new Date());
   DoRunTotal(date);
 }
 
@@ -58,15 +65,17 @@ function scheduleLoad() {
   if (process.env.NODE_ENV === 'production') {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
-    schedule.scheduleJob(rule2, task2);
+    job2 = schedule.scheduleJob('*/1 * * * *', task2);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
+    //job2 = schedule.scheduleJob('*/1 * * * *', task2);
+    //DoRunTotal('2024-08-29');
     // classReminder();
-    // for (let i = 29; i > 0; i--) {
-    //   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-    //   console.log(date);
-    //   DoRunTotal(date);
-    // }
+    //for (let i = 29; i > 0; i--) {
+      // const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
+      // console.log(date);
+      // DoRunTotal(date);
+    //}
   }
 }
 
@@ -255,6 +264,7 @@ async function test() {
 
 async function DoRunTotal(date) {
   try {
+    console.log('开始执行统计任务:', date);
     let data = await fetchTeamUpCalendar(date, date);
     if (data != null && data.length > 0) {
       data = data.filter(item => {
@@ -361,6 +371,7 @@ async function DoRunTotal(date) {
         }
       }
     }
+    console.log('执行统计任务--finsish:', date);
   } catch (error) {
     console.log(error.stack);
   }
