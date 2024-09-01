@@ -68,6 +68,7 @@ function scheduleLoad() {
     job2 = schedule.scheduleJob('*/30 * * * * *', task2);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
+    // schedule.scheduleJob(rule, task);
     //job2 = schedule.scheduleJob('*/30 * * * * *', task2);
     //DoRunTotal('2024-08-29');
     // classReminder();
@@ -147,6 +148,7 @@ async function classReminder() {
 async function remind(id, sub_eventid, users, time, title, tz) {
   try {
     let noPhoneList = [];
+    let ownerList =[];
     let teacherInfo = teacherData[sub_eventid];
     let teacherName = '';
     if (teacherInfo == null) {
@@ -176,7 +178,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     });
     InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
-    let ownerId ='';
+    
     for (let index = 0; index < users.length; index++) {
       const item = users[index] ? users[index].trim() : '';
       if (item == '')
@@ -185,6 +187,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
       let isnoEmail = true;
       let usercode = item.match(/\d{8,10}/);
       let userInfo = null;
+      let owerId= null;
       
       if (usercode != null) {
         userInfo = await getCustomerDetail(usercode[0], 1);
@@ -193,7 +196,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
       }
       if (userInfo) {
         // send sms
-        if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
+        if (userInfo.monther &&userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
           let phones = userInfo.monther.subForm_1;
 
           for (let index = 0; index < phones.length; index++) {
@@ -219,7 +222,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
           }
         }
         if(userInfo.monther && userInfo.monther.ownerId && userInfo.monther.ownerId.length>0){
-          ownerId = userInfo.monther.ownerId[0].name;
+          owerId = userInfo.monther.ownerId[0].name;
         }
         // send email
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
@@ -229,16 +232,19 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         }
         if (isnoPhone && isnoEmail) {
           noPhoneList.push(item);
+          ownerList.push(owerId);
+          owerId=null;
         }
       } else {
         noPhoneList.push(item);
+        ownerList.push(owerId);
       }
     }
     console.log('noPhoneList:', noPhoneList);
     if (noPhoneList.length > 0) {
       const pers = [...new Set(noPhoneList)];
       if (pers && pers.length > 0) {
-        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerId}`);
+        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerList.join(',')}`);
       }
     }
   } catch (error) {

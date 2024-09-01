@@ -16,6 +16,9 @@ async function getCustomerDetail(userName, type){
     let resData={};
     let names=[];
     let userData = await getStudentData(userName, type);
+    if(userData && userData.code==1 && userData.result.list.length==0){
+      userData = await getStudentData(userName.trim(), type);
+    }
     if(userData && userData.code==1 && userData.result.list.length>0){
       if(userData.result.list.length==1){
         let dataId = userData.result.list[0].dataId;
