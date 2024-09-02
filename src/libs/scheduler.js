@@ -52,7 +52,7 @@ async function task3() {
   console.log('任务3执行:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-  if(i==30 || date=='2024-08-01'){
+  if(i==0 || date=='2024-09-02'){
     console.log('任务2cancle:'+date, new Date());
     job2.cancel();
     return;
@@ -73,7 +73,7 @@ function scheduleLoad() {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
     schedule.scheduleJob(rule2, task2);
-    // job2 = schedule.scheduleJob('*/30 * * * * *', task3);
+    job2 = schedule.scheduleJob('*/30 * * * * *', task3);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
     // schedule.scheduleJob(rule, task);
