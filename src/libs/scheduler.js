@@ -73,7 +73,7 @@ function scheduleLoad() {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
     schedule.scheduleJob(rule2, task2);
-    job2 = schedule.scheduleJob('*/30 * * * * *', task3);
+    //job2 = schedule.scheduleJob('*/30 * * * * *', task3);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
     // schedule.scheduleJob(rule, task);

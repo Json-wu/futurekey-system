@@ -55,6 +55,7 @@ const sendSms = async (phoneNumber, templateParam) => {
     }
   } catch (err) {
     logMessage('Error sending SMS:' + err.message, 'error');
+    logMessage('SMS sent fail' + err.message, 'error');
     return false;
     //console.error('Error sending SMS:', err.message);
   }
