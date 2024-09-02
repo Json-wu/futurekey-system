@@ -16,6 +16,7 @@ const ejs = require('ejs');
 const path = require('path');
 const fs = require('fs');
 const { InsertTotalData } = require('../service/totalService');
+const { sendBotMsg } = require('../service/botService');
 
 const emailConfig = config.email;
 
@@ -32,7 +33,7 @@ rule.minute = [0, 30];
 
 const rule2 = new schedule.RecurrenceRule();
 rule2.hour = 1;
-rule2.minute = 0;
+rule2.minute = 5;
 rule2.second = 0;
 
 // 定义任务
@@ -47,8 +48,8 @@ async function task() {
 }
 var job2=null;
 var i =92;
-async function task2() {
-  console.log('任务2执行:', new Date());
+async function task3() {
+  console.log('任务3执行:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
   if(i==30 || date=='2024-08-01'){
@@ -59,13 +60,20 @@ async function task2() {
   console.log(date,new Date());
   DoRunTotal(date);
 }
+async function task2() {
+  console.log('任务2执行:', new Date());
+  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
+  console.log(date,new Date());
+  DoRunTotal(date);
+}
 
 function scheduleLoad() {
   // 调度任务
   if (process.env.NODE_ENV === 'production') {
     console.log('当前生产环境，启动定时任务计划！！！', new Date());
     schedule.scheduleJob(rule, task);
-    job2 = schedule.scheduleJob('*/30 * * * * *', task2);
+    schedule.scheduleJob(rule2, task2);
+    // job2 = schedule.scheduleJob('*/30 * * * * *', task3);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
     // schedule.scheduleJob(rule, task);
@@ -242,9 +250,14 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     }
     console.log('noPhoneList:', noPhoneList);
     if (noPhoneList.length > 0) {
-      const pers = [...new Set(noPhoneList)];
-      if (pers && pers.length > 0) {
-        sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${pers.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerList.join(',')}`);
+      //const pers = [...new Set(noPhoneList)];
+      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${noPhoneList.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerList.join(',')}`);
+      if (noPhoneList.length==  ownerList.length) {
+        noPhoneList.forEach(async (item,index) => {
+          sendBotMsg(`您的学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList[index],'@all']);
+        })
+      }else{
+        sendBotMsg(`有学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList,'@all']);
       }
     }
   } catch (error) {

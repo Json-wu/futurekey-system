@@ -9,7 +9,7 @@
     "sms_msg":""
   },
   "email": {
-    "enable": true,
+    "enable": false,
     "service": "gmail",
     "host": "smtp.gmail.com",
     "port": 587,
@@ -17,7 +17,11 @@
     "auth": {
       "user": "no_reply@gdfdlearning.org"
     },
-    "receive": "info@futurekey.com",
+    "receive": "yongqiangwu1@163.com",
     "back_url": "http://localhost:3000/classroom/back"
+  },
+  "bot_webhook": {
+    "enable": true,
+    "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48207704-937e-45b2-8cad-f15f3c32481a"
   }
 }
