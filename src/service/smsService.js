@@ -85,10 +85,12 @@ const sendSms_USA = async (phoneNumber, message) => {
       logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
       return true;
     }else{
+      InsertData(phoneNumber, message, 'failed');
       logMessage(`SMS_USA sent fail: to:${phoneNumber}，msg：` + message, 'error');
       return false;
     }
   } catch (err) {
+    InsertData(phoneNumber, message, 'error');
     logMessage('Error sending SMS_USA:' + err.message, 'error');
     return false;
   }
