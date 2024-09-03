@@ -80,7 +80,7 @@ const sendSms_USA = async (phoneNumber, message) => {
     };
     let result = await client_USA.request("SendMessageToGlobe", params, requestOption);
     console.log('SMS_USA sent result:', result);
-    if(result.code=='OK'){
+    if(result.Code=='OK'){
       InsertData(phoneNumber, message, 'success');
       logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
       return true;
@@ -216,6 +216,7 @@ const verifyCode = (phoneNumber, code) => {
 // sendSms_USA('16503089650', `
 // Your registration code is: ${code}, if you are not operating by yourself, please ignore this SMS!`);
 // sendSms_val('16503089650');
+// autoSendSms('16503089650', 2, 'Katherine', '2024-09-03 09:30');
 
 
 module.exports = { sendSms, autoSendSms, SendSms_teacher, SendSms_teacher, sendSms_val, verifyCode };
