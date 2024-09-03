@@ -166,6 +166,10 @@ const sendSms_val = async (phoneNumber) => {
   const verificationCode = generateVerificationCode();
   console.log('Verification code:', verificationCode);
   logMessage('Verification code:' + verificationCode, 'info');
+
+  let message = `Your verification code is <${verificationCode}>, please verify within 5 mins.`;
+  sendSms_USA('1'+phoneNumber, message);
+  return;
   const params = {
     RegionId: 'cn-hangzhou', // 替换为你的区域
     PhoneNumbers: phoneNumber,
@@ -215,7 +219,7 @@ const verifyCode = (phoneNumber, code) => {
 // const code = generateVerificationCode();
 // sendSms_USA('16503089650', `
 // Your registration code is: ${code}, if you are not operating by yourself, please ignore this SMS!`);
-// sendSms_val('16503089650');
+// sendSms_val('6503089650');
 // autoSendSms('16503089650', 2, 'Katherine', '2024-09-03 09:30');
 
 
