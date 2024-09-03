@@ -14,11 +14,16 @@
             justify-content: center;
             align-items: center;
             font-family: Arial, sans-serif;
-            background-color: #f3e5f5; /* 浅紫色背景 */
             line-height: 1.6; /* 调整行间距 */
+            background-image: url('../../images/home_bg2.jpeg');
+            background-size: cover;
+            /* 使背景图片覆盖整个区域 */
+            background-position: center;
+            /* 使背景图片居中 */
+            background-repeat: no-repeat;
         }
 
-        .container {
+        .container2 {
             width: 90%;
             max-width: 450px; /* 调小框体宽度 */
             margin: auto;
@@ -27,6 +32,19 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             background-color: #fff;
+            text-align: center;
+        }
+
+        .container{
+            /* background-color: #f0f0f0; */
+          
+            /* 防止背景图片重复 */
+            width: 90%;
+            max-width: 450px; /* 调小框体宽度 */
+            margin: auto;
+            padding: 30px; /* 增大内边距 */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
 
@@ -122,7 +140,7 @@
         <form action="#" method="post" id="subscriptionForm">
             <div class="form-group">
                 <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms"><a href="https://futurekey.com/index_word_en.html">Terms and Conditions</a> | <a href="https://futurekey.com/index_word_en.html">Privacy Policy</a> </label>
+                <label for="terms"><a href="https://futurekey.com/private">Terms and Conditions</a> | <a href="https://futurekey.com/private">Privacy Policy</a> </label>
             </div>
             <div class="form-group">
                 <input type="checkbox" id="terms2" name="terms2" required>
