@@ -170,35 +170,23 @@ const sendSms_val = async (phoneNumber) => {
   logMessage('Verification code:' + verificationCode, 'info');
 
   let message = `Your verification code is <${verificationCode}>, please verify within 5 mins.`;
-  sendSms_USA('1'+phoneNumber, message);
-  return;
-  const params = {
-    RegionId: 'cn-hangzhou', // 替换为你的区域
-    PhoneNumbers: phoneNumber,
-    SignName: smsConfig.signName_USA, // 替换为你的短信签名
-    TemplateCode: smsConfig.templateCode_USA, // 替换为你的短信模板代码
-    TemplateParam: JSON.stringify({ code: verificationCode })
-  };
-
-  const requestOption = {
-    method: 'POST'
-  };
-
+  
   try {
     // 将验证码存储到内存中，设置过期时间为 5 分钟
     verificationCodes[phoneNumber] = {
       code: verificationCode,
       expiresAt: Date.now() + 5 * 60 * 1000 // 5 分钟后过期
     };
-    const result = await client_USA.request('SendSms', params, requestOption);
-    console.log('SMS sent successfully:', result);
-    logMessage('SMS-USA sent successfully:' + result, 'info');
-    
-    return result;
+    const result = await sendSms_USA('1'+phoneNumber, message);//client_USA.request('SendSms', params, requestOption);
+    if(result.Code != 'OK'){
+      return {success: false, message: 'SMS sent fail'};
+    }else{
+      return {success: true, message: 'SMS sent successfully'};
+    }
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
     console.error('Error sending SMS:', error);
-    throw error;
+    return {success: false, message: 'SMS sent error'};;
   }
 };
 
@@ -209,6 +197,7 @@ const sendSms_val = async (phoneNumber) => {
  * @returns {boolean} - 验证结果
  */
 const verifyCode = (phoneNumber, code) => {
+  logMessage(`verificationCodes:${JSON.stringify(verificationCodes)}`, 'info');
   const record = verificationCodes[phoneNumber];
   if (record && record.code === code && record.expiresAt > Date.now()) {
     delete verificationCodes[phoneNumber]; // 验证成功后删除验证码
