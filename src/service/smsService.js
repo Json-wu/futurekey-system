@@ -57,21 +57,19 @@ const sendSms = async (phoneNumber, templateParam) => {
     logMessage('Error sending SMS:' + err.message, 'error');
     logMessage('SMS sent fail' + err.message, 'error');
     return false;
-    //console.error('Error sending SMS:', err.message);
   }
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
-    // if (!smsConfig.enable) {
-    //   logMessage(`SMS send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
-    //   return;
-    // }
-    //console.log(`begin send SMS to:${phoneNumber}，msg：`+message);
-    //logMessage(`begin send SMS to:${phoneNumber}，msg：`+message,'info');
+    if (!smsConfig.enable) {
+      logMessage(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
+      return;
+    }
+    logMessage(`begin send SMS_USA to:${phoneNumber}，msg：`+message,'info');
     const params = {
       "To": phoneNumber,//接收短信号码。号码格式为：国际区号+号码
       "From": "18773124359",//发送方标识。支持SenderID的发送，只允许数字+字母，含有字母标识最长11位，纯数字标识支持15位,美国、加拿大需要填写10dlc注册后运营商提供的SenderID
-      "Message": 'have a test',//短信的完整内容
+      "Message": message,//短信的完整内容
       "Type": "OTP" //短信类型OTP：验证码NOTIFY：短信通知MKT：推广短信
     };
 
@@ -81,14 +79,18 @@ const sendSms_USA = async (phoneNumber, message) => {
 
     };
     let result = await client_USA.request("SendMessageToGlobe", params, requestOption);
-
-    logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
-    return true;
-    //console.log('SMS_USA sent successfully:', result);
+    console.log('SMS_USA sent result:', result);
+    if(result.code=='OK'){
+      InsertData(phoneNumber, message, 'success');
+      logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
+      return true;
+    }else{
+      logMessage(`SMS_USA sent fail: to:${phoneNumber}，msg：` + message, 'error');
+      return false;
+    }
   } catch (err) {
     logMessage('Error sending SMS_USA:' + err.message, 'error');
     return false;
-    //console.error('Error sending SMS_USA:', err.message);
   }
 };
 
@@ -108,7 +110,6 @@ const autoSendSms = async (phone, type, user, time) => {
   } catch (error) {
     logMessage('Error autoSendSms:' + error.message, 'error');
     return false;
-    //console.error('Error autoSendSms:', error.message);
   }
 }
 

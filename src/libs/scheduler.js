@@ -32,19 +32,14 @@ const rule = new schedule.RecurrenceRule();
 rule.minute = [0, 30];
 
 const rule2 = new schedule.RecurrenceRule();
-rule2.hour = 1;
+rule2.hour = 0;
 rule2.minute = 5;
 rule2.second = 0;
 
 // 定义任务
 async function task() {
   console.log('任务执行:', new Date());
-
   classReminder();
-  // test();
-  // let item ='Melody_65967827';
-  // let usercode  = item.match(/\d{8}/)[0];
-  // let userInfo = await getCustomerDetail(usercode);
 }
 var job2=null;
 var i =92;
@@ -76,15 +71,6 @@ function scheduleLoad() {
     //job2 = schedule.scheduleJob('*/30 * * * * *', task3);
   } else {
     console.log('非生产环境，不启动定时任务计划！！！');
-    // schedule.scheduleJob(rule, task);
-    //job2 = schedule.scheduleJob('*/30 * * * * *', task2);
-    //DoRunTotal('2024-08-29');
-    // classReminder();
-    //for (let i = 29; i > 0; i--) {
-      // const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
-      // console.log(date);
-      // DoRunTotal(date);
-    //}
   }
 }
 
@@ -109,11 +95,6 @@ async function classReminder() {
       logMessage(`查询到当天日历条数：${data.length}`, 'info');
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
-        //let dt = new Date(item.start_dt);
-        // console.log(item.start_dt+"--"+momenttz.tz(item.start_dt, item.tz).format('YYYY-MM-DD HH:mm:sss')+',,'+item.tz);
-        // console.log(dt);
-        // console.log(dateNow);
-        // console.log(date_end);
         return dt > dateNow && dt <= date_end
       }).map(item => {
         return {
@@ -220,6 +201,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
                 console.log('phonetype:;:' + codenum);
                 phone =  codenum+ phone;
               }
+              console.log('codenum:::' + codenum);
               let type =1;// userInfo.monther.text_8.value;
               if(codenum !=='86'){
                 type=2;
@@ -236,7 +218,6 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
         if (email_address && email_address.length > 0) {
           isnoEmail = false;
-          //sendEmail(email_address, 'Reminders for new classes', '', `Please remind your child ${item} to attend ${time}’s class. Pls ignore if you have already reported an absence.`);
         }
         if (isnoPhone && isnoEmail) {
           noPhoneList.push(item);
@@ -349,7 +330,7 @@ async function DoRunTotal(date) {
                 };
                 InsertTotalData(body);
               }else{
-                logMessage(`Get customer information failed: ${userInfo}-username:${username}`, 'error');
+                logMessage(`Get customer information failed: username:${username}`, 'error');
                 const body = {
                   eventid: eventData.id,
                   subid: eventData.subcalendar_id,
@@ -368,7 +349,7 @@ async function DoRunTotal(date) {
                 InsertTotalData(body);
               }
             }else{
-              logMessage(`Get customer information failed: ${userInfo}-username:${username}`, 'error');
+              logMessage(`Get customer information failed2: ${userInfo}-username:${username}`, 'error');
               const body = {
                 eventid: eventData.id,
                 subid: eventData.subcalendar_id,

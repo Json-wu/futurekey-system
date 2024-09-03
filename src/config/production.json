@@ -2,7 +2,7 @@
   "sms": {
     "enable": true,
     "signName": "科爱信",
-    "templateCode": "SMS_471805199",
+    "templateCode": "SMS_472340277",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": ""
@@ -20,7 +20,7 @@
     "back_url": "https://futurekey.com/classroom/back"
   },
   "bot_webhook": {
-    "enable": false,
+    "enable": true,
     "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48207704-937e-45b2-8cad-f15f3c32481a",
     "url_normal": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a19f999a-5219-48ea-b8af-a478a629e619"
   }
