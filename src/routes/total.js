@@ -19,14 +19,14 @@ router.get('/getdata', async (req, res) => {
         if (Object.prototype.hasOwnProperty.call(teachers, key)) {
             const teacher = teachers[key];
             let duration = _.reduce(teacher, (total, item) => total + Number(item.hours), 0);
-            resData.push({ name: key, duration, type: 'teacher', items: teacher });
+            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher });
         }
     }
     for (const key in parents) {
         if (Object.prototype.hasOwnProperty.call(parents, key)) {
             const parent = parents[key];
             let duration = _.reduce(parent, (total, item) => total + Number(item.hours), 0);
-            resData.push({ name: key, duration, type: 'parent', items: parent });
+            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'parent', items: parent });
         }
     }
    
