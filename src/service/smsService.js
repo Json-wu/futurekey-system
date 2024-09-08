@@ -61,6 +61,8 @@ const sendSms = async (phoneNumber, templateParam) => {
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
+    logMessage(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
+      return;
     if (!smsConfig.enable) {
       logMessage(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
       return;
