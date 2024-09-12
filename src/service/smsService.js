@@ -5,6 +5,7 @@ const { logMessage } = require('../libs/logger');
 const db = require('../libs/db');
 
 const smsConfig = config.sms;
+const timerSet_class = config.timerSet_class;
 const accessKeyId = process.env.SMS_ACCESSKEYID;
 const secretAccessKey = process.env.SMS_ACCESSKEYSECRET;
 
@@ -29,7 +30,7 @@ const client_USA = new Core({
 // Send SMS
 const sendSms = async (phoneNumber, templateParam) => {
   try {
-    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在20分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
+    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在${templateParam.day}分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
 
     if (!smsConfig.enable) {
       logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
@@ -54,7 +55,7 @@ const sendSms = async (phoneNumber, templateParam) => {
       return true;
     }
   } catch (err) {
-    logMessage('Error sending SMS:' + err.message, 'error');
+    console.log('Error sending SMS:' + err.message, 'error');
     logMessage('SMS sent fail' + err.message, 'error');
     return false;
   }
@@ -105,7 +106,7 @@ const autoSendSms = async (phone, type, user, time) => {
     logMessage(`phone:${phone}, type:${type}, user:${user}, time:${time}`, 'info');
     // 1.中国内地 9. 港澳台
     if (type == 1) {
-      return await sendSms(phoneNumber, {user: user});
+      return await sendSms(phoneNumber, {user: user, day: timerSet_class.timeout});
     }
     else { // 2 美国
       let message = `Please remind your child ${templateParam.user} to attend ${templateParam.time}’s class. Pls ignore if you have already reported an absence.`;

@@ -2,7 +2,7 @@
   "sms": {
     "enable": true,
     "signName": "科爱信",
-    "templateCode": "SMS_472340277",
+    "templateCode": "SMS_473240033",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": ""
