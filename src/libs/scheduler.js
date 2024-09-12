@@ -19,61 +19,74 @@ const { InsertTotalData } = require('../service/totalService');
 const { sendBotMsg } = require('../service/botService');
 
 const emailConfig = config.email;
+const timerSet_class = config.timerSet_class;
+const timerSet_total = config.timerSet_total;
 
 /*
-  * 定义规则
+  * 课程提醒任务：每20分钟执行一次
   * minute: 0-59
   * hour: 0-23
   * date: 1-31
   * month: 0-11
   * dayOfWeek: 0-6
   */
-const rule = new schedule.RecurrenceRule();
-rule.minute = [0, 30];
+const rule_class = new schedule.RecurrenceRule();
+rule_class.minute = timerSet_class.minute;
 
-const rule2 = new schedule.RecurrenceRule();
-rule2.hour = 0;
-rule2.minute = 5;
-rule2.second = 0;
+/**
+ * 课时统计任务：每天凌晨0点5分执行
+ */
+const rule_total = new schedule.RecurrenceRule();
+rule_total.hour = timerSet_total.hour;
+rule_total.minute = timerSet_total.minute;
 
 // 定义任务
-async function task() {
-  console.log('任务执行:', new Date());
+async function task_class() {
+  console.log(`任务task_class执行:开始校验开课提醒！！！`, new Date());
   classReminder();
 }
+
+async function task_total() {
+  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
+  console.log(`任务task_total执行:开始计算${date}课时统计！！！`, new Date());
+  DoRunTotal(date);
+}
+/**
+ * 初始化课时统计任务
+ */
 var job2=null;
 var i =92;
-async function task3() {
-  console.log('任务3执行:', new Date());
+async function task_init() {
+  console.log('任务task_init执行:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
   if(i==0 || date=='2024-09-02'){
-    console.log('任务2cancle:'+date, new Date());
+    console.log('任务task_init cancle:'+date, new Date());
     job2.cancel();
     return;
   }
   console.log(date,new Date());
   DoRunTotal(date);
 }
-async function task2() {
-  console.log('任务2执行:', new Date());
-  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
-  console.log(date,new Date());
-  DoRunTotal(date);
-}
 
 function scheduleLoad() {
   // 调度任务
-  if (process.env.NODE_ENV === 'production') {
-    console.log('当前生产环境，启动定时任务计划！！！', new Date());
-    schedule.scheduleJob(rule, task);
-    schedule.scheduleJob(rule2, task2);
-    //job2 = schedule.scheduleJob('*/30 * * * * *', task3);
-  } else {
-    console.log('非生产环境，不启动定时任务计划！！！');
-  }
+  // if (process.env.NODE_ENV === 'production') {
+  //   console.log('当前生产环境，启动定时任务计划！！！', new Date());
+    if(timerSet_class.enable){
+      console.log('已启动定时开课提醒任务！！！', new Date());
+      schedule.scheduleJob(rule_class, task_class);
+    }
+    if(timerSet_total.enable){
+      console.log('已启动自动计算课时统计任务！！！', new Date());
+      schedule.scheduleJob(rule_total, task_total);
+    }
+    // 初始化课时统计
+    //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+  // } else {
+  //   console.log('非生产环境，不启动定时任务计划！！！');
+  // }
 }
-
 
 /**
  * 课程开始前15分钟，给老师和学生发送短信提醒；
@@ -81,7 +94,6 @@ function scheduleLoad() {
  */
 async function classReminder() {
   try {
-    console.log('课程开始前30分钟，给老师和学生发送短信提醒；')
     logMessage(new Date() + '开始校验提前课程提醒.', 'info');
     const data = await fetchTeamUpCalendar(getDateNow(), getDateNow());
     if (data != null && data.length > 0) {
@@ -90,9 +102,9 @@ async function classReminder() {
       let sub_eventId = "";
       let time = "";
       let noWhoList = [];
-      let dateNow = moment().seconds(0).milliseconds(0).utc();//new Date(moment().seconds(0).milliseconds(0));
-      let date_end = moment(dateNow).add(30, 'minute').utc();
-      logMessage(`查询到当天日历条数：${data.length}`, 'info');
+      let dateNow = moment().seconds(0).milliseconds(0).utc();
+      let date_end = moment(dateNow).add(timerSet_class.timeout, 'minute').utc();
+      // logMessage(`查询到当天日历条数：${data.length}`, 'info');
       let sendData = data.filter(item => {
         let dt = (momenttz.tz(item.start_dt, item.tz)).utc();
         return dt > dateNow && dt <= date_end
@@ -107,7 +119,7 @@ async function classReminder() {
           end_dt: item.end_dt
         };
       });
-      logMessage(`筛选出30分钟后开始课程日历条数：${sendData.length}`, 'info');
+      logMessage(`筛选出稍后需要提醒的课程条数：${sendData.length}`, 'info');
       for (let index = 0; index < sendData.length; index++) {
         const info = sendData[index];
         title = info.title;
@@ -117,14 +129,8 @@ async function classReminder() {
         if (userName.length > 0) {
           users = userName.split(/[,，]+/);
           await remind(info.id, sub_eventId, users, time, title, info.tz);
-        } else { // who为空，发送邮件
-          // console.log('field who is null,sended administartor email');
-          noWhoList.push(title);
         }
-        logMessage(`classInfo:>> title: ${title},time: ${time}, sub_eventId:${sub_eventId},who:${userName}`, 'info');
-      }
-      if (noWhoList.length > 0) {
-        //sendEmail(config.email.receive,'课程参与人缺失提醒','',`课程标题：${title.join(';')}`);
+        logMessage(`classInfo:>> title: ${title},time: ${time},tz:${info.tz}, sub_eventId:${sub_eventId},who:${userName}`, 'info');
       }
     } else {
       logMessage('not found TeamUp calendar data', 'info');
@@ -193,15 +199,13 @@ async function remind(id, sub_eventid, users, time, title, tz) {
             let phone = subForm.text_2 ? subForm.text_2.trim() : '';
             if (phone.length > 0) {
               isnoPhone = false;
-              console.log(' subForm.text_1:;:' + subForm.text_1);
+              console.log(' subForm.text_1:;:' + JSON.stringify(subForm.text_1));
               let codenum = '86';
               if (subForm.text_1) {
                 codenum = subForm.text_1.text;
                 codenum = codenum.split(" ")[1].replace(/^0+/, '');
-                console.log('phonetype:;:' + codenum);
                 phone =  codenum+ phone;
               }
-              console.log('codenum:::' + codenum);
               let type =1;// userInfo.monther.text_8.value;
               if(codenum !=='86'){
                 type=2;
@@ -222,24 +226,18 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         if (isnoPhone && isnoEmail) {
           noPhoneList.push(item);
           ownerList.push(owerId);
+          sendBotMsg(`您的学员【${item}】的客户联系电话和邮箱缺失，请及时补充。@${owerId}`, []);
+          // sendBotMsg(`您的学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList[index],'@all']);
           owerId=null;
         }
       } else {
         noPhoneList.push(item);
         ownerList.push(owerId);
+        sendBotMsg(`未找到学员【${item}】相关信息，请相关人员检查学员姓名是否正确。[课程标题：${title}          课程时间：${time} ${tz}]`, ['@all']);
       }
     }
-    console.log('noPhoneList:', noPhoneList);
     if (noPhoneList.length > 0) {
-      //const pers = [...new Set(noPhoneList)];
-      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${noPhoneList.join(',')}     课程标题：${title}     课程时间：${time} ${tz}   负责人：${ownerList.join(',')}`);
-      if (noPhoneList.length==  ownerList.length) {
-        noPhoneList.forEach(async (item,index) => {
-          sendBotMsg(`您的学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList[index],'@all']);
-        })
-      }else{
-        sendBotMsg(`有学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList,'@all']);
-      }
+      sendEmail(emailConfig.receive, '参与人联系方式缺失提醒', '', `联系方式缺失。参与人：${noPhoneList.join(',')}             课程标题：${title}             课程时间：${time} ${tz}           负责人：${ownerList.join(',')}`);
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');

@@ -21,7 +21,16 @@
   },
   "bot_webhook": {
     "enable": true,
-    "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48207704-937e-45b2-8cad-f15f3c32481a",
-    "url_normal": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a19f999a-5219-48ea-b8af-a478a629e619"
+    "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a19f999a-5219-48ea-b8af-a478a629e619"
+  },
+  "timerSet_class":{
+    "enable": true,
+    "minute": [10, 40],
+    "timeout": 20
+  },
+  "timerSet_total":{
+    "enable": true,
+    "hour": 0,
+    "minute": 5
   }
 }

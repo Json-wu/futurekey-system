@@ -160,6 +160,10 @@
         let DateItems = new Set();
         let ClassItems = [];
 
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const dt = urlParams.get('dt');
+
         function formatDate() {
             const date = new Date();
             const year = date.getFullYear();
