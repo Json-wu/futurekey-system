@@ -29,7 +29,7 @@ const client_USA = new Core({
 // Send SMS
 const sendSms = async (phoneNumber, templateParam) => {
   try {
-    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在30分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
+    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在20分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
 
     if (!smsConfig.enable) {
       logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
