@@ -9,6 +9,8 @@ const smsRoutes = require('./routes/sms');
 const emailRoutes = require('./routes/email');
 const planRoutes = require('./routes/plan');
 const totalRoutes = require('./routes/total');
+const leaveRoutes = require('./routes/leave');
+const messageRoutes = require('./routes/message');
 const { scheduleLoad } = require('./libs/scheduler');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
@@ -31,6 +33,8 @@ app.use('/classroom/sms', smsRoutes);
 app.use('/classroom/email', emailRoutes);
 app.use('/classroom/plan', planRoutes);
 app.use('/classroom/total', totalRoutes);
+app.use('/classroom/leave', leaveRoutes);
+app.use('/classroom/message', messageRoutes);
 
 
 
