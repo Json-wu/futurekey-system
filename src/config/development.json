@@ -2,7 +2,7 @@
   "sms": {
     "enable": false,
     "signName": "科爱信",
-    "templateCode": "SMS_472340277",
+    "templateCode": "SMS_473240033",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": "",
@@ -25,7 +25,7 @@
     "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48207704-937e-45b2-8cad-f15f3c32481a"
   },
   "timerSet_class":{
-    "enable": true,
+    "enable": false,
     "minute": [10, 40],
     "timeout": 20
   },
@@ -33,5 +33,9 @@
     "enable": false,
     "hour": 0,
     "minute": 5
+  },
+  "timerSet_newclass":{
+    "enable": true,
+    "minute": [17]
   }
 }

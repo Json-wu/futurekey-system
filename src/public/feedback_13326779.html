@@ -249,7 +249,7 @@
                     // document.getElementById("btn_attendance").disabled = false;
                     document.getElementById("teacher_name").innerText = Current_classData.teacher;
                     document.getElementById("homework").innerText = Current_classData.value1;
-                    students = JSON.parse(Current_classData.student);
+                    students = Current_classData.student;
                     displayData(students);
                     Current_attendance = Current_classData.attend;
                     if (Current_attendance == 1) {
@@ -298,17 +298,17 @@
             data.forEach(student => {
                 const studentItem = document.createElement('div');
                 studentItem.classList.add('student-item');
-                studentItem.innerHTML = `
-                    <h3>${student.name}</h3>
-                    <label for="status-${student.name}">Status:</label>
-                    <div class="status">
-                        <label><input type="radio" name="status-${student.name}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Normal</label>
-                        <label><input type="radio" name="status-${student.name}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Late</label>
-                        <label><input type="radio" name="status-${student.name}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Absent</label>
-                    </div>
-                    <label for="feedback-${student.name}">Feedback:</label>
-                    <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
-                `;
+                // studentItem.innerHTML = `
+                //     <h3>${student.name}</h3>
+                //     <label for="status-${student.name}">Status:</label>
+                //     <div class="status">
+                //         <label><input type="radio" name="status-${student.name}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Normal</label>
+                //         <label><input type="radio" name="status-${student.name}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Late</label>
+                //         <label><input type="radio" name="status-${student.name}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Absent</label>
+                //     </div>
+                //     <label for="feedback-${student.name}">Feedback:</label>
+                //     <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
+                // `;
                 studentList.appendChild(studentItem);
             });
 

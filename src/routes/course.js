@@ -1,7 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const courseService = require('../service/courseService');
+const studentDetailService = require('../service/studentDetailService');
 
+// teacher's page
+router.get('', (req, res) => {
+    res.sendFile(path.join(__dirname, `../public/classPlan.html`));
+});
 router.post('/InsertData', async (req, res) => {
     const { id, title, teacher, student, attend, time } = req.body;
     try {
@@ -21,6 +26,11 @@ router.post('/GetData', async (req, res) => {
     try {
         const result = await courseService.GetData(date,subid);
         if (result != null) {
+            for (let index = 0; index < result.length; index++) {
+                let item = result[index];
+                item.student = await studentDetailService.GetDataAll(item.id);
+                
+            }
             res.status(200).json({ code: 0, msg: 'ok', data: result });
         } else {
             res.status(500).json({ code: 1, msg: 'Failed to get.' });
@@ -82,6 +92,11 @@ router.post('/SignStudentStatus', async (req, res) => {
         res.status(500).json({ code: 1, msg: 'Failed to EditData.' });
     }
 });
+
+router.get('/init',  async (req, res)=>{
+    courseService.InitCourse();
+    res.status(200).json({ code: 0, msg: 'init ok' });
+})
 
 
 

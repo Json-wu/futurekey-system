@@ -10,7 +10,7 @@ const { autoSendSms, SendSms_teacher } = require('../service/smsService');
 const { getCustomerDetail_check } = require('../service/xbbService');
 const { sendEmail } = require('../service/emailService');
 const teacherData = require('../config/teacher');
-const { InsertData } = require('../service/courseService');
+const { CheckCourse } = require('../service/courseService');
 const { getDateNow } = require('./common');
 const ejs = require('ejs');
 const path = require('path');
@@ -21,6 +21,7 @@ const { sendBotMsg } = require('../service/botService');
 const emailConfig = config.email;
 const timerSet_class = config.timerSet_class;
 const timerSet_total = config.timerSet_total;
+const timerSet_newclass = config.timerSet_newclass;
 
 /*
   * 课程提醒任务：每20分钟执行一次
@@ -40,6 +41,12 @@ const rule_total = new schedule.RecurrenceRule();
 rule_total.hour = timerSet_total.hour;
 rule_total.minute = timerSet_total.minute;
 
+/**
+ * 新课检测任务：每小时执行一次
+ */
+const rule_newClass = new schedule.RecurrenceRule();
+rule_newClass.minute = timerSet_newclass.minute;
+
 // 定义任务
 async function task_class() {
   console.log(`任务task_class执行:开始校验开课提醒！！！`, new Date());
@@ -50,6 +57,12 @@ async function task_total() {
   const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
   console.log(`任务task_total执行:开始计算${date}课时统计！！！`, new Date());
   DoRunTotal(date);
+}
+
+async function task_newClass() {
+  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
+  console.log(`任务task_newClass执行:开始校验新课程！！！`, new Date());
+  CheckCourse();
 }
 /**
  * 初始化课时统计任务
@@ -71,8 +84,6 @@ async function task_init() {
 
 function scheduleLoad() {
   // 调度任务
-  // if (process.env.NODE_ENV === 'production') {
-  //   console.log('当前生产环境，启动定时任务计划！！！', new Date());
     if(timerSet_class.enable){
       console.log('已启动定时开课提醒任务！！！', new Date());
       schedule.scheduleJob(rule_class, task_class);
@@ -81,11 +92,12 @@ function scheduleLoad() {
       console.log('已启动自动计算课时统计任务！！！', new Date());
       schedule.scheduleJob(rule_total, task_total);
     }
+    if(timerSet_newclass.enable){
+      console.log('已启动自动校验新课任务！！！', new Date());
+      schedule.scheduleJob(rule_newClass, task_newClass);
+    }
     // 初始化课时统计
     //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
-  // } else {
-  //   console.log('非生产环境，不启动定时任务计划！！！');
-  // }
 }
 
 /**
@@ -171,7 +183,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         evaluate: ''
       }
     });
-    InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
+    //InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
     
     for (let index = 0; index < users.length; index++) {
