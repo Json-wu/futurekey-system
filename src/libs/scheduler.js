@@ -68,12 +68,12 @@ async function task_newClass() {
  * 初始化课时统计任务
  */
 var job2=null;
-var i =92;
+var i =112;
 async function task_init() {
   console.log('任务task_init执行:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-  if(i==0 || date=='2024-09-02'){
+  if(i==0 || date=='2024-09-20'){
     console.log('任务task_init cancle:'+date, new Date());
     job2.cancel();
     return;
@@ -97,7 +97,7 @@ function scheduleLoad() {
       schedule.scheduleJob(rule_newClass, task_newClass);
     }
     // 初始化课时统计
-    //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+    job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
 
 /**
@@ -290,7 +290,7 @@ async function DoRunTotal(date) {
         const startDate = moment(eventData.start_dt);
         const endDate = moment(eventData.end_dt);
         const duration = moment.duration(endDate.diff(startDate));
-        const hours = duration.asHours().toFixed(2); // 计算时长（小时），保留2位小数
+        const hours = duration.asHours().toFixed(1); // 计算时长（小时），保留2位小数
 
         const body = {
           eventid: eventData.id,

@@ -9,7 +9,7 @@ const { DoRunTotal } = require('./libs/scheduler');
  */
 db.serialize(() => {
   //  db.run("DROP TABLE IF EXISTS sms_his");
-   db.run("DROP TABLE IF EXISTS courses");
+   db.run("DROP TABLE IF EXISTS class_his");
 });
 
 // DoRunTotal('2024-08-31');
