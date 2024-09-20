@@ -70,7 +70,7 @@ async function task_newClass() {
 var job2=null;
 var i =112;
 async function task_init() {
-  console.log('任务task_init执行:', new Date());
+  console.log('任务task_init执行123:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
   if(i==0 || date=='2024-09-20'){
