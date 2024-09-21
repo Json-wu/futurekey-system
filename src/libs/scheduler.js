@@ -68,12 +68,12 @@ async function task_newClass() {
  * 初始化课时统计任务
  */
 var job2=null;
-var i =112;
+var i =113;
 async function task_init() {
-  console.log('任务task_init执行123:', new Date());
+  console.log('任务task_init执行:', new Date());
   i = i-1;
   const date = moment().subtract(i, 'days').format('YYYY-MM-DD');
-  if(i==0 || date=='2024-09-20'){
+  if(i==0 || date=='2024-09-21'){
     console.log('任务task_init cancle:'+date, new Date());
     job2.cancel();
     return;
