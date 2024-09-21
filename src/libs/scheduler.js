@@ -97,7 +97,7 @@ function scheduleLoad() {
       schedule.scheduleJob(rule_newClass, task_newClass);
     }
     // 初始化课时统计
-    job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+    //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
 
 /**

@@ -248,7 +248,8 @@ async function CheckCourse() {
                 if(ischange){
                     let msg = `New course reminder for ${item.title}`;
                     console.log(msg+'::'+name+';;code'+code);
-                    messageService.InsertData({code, name, msg, type: 'NewClass', id});
+                    const cdt = moment().format('YYYY-MM-DD HH:mm:ss')
+                    messageService.InsertData({code, name, msg, type: 'NewClass', id, cdt});
                 }
             }
         }
