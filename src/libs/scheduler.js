@@ -60,9 +60,16 @@ async function task_total() {
 }
 
 async function task_newClass() {
-  const date = moment().subtract(1, 'days').format('YYYY-MM-DD');
   console.log(`任务task_newClass执行:开始校验新课程！！！`, new Date());
   CheckCourse();
+}
+let sdt='2024-08-10';
+async function task_newClass2() {
+  console.log(`任务task_newClass执行:开始校验新课程！！！`,sdt);
+  let dateNow = sdt;
+  let date_end = moment(dateNow).add(1, 'day').format('YYYY-MM-DD');
+  CheckCourse(dateNow, date_end);
+  sdt = date_end;
 }
 /**
  * 初始化课时统计任务
@@ -95,9 +102,10 @@ function scheduleLoad() {
     if(timerSet_newclass.enable){
       console.log('已启动自动校验新课任务！！！', new Date());
       schedule.scheduleJob(rule_newClass, task_newClass);
+      //schedule.scheduleJob('*/30 * * * * *', task_newClass2);
     }
     // 初始化课时统计
-     job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+    //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
 
 /**
