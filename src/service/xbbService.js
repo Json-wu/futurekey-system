@@ -80,7 +80,7 @@ async function getCustomerDetail_check(userName, type){
           names.push(userName);
           resData = {
             code: 0,
-            monther: userinfo.result.data,
+            monther: userinfo? userinfo.result.data: null,
             child: studentDetail.result.data
           };
         }else{
@@ -88,7 +88,7 @@ async function getCustomerDetail_check(userName, type){
             names.push(userName);
             resData = {
               code: 0,
-              monther: userinfo.result.data,
+              monther: userinfo? userinfo.result.data: null,
               child: studentDetail.result.data
             };
           }

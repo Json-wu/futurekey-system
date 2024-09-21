@@ -14,7 +14,7 @@ router.get('/getdata', async (req, res) => {
     const data = await GetTotalData(sDate, eDate);
     let resData = [];
     let teachers = _.groupBy(_.filter(data, (item)=>{return item.type=='teacher'}), 'teacher');
-    let parents = _.groupBy(_.filter(data, (item)=>{return item.type=='parent'}), 'parent');
+    let parents = _.groupBy(_.filter(data, (item)=>{return item.type=='parent'}), 'student');
     for (const key in teachers) {
         if (Object.prototype.hasOwnProperty.call(teachers, key)) {
             const teacher = teachers[key];
