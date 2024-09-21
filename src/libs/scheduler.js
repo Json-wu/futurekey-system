@@ -97,7 +97,7 @@ function scheduleLoad() {
       schedule.scheduleJob(rule_newClass, task_newClass);
     }
     // 初始化课时统计
-    //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+    job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
 
 /**
@@ -329,7 +329,7 @@ async function DoRunTotal(date) {
                   title: eventData.title,
                   teacher: teacherInfo.name,
                   student: userInfo.child.text_2 + ' ' + userInfo.child.serialNo,
-                  parent: userInfo.monther.text_2 + ' ' + userInfo.monther.serialNo,
+                  parent: username+'-未找到家长信息',
                   sdate: eventData.start_dt,
                   edate: eventData.end_dt,
                   hours: hours,
@@ -338,6 +338,9 @@ async function DoRunTotal(date) {
                   who: eventData.who,
                   type: 'parent'
                 };
+                if(userInfo.monther){
+                  body.parent = userInfo.monther.text_2 + ' ' + userInfo.monther.serialNo;
+                }
                 InsertTotalData(body);
               }else{
                 logMessage(`Get customer information failed: username:${username}`, 'error');
