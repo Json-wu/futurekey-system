@@ -97,7 +97,7 @@ function scheduleLoad() {
       schedule.scheduleJob(rule_newClass, task_newClass);
     }
     // 初始化课时统计
-    job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
+    // job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
 
 /**
@@ -353,7 +353,7 @@ async function DoRunTotal(date) {
                   parent: username+'-未找到家长信息',
                   sdate: eventData.start_dt,
                   edate: eventData.end_dt,
-                  hours: '0',
+                  hours: hours,
                   date: date,
                   tz: eventData.tz,
                   who: eventData.who,
@@ -372,7 +372,7 @@ async function DoRunTotal(date) {
                 parent: username+'-未找到家长信息',
                 sdate: eventData.start_dt,
                 edate: eventData.end_dt,
-                hours: '0',
+                hours: hours,
                 date: date,
                 tz: eventData.tz,
                 who: eventData.who,
