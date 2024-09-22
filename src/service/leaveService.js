@@ -1,12 +1,14 @@
 
 const db = require('../libs/db');
+const moment = require('moment');
 const { logMessage } = require('../libs/logger');
 
 async function InsertData(body) {
     try {
         const { code, name, start_dt, end_dt } = body;
+        const create_date = moment().format('YYYY-MM-DD HH:mm:ss');
         return await new Promise((resolve, reject) => {
-            db.run("INSERT INTO leave (code, name, start_dt, end_dt, status, create_date) VALUES (?, ?, ?, ?, ?, ?)", [code, name, start_dt, end_dt, 0, new Date()], function(err) {
+            db.run("INSERT INTO leave (code, name, start_dt, end_dt, status, create_date) VALUES (?, ?, ?, ?, ?, ?)", [code, name, start_dt, end_dt, 0, create_date], function(err) {
                 if (err) {
                     return resolve(null);
                 }

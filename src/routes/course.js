@@ -39,6 +39,20 @@ router.post('/GetData', async (req, res) => {
         res.status(500).json({ code: 1, msg: 'Failed to get.' });
     }
 });
+router.get('/QueryById', async (req, res) => {
+    const cid = req.query.id;
+    try {
+        const result = await courseService.GetDataByid(cid);
+        if (result != null) {
+            result.student = await studentDetailService.GetDataAll(result.id);
+            res.status(200).json({ code: 0, msg: 'ok', data: result });
+        } else {
+            res.status(500).json({ code: 1, msg: 'Failed to get.' });
+        }
+    } catch (error) {
+        res.status(500).json({ code: 1, msg: 'Failed to get.' });
+    }
+});
 router.post('/EditData', async (req, res) => {
     const { id, attend } = req.body;
     try {
@@ -68,9 +82,9 @@ router.post('/EditStuData', async (req, res) => {
 var setSendMail = null;
 
 router.post('/SignStudentStatus', async (req, res) => {
-    const { id, studentName, state } = req.body;
+    const { id, code, state } = req.body;
     try {
-        const result = await courseService.SignStudentStatus(id, studentName, state);
+        const result = await courseService.SignStudentStatus(id, code, state);
         if (result) {
             if(setSendMail != null){
                 clearTimeout(setSendMail);

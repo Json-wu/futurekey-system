@@ -1,6 +1,8 @@
 // app.js
 const express = require('express');
+const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors'); 
 const moment = require('moment');
 const db = require('./libs/db');
@@ -158,6 +160,62 @@ app.get('/classroom/test', async (req, res) => {
   let usercode  = item.match(/\d{8}/);
   console.log(usercode);
   res.json(usercode);
+});
+
+// 设置存储路径和文件命名规则
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = './uploads/';
+    // 创建文件夹（如果不存在）
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
+    }
+    cb(null, uploadDir); // 保存到 uploads 文件夹
+  },
+  filename: function (req, file, cb) {
+    // 文件名使用原始名字加时间戳
+    const originalName = Buffer.from(file.originalname, 'latin1').toString('utf8'); // 防止乱码
+   
+    cb(null, Date.now() + '-' + originalName);
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// 配置静态文件路径，支持在线查看
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// 处理文件上传
+app.post('/upload', upload.single('file'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+    const fileUrl = `view file: <a href="/download/${req.file.filename}">${req.file.filename}</a>`;
+    res.json({code:0, data: fileUrl, msg:'File uploaded successfully!'});
+  } catch (error) {
+    res.json({code:1, data: null, msg:'Failed to upload file.'});
+  }
+});
+
+// 文件下载
+app.get('/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const decodedFilename = decodeURIComponent(filename); // 解码文件名
+  const filePath = path.join(__dirname, '../uploads', filename);
+
+  // 检查文件是否存在
+  if (fs.existsSync(filePath)) {
+    const fileNameHeader = encodeURIComponent(decodedFilename);
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${fileNameHeader}`);
+    res.download(filePath, decodedFilename, (err) => {
+      if (err) {
+        res.status(500).send('Error downloading the file.');
+      }
+    });
+  } else {
+    res.status(404).send('File not found.');
+  }
 });
  
 // 错误处理中间件

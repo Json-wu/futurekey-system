@@ -9,6 +9,8 @@ const path = require('path');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
 const messageService = require('../service/messageService');
 const teacherData = require('../config/teacher');
+const { StuInsertData } = require('./studentDetailService')
+const studentDetailService = require('../service/studentDetailService');
 
 const emailConfig = config.email;
 async function InsertData(info) {
@@ -30,6 +32,7 @@ async function InsertData(info) {
         stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1');
 
         stmt.finalize();
+        await StuInsertData(info.id, info.subcalendar_id, info.who);
         return true;
     } catch (error) {
         logMessage(`InsertData-course error，${error.message}`, 'error');
@@ -140,24 +143,16 @@ async function EditStuData(id, student, value1) {
     }
 }
 
-async function SignStudentStatus(id, studentName, state) {
+async function SignStudentStatus(id, code, state) {
     try {
         let couData = await GetDataByid(id);
         if (couData) {
-            let student = JSON.parse(couData.student);
-            student.forEach(x => {
-                if (x.name == studentName) {
-                    x.state = state;
-                }
-            })
-            return await new Promise((resolve, reject) => {
-                db.run(`update courses set student='${JSON.stringify(student)}' where id ='${id}'`, (err, data) => {
-                    if (err) {
-                        resolve(false);
-                    }
-                    resolve(true);
-                });
-            });
+            let rs = await studentDetailService.update(id,{state, code});
+           if(rs!=null){
+            return true;
+           }else{
+            return false;
+           }
         } else
             return false;
     } catch (error) {
@@ -218,14 +213,16 @@ function CheckCourseInfo(oldInfo, newInfo) {
     return false;
 }
 
-async function CheckCourse() {
+async function CheckCourse(sdt,edt) {
     try {
         console.log('开始校验新课程！！！'+new Date());
-        let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
-        let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        let data = await fetchTeamUpCalendar(dateNow, date_end);
-        let list = await GetDataAll(dateNow, date_end);
+        // let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
+        // let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
+        // let data = await fetchTeamUpCalendar('2024-06-01', '2024-09-21');
+        // let list = await GetDataAll(dateNow, date_end);
         //data = data.filter(x=>x.who && x.who.trim().length > 0);
+        let data = await fetchTeamUpCalendar(sdt,edt);
+        let list = await GetDataAll(sdt,edt);
         if (data != null && data.length > 0) {
             for (let index = 0; index < data.length; index++) {
                 let item = data[index];
@@ -316,4 +313,4 @@ async function InitCourse() {
     }
 }
 
-module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse };
+module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse, GetDataByid };

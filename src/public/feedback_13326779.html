@@ -4,536 +4,911 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Attendance and Feedback</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .loading {
-            font-size: 18px;
-            color: #666;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            display: none;
-        }
-
-        h1,
-        h2 {
-            color: #333;
-        }
-
-        .attendance-section,
-        .feedback-section {
-            margin-bottom: 20px;
-        }
-
-        .attendance-section label,
-        .feedback-section label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .attendance-section select,
-        .feedback-section select,
-        .feedback-section textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .feedback-section textarea {
-            height: 100px;
-            resize: none;
-        }
-
-        .button {
-            background-color: #007bff;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .button:hover {
-            background-color: #0056b3;
-        }
-
-        .button:disabled {
-            background-color: #cccccc;
-            /* Gray out the button */
-            color: #666666;
-            /* Change text color */
-            cursor: not-allowed;
-            /* Show a not-allowed cursor */
-        }
-
-        .student-list {
-            margin-bottom: 20px;
-        }
-
-        .student-item {
-            margin-bottom: 10px;
-        }
-
-        #attendance {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            /* Adjust the spacing between buttons as needed */
-        }
-
-        #attendance input[type="radio"] {
-            margin-right: 5px;
-        }
-
-        #attendance label {
-            margin-right: 15px;
-        }
-
-        .status label {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        .status input[type="radio"] {
-            margin-right: 5px;
-        }
-        .message-icon {
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            margin-left: 10px;
-            background-color: rgb(112, 201, 121);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .message-icon.new-message {
-            background-color: rgb(192, 195, 55);
-        }
-
-        .popup {
-            display: none;
-            position: fixed;
-            z-index: 2;
-            right: 20px; /* 调整右边距 */
-            top: 20px; /* 调整上边距 */
-            background-color: #fff;
-            padding: 20px;
-            border: 0px solid #888;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .popup .close {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 20px;
-            cursor: pointer;
-        }
-    </style>
+    <title>Teacher management system</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.9/flatpickr.min.js"></script>
 </head>
 
 <body>
-    <p class="loading">Loading data, please wait...</p>
-    <div class="container" id="container">
-        <h1>Course Attendance and Feedback</h1>
-        <p>Teacher name: <span id="teacher_name"></span></p>
-        <!-- <p>Teacher name: <span id="teacher_name"></span><span id="message_icon" class="message-icon" onclick="toggleMessagePopup()"></span></p>
-        <div id="messagePopup" class="popup">
-            <span class="close" onclick="closePopup()">&times;</span>
-            <div id="messageContent"></div>
-        </div> -->
-        <div class="attendance-section">
-            <h2>Course Attendance Confirmation</h2>
-            <label for="date">Date selection</label>
-            <select id="DateItems" onchange="selectDate(this)">
-                <option value="">---Please select---</option>
-            </select>
-            <label for="class">Class selection</label>
-            <select id="ClassItems" onchange="selectClass(this)">
-                <option value="">---Please select---</option>
-            </select>
-            <label for="attendance">Are you attending the course?</label>
-
-            <button id="btn_attendance" class="button" onclick="attendance(1)">Attending</button>
-            <button id="btn_noattendance" class="button" onclick="attendance(9)">Not Attending</button>
-
+    <div class="container">
+        <!-- Notification Icon -->
+        <div class="notification-container">
+            <div class="notification-icon" onclick="toggleNotificationDropdown()">
+                <span id="notificationCount" class="notification-count">0</span>
+                🛎️
+            </div>
+            <div id="notificationDropdown" class="notification-dropdown" style="display: none;">
+                <!-- Messages will be inserted here dynamically -->
+                <p>No new messages</p>
+            </div>
+        </div>
+        <p class="loading">Loading data, please wait...</p>
+        <div class="date-navigation">
+            <button id="prevDay" onclick="changeDate(-1)">Previous Day</button>
+            <input type="text" id="selectedDate" readonly onclick="showDatePicker()">
+            <button id="nextDay" onclick="changeDate(1)">Next Day</button>
+        </div>
+        <!-- 时区显示 -->
+        <div class="timezone">
+            <p id="timezone"></p>
+        </div>
+        <div id="courseList">
+            <p >Course List:</p>
+            <!-- Course titles will be dynamically inserted here -->
         </div>
 
-        <div class="feedback-section">
-            <h2>Student Course Feedback</h2>
-            <div class="student-list" id="studentList"></div>
-            <h2>Homework</h2>
-            <textarea id="homework"></textarea>
-            <button class="button" onclick="submitFeedback()">Submit Feedback</button>
+        <div id="courseDetails" style="display: none;">
+            <div class="button-group">
+                <button id="course_leave">Leave</button>
+                <button onclick="attendance(1)" id="btn_attendance">Attendance</button>
+                <button onclick="attendance(9)" id="btn_noattendance">NoAttendance</button>
+            </div>
+            <h2 id="courseTitle"></h2>
+            <p id="courseDescription"></p>
+            <p id="courseTime"></p>
+            <p id="courseLevel"></p>
+            <p id="courseCategory"></p>
+            <p id="courseScale"></p>
+            <p id="courseFull"></p>
+            <p id="coursePreview"></p>
+            <p id="courseHomework"></p>
+            <div id="studentList">
+                <!-- Student details will be dynamically inserted here -->
+            </div>
+        </div>
+        <!-- Fixed Buttons at the Bottom -->
+   
+
+        <!-- Full-day Leave Modal -->
+        <div id="leaveModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeLeaveModal()">&times;</span>
+                <h2>Infomation of Leave</h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="leaveReason">Reason:</label>
+                    <select id="leaveReason">
+                        <option value="sick">Sick Leave</option>
+                        <option value="personal">Personal Leave</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <input type="hidden" id="leaveCourse" value="">
+                <br><br>
+                <button onclick="submitLeaveRequest()">Submit</button>
+            </div>
         </div>
     </div>
-
-    <script>
-        const url = "/classroom";
-        const subid = '13326779';
-        let classDatas = [];
-        let current_date = "";
-        let current_eventId = "";
-        let Current_classData = {};
-        let Current_attendance = 0;
-        let students = [];
-
-        let DateItems = new Set();
-        let ClassItems = [];
-
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const dt = urlParams.get('dt');
-
-        function formatDate() {
-            const date = new Date();
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchData();
-        });
-
-        async function fetchData() {
-            try {
-                const response = await fetch(url + '/course/GetData', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ date: dt, subid })
-                });
-                const result = await response.json();
-
-                if (result.code != 0) {
-                    alert('Network response was not ok ' + response.statusText);
-                }
-                classData = result.data;
-                current_date = dt;
-                if (classData.length > 0) {
-                    classData.map(item => {
-                        DateItems.add(item.date);
-                    });
-                    classData.map(item => {
-                        if (item.date == current_date) {
-                            if (ClassItems.findIndex(x => {
-                                return x.id == item.id;
-                            }
-                            ) < 0) {
-                                ClassItems.push(item);
-                            }
-                        }
-                    });
-                    Current_classData = ClassItems[0];
-                    current_eventId = Current_classData.id;
-                    // document.getElementById("btn_attendance").disabled = false;
-                    document.getElementById("teacher_name").innerText = Current_classData.teacher;
-                    document.getElementById("homework").innerText = Current_classData.value1;
-                    students = Current_classData.student;
-                    displayData(students);
-                    Current_attendance = Current_classData.attend;
-                    if (Current_attendance == 1) {
-                        document.getElementById("btn_attendance").disabled = true;
-                        document.getElementById("btn_noattendance").disabled = false;
-                    } else if (Current_attendance == 9) {
-                        document.getElementById("btn_attendance").disabled = false;
-                        document.getElementById("btn_noattendance").disabled = true;
-                    }
-                    //display("attendance",Current_attendance);
-                    bindDate();
-                    bindClass();
-
-                    Current_classData.messages =['test','hello'];
-                    // 设置消息提醒图标状态
-                    const messageIcon = document.getElementById('message_icon');
-                    if (Current_classData.messages.length > 0) {
-                        messageIcon.classList.add('new-message');
-                    } else {
-                        messageIcon.classList.remove('new-message');
-                    }
-                } else {
-                    DateItems = [];
-                    ClassItems = [];
-                    Current_classData = {};
-                    current_eventId = "";
-                    // document.getElementById("btn_attendance").disabled = true;
-                    Current_attendance = 0;
-                    //display("attendance",Current_attendance);
-                    students = [];
-                    displayData([]);
-                    bindDate();
-                    bindClass();
-                }
-
-            } catch (error) {
-                console.error('There has been a problem with your fetch operation:', error);
-                document.querySelector('.loading').textContent = 'Failed to load data.';
-            }
-        }
-
-        function displayData(data) {
-            const studentList = document.getElementById('studentList');
-            const dataContainer = document.getElementById('container');
-            studentList.innerHTML = "";
-            data.forEach(student => {
-                const studentItem = document.createElement('div');
-                studentItem.classList.add('student-item');
-                // studentItem.innerHTML = `
-                //     <h3>${student.name}</h3>
-                //     <label for="status-${student.name}">Status:</label>
-                //     <div class="status">
-                //         <label><input type="radio" name="status-${student.name}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Normal</label>
-                //         <label><input type="radio" name="status-${student.name}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Late</label>
-                //         <label><input type="radio" name="status-${student.name}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.name}', this)"> Absent</label>
-                //     </div>
-                //     <label for="feedback-${student.name}">Feedback:</label>
-                //     <textarea id="feedback-${student.name}">${student.evaluate}</textarea>
-                // `;
-                studentList.appendChild(studentItem);
-            });
-
-            // data.forEach(student => {
-            //     display(`status-${student.name}`, student.state);
-            // });
-            document.querySelector('.loading').style.display = 'none';
-            dataContainer.style.display = 'block';
-        }
-        function bindDate() {
-            const DatetList = document.getElementById('DateItems');
-            DatetList.innerHTML = '';
-
-            // Create and append default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Please select an option';
-            defaultOption.disabled = true;
-            //defaultOption.selected = true;
-            DatetList.appendChild(defaultOption);
-
-            // Iterate over the data array
-            DateItems.forEach(item => {
-                // Create an option element
-                const option = document.createElement('option');
-                option.value = item;
-                option.textContent = item;
-                if (item == current_date)
-                    option.selected = true;
-
-                // Append the option to the select element
-                DatetList.appendChild(option);
-            });
-        }
-        function bindClass() {
-            const DatetList = document.getElementById('ClassItems');
-            DatetList.innerHTML = '';
-
-            // Create and append default option
-            const defaultOption = document.createElement('option');
-            defaultOption.value = '';
-            defaultOption.textContent = 'Please select an option';
-            defaultOption.disabled = true;
-            //defaultOption.selected = true;
-            DatetList.appendChild(defaultOption);
-
-            // Iterate over the data array
-            ClassItems.forEach(item => {
-                // Create an option element
-                const option = document.createElement('option');
-                option.value = item.id;
-                option.textContent = item.title;
-                if (item == current_eventId)
-                    option.selected = true;
-
-                // Append the option to the select element
-                DatetList.appendChild(option);
-            });
-        }
-
-        function display(optionID, selectDa) {
-            var all_options = document.getElementById(optionID).options;
-            for (i = 0; i < all_options.length; i++) {
-                if (all_options[i].value == selectDa)  // 根据option标签的ID来进行判断  测试的代码这里是两个等号
-                {
-                    all_options[i].selected = true;
-                }
-            }
-        }
-
-        function selectDate(that) {
-            console.log(that.value);
-            current_date = that.value;
-            classData.map(item => {
-                if (item.date == current_date) {
-                    if (ClassItems.findIndex(x => {
-                        return x.id == item.id;
-                    }
-                    ) < 0) {
-                        ClassItems.push(item);
-                    }
-                }
-            });
-            Current_classData = ClassItems[0];
-            current_eventId = Current_classData.id;
-            students = JSON.parse(Current_classData.student);
-            displayData(students);
-            Current_attendance = Current_classData.attend;
-            display("attendance", Current_attendance);
-            bindClass();
-        }
-        function selectClass(that) {
-            console.log(that.value);
-            Current_classData = ClassItems.find(x => x.id == that.value);
-            current_eventId = Current_classData.id;
-            students = JSON.parse(Current_classData.student);
-            displayData(students);
-            Current_attendance = Current_classData.attend;
-            display("attendance", Current_attendance);
-        }
-
-        async function attendance(attend) {
-            const response = await fetch(url + '/course/EditData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: current_eventId, attend: attend })
-            });
-            const result = await response.json();
-
-            if (result.code != 0) {
-                alert('Submission failed');
-            } else {
-                alert('The submission was successful');
-                Current_attendance = attend;
-                if (Current_attendance == 1) {
-                    document.getElementById("btn_attendance").disabled = true;
-                    document.getElementById("btn_noattendance").disabled = false;
-                } else if (Current_attendance == 9) {
-                    document.getElementById("btn_attendance").disabled = false;
-                    document.getElementById("btn_noattendance").disabled = true;
-                }
-            }
-        }
-
-        async function submitFeedback() {
-            const feedbackData = students.map(student => {
-                //const status = document.getElementById(`status-${student.name}`).value;
-                const feedback = document.getElementById(`feedback-${student.name}`).value;
-                student.evaluate = feedback;
-                return student;
-                // return {
-                //     name: student.name,
-                //     state: status,
-                //     evaluate: feedback
-                // };
-            });
-
-            const response = await fetch(url + '/course/EditStuData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: current_eventId, student: JSON.stringify(feedbackData), value1: document.getElementById('homework').value })
-            });
-            const result = await response.json();
-
-            if (result.code != 0) {
-                alert('Feedback submitted faild');
-            } else {
-                alert('Feedback submitted successfully');
-            }
-        }
-
-        // Function to handle the selection change event
-        async function handleAttendanceChange(event) {
-            const selectedValue = event.target.value;
-            console.log("Selected attendance value:", selectedValue);
-            const response = await fetch(url + '/course/EditData', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: current_eventId, attend: selectedValue })
-            });
-            const result = await response.json();
-
-            if (result.code != 0) {
-                alert('Submission failed');
-                //throw new Error('Network response was not ok ' + response.statusText);
-            } else {
-                alert('The submission was successful');
-            }
-        }
-
-        // Bind the change event to the radio buttons
-        document.querySelectorAll('input[name="attendance"]').forEach(radio => {
-            radio.addEventListener('change', handleAttendanceChange);
-        });
-
-        // Example function to handle status change
-        async function handleStatusChange(studentName, radioButton) {
-            console.log(`Student: ${studentName}, Status: ${radioButton.value}`);
-            students.forEach(item=>{
-                if(item.name == studentName){
-                    item.state = radioButton.value
-                }
-            })
-            const response = await fetch(url + '/course/SignStudentStatus', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: current_eventId, studentName, state:radioButton.value })
-            });
-            const result = await response.json();
-
-            if (result.code != 0) {
-                alert('SignStatus submitted faild');
-            } else {
-                alert('SignStatus submitted successfully');
-            }
-        }
-        
-        
-        function toggleMessagePopup() {
-            const popup = document.getElementById('messagePopup');
-            if (popup.style.display === 'block') {
-                popup.style.display = 'none';
-            } else {
-                const messageContent = document.getElementById('messageContent');
-                messageContent.innerHTML = Current_classData.messages.map(msg => `<p>${msg}</p>`).join('');
-                popup.style.display = 'block';
-            }
-        }
-
-        function closePopup() {
-            Current_classData.messages=[];
-            const popup = document.getElementById('messagePopup');
-            popup.style.display = 'none';
-            document.getElementById('message_icon').classList.remove('new-message');
-        }
-    </script>
-
+    <div class="fixed-buttons" style="justify-content: center; gap: 10px;">
+        <button style="flex: 0.4;max-width: 200px;" onclick="showStatistics()">Class Hour Statistics</button>
+        <button style="flex: 0.4;max-width: 200px; margin-left: 30px;" onclick="openLeaveModal()">Full-day Leave</button>
+    </div>
 </body>
 
 </html>
+<style>
+    .container {
+        max-width: 600px;
+        margin: 20px auto 80px auto;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .date-navigation {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .date-navigation button {
+        background-color: #007bff;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .date-navigation button:hover {
+        background-color: #0056b3;
+    }
+
+    .date-navigation input {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 150px;
+        text-align: center;
+    }
+
+    .course-item {
+        cursor: pointer;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+
+    .course-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Notification Icon Styles */
+    .notification-container {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+    }
+
+    .notification-icon {
+        position: relative;
+        cursor: pointer;
+        font-size: 24px;
+    }
+
+    .notification-count {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .notification-dropdown {
+        position: absolute;
+        top: 30px;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 250px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+
+    .notification-dropdown p {
+        padding: 10px;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .notification-dropdown p:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Responsive Layout */
+    @media (max-width: 768px) {
+        .notification-container {
+            top: 5px;
+            right: 10px;
+        }
+
+        .notification-icon {
+            font-size: 20px;
+        }
+    }
+
+     /* Fixed Buttons at the Bottom */
+     .fixed-buttons {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        background-color: #f1f1f1;
+        padding: 10px 0;
+        border-top: 0px solid #ccc;
+    }
+
+    .fixed-buttons button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .fixed-buttons button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;
+        text-align: center;
+    }
+
+    .modal-content select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .modal-content button {
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .modal-content button:hover {
+        background-color: #218838;
+    }
+
+    .close {
+        float: right;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: red;
+    }
+
+    .button-group {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .button-group button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        flex: 1;
+        margin: 0 5px;
+    }
+
+    .button-group button:hover {
+        background-color: #0056b3;
+    }
+
+    .upload-container {
+        text-align: left;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .upload-icon {
+        font-size: 36px;
+        color: #007bff;
+    }
+
+    .upload-btn-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .btn {
+        border: 2px solid #007bff;
+        color: #007bff;
+        background-color: #ffffff;
+        padding: 10px 20px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #007bff;
+        color: #ffffff;
+    }
+
+    .upload-btn-wrapper input[type="file"] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-name {
+        font-size: 14px;
+        color: #666;
+        flex: 1; /* 文件名部分填满剩余空间 */
+        white-space: nowrap; /* 防止文件名换行 */
+        overflow: hidden;
+        text-overflow: ellipsis; /* 超长文件名显示省略号 */
+    }
+
+    .status {
+            font-size: 14px;
+            color: #28a745;
+            margin-top: 10px;
+        }
+</style>
+<script>
+    const url = "/classroom";
+    const subid = '13326779';
+    const teacher_name = 'Amanda';
+    let current_eventId = "";
+    document.addEventListener('DOMContentLoaded', () => {
+        const selectedDate = document.getElementById('selectedDate');
+        selectedDate.value = formatDate(new Date());
+        fetchData(selectedDate.value);
+        fetchNewMessages();
+
+        flatpickr(selectedDate, {
+            onChange: function (selectedDates) {
+                if (selectedDates.length > 0) {
+                    current_date = formatDate(selectedDates[0]);
+                    fetchData(current_date);
+                }
+            }
+        });
+
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('timezone').innerText = 'timezone: ' + timeZone;
+    });
+
+    function changeDate(days) {
+        const selectedDate = document.getElementById('selectedDate');
+        const currentDate = new Date(selectedDate.value);
+        currentDate.setDate(currentDate.getDate() + days);
+        selectedDate.value = formatDate(currentDate);
+        current_date = formatDate(currentDate);
+        fetchData(current_date);
+    }
+
+    function showDatePicker() {
+        document.getElementById('selectedDate')._flatpickr.open();
+    }
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    function formatDateTime(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+    function formatTime(date) {
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    async function fetchData(dt) {
+        try {
+            const response = await fetch(url + '/course/GetData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ date: dt, subid })
+            });
+            const result = await response.json();
+
+            if (result.code != 0) {
+                alert('Network response was not ok ' + response.statusText);
+            }
+            const courseList = document.getElementById('courseList');
+            courseList.innerHTML = "<p>Course Details:</p>";
+            if(result.data.length == 0){
+                const courseItem = document.createElement('p');
+                courseItem.textContent = "You didn't schedule any classes today, have a great time！！！";
+                courseList.appendChild(courseItem);
+            }
+            const courseDetails = document.getElementById('courseDetails');
+            courseDetails.style.display = 'none';
+           
+            result.data.forEach(course => {
+                const courseItem = document.createElement('div');
+                courseItem.classList.add('course-item');
+                courseItem.textContent = course.title;
+                courseItem.onclick = () => showCourseDetails(course, true);
+                courseList.appendChild(courseItem);
+            });
+
+            document.querySelector('.loading').style.display = 'none';
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+            document.querySelector('.loading').textContent = 'Failed to load data.';
+        }
+    }
+    let isShowDetail = false;
+    async function showCourseDetails(course, isShow) {
+        try {
+
+            if (isShowDetail && isShow) {
+                document.getElementById('courseDetails').style.display = 'none';
+                isShowDetail = false;
+                return;
+            }
+            current_eventId = course.id;
+            document.getElementById('course_leave').onclick=()=>openLeaveModal(course);
+            
+            document.getElementById('courseTitle').textContent = course.title;
+            document.getElementById('courseDescription').textContent = "description: " + course.description;
+            document.getElementById('courseTime').textContent = "class_time: " + formatDateTime(new Date(course.start_dt)) + "-" + formatTime(new Date(course.end_dt));
+            document.getElementById('courseLevel').textContent = "class_level: " + course.class_level;
+            document.getElementById('courseCategory').textContent = "class_category: " + course.class_category;
+            document.getElementById('courseScale').textContent = "class_size: " + course.class_size;
+            document.getElementById('courseFull').textContent = "is_full: " + course.is_full;
+            document.getElementById('coursePreview').textContent = "coursePreview: " + course.coursePreview;
+            document.getElementById('courseHomework').textContent = "Homework: " + course.homework;
+            displayData(course.student);
+            document.getElementById('courseDetails').style.display = 'block';
+            isShowDetail = true;
+        } catch (error) {
+            console.error('Error fetching course details:', error);
+        }
+    }
+
+    let messages = []; // Stores the current message list
+    let unreadCount = 0;
+
+    // Function to toggle the notification dropdown
+    function toggleNotificationDropdown() {
+        const dropdown = document.getElementById('notificationDropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Function to update the notification count and dropdown
+    function updateNotifications(newMessages) {
+        const notificationCount = document.getElementById('notificationCount');
+        const dropdown = document.getElementById('notificationDropdown');
+
+        // Update unread count
+        unreadCount = newMessages.length;
+        notificationCount.innerText = unreadCount;
+
+        // Insert new messages into the dropdown
+        dropdown.innerHTML = ''; // Clear existing messages
+        newMessages.forEach((msg, index) => {
+            const messageElement = document.createElement('p');
+            messageElement.innerText = msg.text+'      '+msg.time;
+            messageElement.onclick = () => {
+                msgToInfo('1697392438-rid-1718622000')
+                //window.location.href = msg.url; // Navigate to the message's page
+            };
+            dropdown.appendChild(messageElement);
+        });
+
+        if (newMessages.length === 0) {
+            dropdown.innerHTML = '<p>No new messages</p>';
+        }
+    }
+
+    // Function to simulate fetching new messages (replace with actual API call)
+    async function fetchNewMessages() {
+        const response = await fetch(url + '/message?code=' + subid, {
+            method: 'GET'
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Network response was not ok ' + response.statusText);
+            return;
+        }
+        messages=[];
+        result.data.forEach(item => {
+            const newMessage = {
+                text: item.msg,
+                url: item.url,
+                time: item.create_date
+            };
+            messages.push(newMessage);
+        });
+
+        updateNotifications(messages);
+    }
+
+    // Poll for new messages every 30 seconds
+    setInterval(fetchNewMessages, 30000);
+
+    // Fetch initial messages on page load
+
+    async function msgToInfo(id){
+        const res = await fetch(url+ '/course/QueryById?id='+id);
+        const response = await res.json();
+        if(response.code!=0){
+            alert('Network response was not ok ' + response.statusText);
+            return;
+        }
+        const selectedDate = document.getElementById('selectedDate');
+        selectedDate.value = response.data.date;
+        await fetchData(selectedDate.value);
+        await showCourseDetails(response.data, false);
+        toggleNotificationDropdown();
+    }
+
+    // Function to open the leave modal
+    function openLeaveModal(course) {
+        document.getElementById('leaveModal').style.display = 'flex';
+        if(course){
+            document.getElementById('leaveCourse').value = JSON.stringify(course);
+        }else{
+            document.getElementById('leaveCourse').value = '';
+        }
+    }
+
+    // Function to close the leave modal
+    function closeLeaveModal() {
+        document.getElementById('leaveModal').style.display = 'none';
+    }
+
+    // Function to submit the leave request
+    function submitLeaveRequest(course) {
+        const reason = document.getElementById('leaveReason').value;
+        try {
+            document.querySelector('.loading').style.display = 'block';
+            let course;
+            if(document.getElementById('leaveCourse').value!=''){
+                course = JSON.parse(document.getElementById('leaveCourse').value);
+            }
+            let body ={
+                code: subid, 
+                name: teacher_name, 
+            };
+            if(course){
+                body.start_dt = formatDateTime(new Date(course.start_dt));
+                body.end_dt = formatDateTime(new Date(course.end_dt));
+            }else{
+                const selectedDate = document.getElementById('selectedDate');
+                const nowTimeDate = new Date(selectedDate.value)
+                nowTimeDate.setHours(23, 59, 59, 999)
+                body.start_dt = formatDateTime(new Date((new Date(selectedDate.value)).setHours(0, 0, 0, 0)));
+                body.end_dt = formatDateTime(new Date((new Date(selectedDate.value)).setHours(23, 59, 59, 999)));
+            }
+            fetch(url + '/leave/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body)
+            }).then(response => response.json())
+            .then(data=>{
+                document.querySelector('.loading').style.display = 'none';
+                if(data.code==0){
+                    alert('Leave request submitted successfully!');
+                }else{
+                    alert(data.msg);
+                }
+            })
+            .catch(error => {
+                document.querySelector('.loading').style.display = 'none';
+                alert('Leave request submitted error!');
+                console.log('Error:', error)});
+            
+           
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+            document.querySelector('.loading').textContent = 'Failed to load data.';
+        }
+        closeLeaveModal();
+    }
+
+    // Function for class hour statistics (dummy function, implement your own logic)
+    function showStatistics() {
+        window.location.href = '/classroom/total';
+    }
+
+    // Function to close modal when clicking outside the modal content
+    window.onclick = function(event) {
+        const modal = document.getElementById('leaveModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    function displayData(data) {
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = "";
+        data.forEach(student => {
+            const studentItem = document.createElement('div');
+            studentItem.classList.add('student-item');
+            studentItem.innerHTML = `
+                <h3>${student.name}</h3>
+                <label for="status-${student.code}">Status:</label>
+                <div class="status">
+                    <label><input type="radio" name="status-${student.code}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Normal</label>
+                    <label><input type="radio" name="status-${student.code}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Late</label>
+                    <label><input type="radio" name="status-${student.code}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Absent</label>
+                </div>
+                <div class="status">
+                    <label for="feedback-${student.code}">Feedback:</label>
+                    <textarea id="feedback-${student.code}">${student.evaluate}</textarea>
+                </div>
+                 <div class="status">
+                    <label for="feedback-${student.code}">HomeWork Upload:</label>
+                    <div class="upload-btn-wrapper">
+                        <button class="btn">Choose File</button>
+                        <input type="file" id="fileUpload" onchange="uploadFile()"  />
+                    </div>
+                    <span class="file-name" id="fileName">No file</span>
+                    <div class="status" id="status"></div>
+                </div>
+                
+                
+            `;
+            studentList.appendChild(studentItem);
+        });
+    }
+
+    function uploadFile() {
+        const fileInput = document.getElementById('fileUpload');
+        const fileName = document.getElementById('fileName');
+        const status = document.getElementById('status');
+        const file = fileInput.files[0];
+
+        if (file) {
+           
+
+            // 创建 FormData 对象
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 向服务器发送文件
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json()) // 假设服务器返回文本
+            .then(result => {
+                fileName.innerHTML = result.data;
+                status.textContent = result.msg;
+            })
+            .catch(error => {
+                status.textContent = 'Failed to upload file.';
+                console.error('Error:', error);
+            });
+        } else {
+            fileName.textContent = "No file chosen";
+        }
+    }
+
+    let classDatas = [];
+    let current_date = "";
+   
+    let Current_classData = {};
+    let Current_attendance = 0;
+    let students = [];
+
+    let DateItems = new Set();
+    let ClassItems = [];
+
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const dt = urlParams.get('dt');
+
+    function bindDate() {
+        const DatetList = document.getElementById('DateItems');
+        DatetList.innerHTML = '';
+
+        // Create and append default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Please select an option';
+        defaultOption.disabled = true;
+        //defaultOption.selected = true;
+        DatetList.appendChild(defaultOption);
+
+        // Iterate over the data array
+        DateItems.forEach(item => {
+            // Create an option element
+            const option = document.createElement('option');
+            option.value = item;
+            option.textContent = item;
+            if (item == current_date)
+                option.selected = true;
+
+            // Append the option to the select element
+            DatetList.appendChild(option);
+        });
+    }
+    function bindClass() {
+        const DatetList = document.getElementById('ClassItems');
+        DatetList.innerHTML = '';
+
+        // Create and append default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Please select an option';
+        defaultOption.disabled = true;
+        //defaultOption.selected = true;
+        DatetList.appendChild(defaultOption);
+
+        // Iterate over the data array
+        ClassItems.forEach(item => {
+            // Create an option element
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.textContent = item.title;
+            if (item == current_eventId)
+                option.selected = true;
+
+            // Append the option to the select element
+            DatetList.appendChild(option);
+        });
+    }
+
+    function display(optionID, selectDa) {
+        var all_options = document.getElementById(optionID).options;
+        for (i = 0; i < all_options.length; i++) {
+            if (all_options[i].value == selectDa)  // 根据option标签的ID来进行判断  测试的代码这里是两个等号
+            {
+                all_options[i].selected = true;
+            }
+        }
+    }
+
+    function selectDate(that) {
+        console.log(that.value);
+        current_date = that.value;
+        classData.map(item => {
+            if (item.date == current_date) {
+                if (ClassItems.findIndex(x => {
+                    return x.id == item.id;
+                }
+                ) < 0) {
+                    ClassItems.push(item);
+                }
+            }
+        });
+        Current_classData = ClassItems[0];
+        current_eventId = Current_classData.id;
+        students = JSON.parse(Current_classData.student);
+        displayData(students);
+        Current_attendance = Current_classData.attend;
+        display("attendance", Current_attendance);
+        bindClass();
+    }
+    function selectClass(that) {
+        console.log(that.value);
+        Current_classData = ClassItems.find(x => x.id == that.value);
+        current_eventId = Current_classData.id;
+        students = JSON.parse(Current_classData.student);
+        displayData(students);
+        Current_attendance = Current_classData.attend;
+        display("attendance", Current_attendance);
+    }
+
+    async function attendance(attend) {
+        const response = await fetch(url + '/course/EditData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, attend: attend })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Submission failed');
+        } else {
+            Current_attendance = attend;
+            if (Current_attendance == 1) {
+                document.getElementById("btn_attendance").disabled = true;
+                document.getElementById("btn_noattendance").disabled = false;
+            } else if (Current_attendance == 9) {
+                document.getElementById("btn_attendance").disabled = false;
+                document.getElementById("btn_noattendance").disabled = true;
+            }
+            alert('The submission was successful');
+        }
+    }
+
+    async function submitFeedback() {
+        const feedbackData = students.map(student => {
+            //const status = document.getElementById(`status-${student.name}`).value;
+            const feedback = document.getElementById(`feedback-${student.name}`).value;
+            student.evaluate = feedback;
+            return student;
+            // return {
+            //     name: student.name,
+            //     state: status,
+            //     evaluate: feedback
+            // };
+        });
+
+        const response = await fetch(url + '/course/EditStuData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, student: JSON.stringify(feedbackData), value1: document.getElementById('homework').value })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Feedback submitted faild');
+        } else {
+            alert('Feedback submitted successfully');
+        }
+    }
+
+    // Function to handle the selection change event
+    async function handleAttendanceChange(event) {
+        const selectedValue = event.target.value;
+        console.log("Selected attendance value:", selectedValue);
+        const response = await fetch(url + '/course/EditData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, attend: selectedValue })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Submission failed');
+            //throw new Error('Network response was not ok ' + response.statusText);
+        } else {
+            alert('The submission was successful');
+        }
+    }
+
+    // Bind the change event to the radio buttons
+    document.querySelectorAll('input[name="attendance"]').forEach(radio => {
+        radio.addEventListener('change', handleAttendanceChange);
+    });
+
+    // Example function to handle status change
+    async function handleStatusChange(code, radioButton) {
+        console.log(`Studentcode: ${code}, Status: ${radioButton.value}`);
+        const response = await fetch(url + '/course/SignStudentStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, code, state: radioButton.value })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('SignStatus submitted faild');
+        } else {
+            alert('SignStatus submitted successfully');
+        }
+    }
+</script>

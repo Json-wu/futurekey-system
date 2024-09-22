@@ -51,9 +51,9 @@ async function count(code) {
     }
 }
 
-async function GetDataAll() {
+async function GetMsg(code) {
     try {
-        let sql = `SELECT * FROM message_info where isread=0 order by create_date desc`;
+        let sql = `SELECT * FROM message_info where code='${code}' and isread=0 order by create_date desc`;
         return await new Promise((resolve, reject) => {
             db.all(sql, (err, rows) => {
                 if (err) {
@@ -63,9 +63,9 @@ async function GetDataAll() {
             })
         });
     } catch (error) {
-        logMessage(`GetDataAll error，${error.message}`, 'error');
+        logMessage(`GetMsg error，${error.message}`, 'error');
         return [];
     }
 }
 
-module.exports = { InsertData, count, update, GetDataAll };
+module.exports = { InsertData, count, update, GetMsg };
