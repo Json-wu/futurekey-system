@@ -186,13 +186,13 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     }
     // Record course information to database
     users = users.filter(x => x != '');
-    let usersInfo = users.map(item => {
-      return {
-        name: item,
-        state: 0,
-        evaluate: ''
-      }
-    });
+    // let usersInfo = users.map(item => {
+    //   return {
+    //     name: item,
+    //     state: 0,
+    //     evaluate: ''
+    //   }
+    // });
     //InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
     
