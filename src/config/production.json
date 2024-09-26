@@ -35,6 +35,7 @@
   },
   "timerSet_newclass":{
     "enable": true,
-    "minute": 5
+    "hour": 20,
+    "minute": 20
   }
 }

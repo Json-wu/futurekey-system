@@ -61,7 +61,9 @@ async function task_total() {
 
 async function task_newClass() {
   console.log(`任务task_newClass执行:开始校验新课程！！！`, new Date());
-  CheckCourse();
+  let date_s = moment().format('YYYY-MM-DD');
+  let date_e = moment().add(30,'day').format('YYYY-MM-DD');
+  CheckCourse(date_s, date_e);
 }
 let sdt='2024-08-10';
 async function task_newClass2() {
