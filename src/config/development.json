@@ -21,7 +21,7 @@
     "back_url": "http://localhost:3000/classroom/back"
   },
   "bot_webhook": {
-    "enable": true,
+    "enable": false,
     "url": "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=48207704-937e-45b2-8cad-f15f3c32481a"
   },
   "timerSet_class":{
@@ -35,7 +35,7 @@
     "minute": 5
   },
   "timerSet_newclass":{
-    "enable": true,
-    "minute": [17]
+    "enable": false,
+    "minute": [50]
   }
 }

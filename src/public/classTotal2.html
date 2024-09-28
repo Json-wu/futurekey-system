@@ -28,12 +28,10 @@
             <h3>学生总时长: <span id="studentTotal"></span></h3>
             <ul id="studentDetails"></ul>
         </div>
-        <div id="detailsModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal()">&times;</span>
-                <h3 id="modalTitle"></h3>
-                <ul id="detailsList"></ul>
-            </div>
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modalTitle"></h3>
+            <ul id="detailsList"></ul>
         </div>
     </div>
 </body>
@@ -159,6 +157,18 @@
     }
 </style>
 <script>
+    function getQueryParams() {
+        const params = {};
+        const queryString = window.location.search.substring(1);
+        const regex = /([^&=]+)=([^&]*)/g;
+        let match;
+
+        while (match = regex.exec(queryString)) {
+            params[decodeURIComponent(match[1])] = decodeURIComponent(match[2]);
+        }
+
+        return params;
+    }
     async function queryDurations() {
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
@@ -166,6 +176,11 @@
         if (!startDate || !endDate) {
             alert('请填写起始日期和结束日期');
             return;
+        }
+
+        let querys = getQueryParams();
+        if(querys.subid){
+            
         }
 
         try {

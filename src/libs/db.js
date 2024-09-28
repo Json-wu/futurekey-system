@@ -11,7 +11,7 @@ db.serialize(() => {
   db.run("CREATE TABLE IF NOT EXISTS teamup_data (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
 
   db.run("CREATE TABLE IF NOT EXISTS courses (id TEXT, subcalendar_id TEXT, title TEXT, teacher TEXT, who TEXT, signed_up TEXT,is_trial_class TEXT, class_category TEXT, is_full TEXT, attend TEXT, start_dt TEXT, end_dt TEXT,date TEXT,tz TEXT,class_level TEXT,class_size TEXT,status TEXT,preview TEXT,homework TEXT,value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
-
+//value1 标识课程是否有变动，0表示无变动，1表示有变动
   db.run("CREATE TABLE IF NOT EXISTS sms_his (id INTEGER PRIMARY KEY AUTOINCREMENT, phoneNumber TEXT, message TEXT,status TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
 
   db.run("CREATE TABLE IF NOT EXISTS email_his (id INTEGER PRIMARY KEY AUTOINCREMENT, fromEmail TEXT, toEmail TEXT, title TEXT, content TEXT,status TEXT, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)");
