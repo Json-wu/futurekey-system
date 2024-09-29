@@ -120,6 +120,31 @@
             border: 1px solid #ddd;
         }
 
+        .input-group_detail {
+            margin: 20px;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .input-group_detail label {
+            display: block;
+            font-size: 14px;
+            color: #6b6969;
+            margin-bottom: 8px;
+            margin-right: 10px;
+        }
+
+        .input-group_detail span {
+            display: block;
+            font-size: 14px;
+            color: #080808;
+            margin-bottom: 8px;
+            margin-right: 10px;
+        }
+
         .date-buttons {
             display: flex;
             justify-content: space-between;
@@ -221,7 +246,7 @@
             margin-top: 20px;
         }
 
-        .date-buttons button{
+        .date-buttons button {
             background-color: #007bff;
             color: white;
             text-align: center;
@@ -234,6 +259,7 @@
             width: 30%;
             /* 确保两个按钮在一行内 */
         }
+
         .stats-button,
         .leave-button {
             background-color: #007bff;
@@ -248,6 +274,7 @@
             width: 48%;
             /* 确保两个按钮在一行内 */
         }
+
         .date-buttons button:hover,
         .stats-button:hover,
         .leave-button:hover {
@@ -397,6 +424,68 @@
             margin-top: 10px;
         }
 
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid #ddd;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Custom scrollbar styles */
+        .table-container::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Date input styles */
+        .date-input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
         /* 媒体查询，用于调整PC端显示样式 */
         @media (min-width: 768px) {
             .container {
@@ -438,7 +527,7 @@
 
 <body>
     <div class="container">
-        <!-- 顶部区域 -->
+        <!-- Top Area -->
         <div class="header">
             <div class="welcome-message"></div>
             <div class="notification-icon" onclick="toggleNotificationPopup()">
@@ -449,6 +538,7 @@
                 <ul id="notification-list"></ul>
             </div>
         </div>
+        <!-- Course Management -->
         <div id="courseDiv" style="display: block;">
             <!-- 日期选择和前一天、后一天按钮 -->
             <div class="date-buttons">
@@ -472,29 +562,80 @@
                 <button class="leave-button" onclick="openLeaveModal()">Leave of absence</button>
             </div>
         </div>
+        <!-- Course Consumption Statistics -->
         <div id="Statistics" style="display: none;">
             <div class="date-buttons">
-                <input type="date" id="selectedDate_s">~
-                <input type="date" id="selectedDate_e">
-                <button onclick="fetchData()">statistics</button>
+                <input type="date" id="startDate" class="date-input">~
+                <input type="date" id="endDate" class="date-input">
+                <button onclick="calculateStatistics()">statistics</button>
             </div>
-    
-            <!-- 课程列表 -->
-            <div class="course-list" id="total">
+
+            <!-- 课消统计 -->
+            <div id="total">
+                <h2>Statistics Result</h2>
+                <p id="totalDuration">Total Duration: 0 hours</p>
+                <div class="table-container">
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th>Course Name</th>
+                                <th>Course Start Time</th>
+                                <th>Course End Time</th>
+                                <th>Course Duration (hours)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="TotalList">
+                            <!-- 课程明细将动态插入到这里 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-    
+
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="showStatistics()">back</button>
+                <button class="stats-button" onclick="hideStatistics()">back</button>
+                <button class="leave-button" onclick="printDiv('total')">print</button>
             </div>
         </div>
-    </div>
-
-    
-    <!-- course details -->
-    <div id="courseDetails" style="display: none;">
-
-        <div class="input-group">
+        <!-- course details -->
+        <div id="courseDetails" style="display: none;">
+            <h2>Course Detail</h2>
+            <div class="table-container">
+                <div class="input-group_detail">
+                    <label>Course Name:</label>
+                    <span id="courseName"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Course Time:</label>
+                    <span id="courseTime"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Time Zone:</label>
+                    <span id="courseTimezone"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Level:</label>
+                    <span id="courseLevel"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Type:</label>
+                    <span id="courseType"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Participants:</label>
+                    <span id="courseParticipants"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Description:</label>
+                    <span id="courseDescription"></span>
+                </div>
+                <div class="input-group_detail">
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="stats-button" onclick="hideDetails()">back</button>
+                <button class="leave-button" onclick="printDiv('total')">print</button>
+            </div>
         </div>
     </div>
 
@@ -548,10 +689,10 @@
             document.getElementById('leaveCourse').value = JSON.stringify(course);
         } else {
             // if today is not a class day, the leave date is today
-            if(today_course.length==0){
+            if (today_course.length == 0) {
                 alert("You don't have any classes scheduled today, so there's no need to take a leave!");
                 return;
-            }else{
+            } else {
                 document.getElementById('leaveCourse').value = '';
             }
         }
@@ -568,17 +709,17 @@
         const reason = document.getElementById('leaveReason').value;
         try {
             let course;
-            if(document.getElementById('leaveCourse').value!=''){
+            if (document.getElementById('leaveCourse').value != '') {
                 course = JSON.parse(document.getElementById('leaveCourse').value);
             }
-            let body ={
-                code: subid, 
-                name: teacher_name, 
+            let body = {
+                code: subid,
+                name: teacher_name,
             };
-            if(course){
+            if (course) {
                 body.start_dt = formatDateTime(new Date(course.start_dt));
                 body.end_dt = formatDateTime(new Date(course.end_dt));
-            }else{
+            } else {
                 const selectedDate = document.getElementById('selectedDate');
                 const nowTimeDate = new Date(selectedDate.value)
                 nowTimeDate.setHours(23, 59, 59, 999)
@@ -592,18 +733,19 @@
                 },
                 body: JSON.stringify(body)
             }).then(response => response.json())
-            .then(data=>{
-                if(data.code==0){
-                    alert('Leave request submitted successfully!');
-                }else{
-                    alert(data.msg);
-                }
-            })
-            .catch(error => {
-                alert('Leave request submitted error!');
-                console.log('Error:', error)});
-            
-           
+                .then(data => {
+                    if (data.code == 0) {
+                        alert('Leave request submitted successfully!');
+                    } else {
+                        alert(data.msg);
+                    }
+                })
+                .catch(error => {
+                    alert('Leave request submitted error!');
+                    console.log('Error:', error)
+                });
+
+
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
@@ -612,7 +754,92 @@
 
     // Function for class hour statistics (dummy function, implement your own logic)
     function showStatistics() {
-        window.location.href = '/classroom/total';
+        document.getElementById('courseDiv').style.display = 'none';
+        document.getElementById('Statistics').style.display = 'block';
+    }
+    function hideStatistics() {
+        document.getElementById('courseDiv').style.display = 'block';
+        document.getElementById('Statistics').style.display = 'none';
+    }
+
+    // 课时统计
+    async function calculateStatistics() {
+        let sDate = new Date(document.getElementById('startDate').value);
+        let eDate = new Date(document.getElementById('endDate').value);
+
+        if (isNaN(sDate) || isNaN(eDate) || sDate >= eDate) {
+            alert('Please enter valid start and end dates');
+            return;
+        }
+        sDate = formatDate(sDate);
+        eDate = formatDate(eDate);
+
+        // get the total duration of all courses
+        try {
+            const response = await fetch(url + '/total/getdatabysubid', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ subid, sDate, eDate })
+            });
+
+            const data = await response.json();
+            if (data.code !== 0) {
+                alert('查询过程中发生错误');
+                return;
+            }
+            const teacherDurations = data.data.find(item => item.type === 'teacher');
+            let totalDuration = teacherDurations.duration;
+            const TotalList = document.getElementById('TotalList');
+            TotalList.innerHTML = '';
+
+            // const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            // const formatter = new Intl.DateTimeFormat('en-US', options);
+
+            teacherDurations.items.forEach(course => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td>${course.title}</td>
+                <td>${formatDateTime(new Date(course.sdate))}</td>
+                <td>${formatDateTime(new Date(course.edate))}</td>
+                <td>${course.hours}</td>
+            `;
+                TotalList.appendChild(row);
+            });
+
+            document.getElementById('totalDuration').textContent = `Total Duration: ${totalDuration.toFixed(2)} hours`;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            alert('Error fetching data');
+        }
+    }
+
+    function printDiv(divId) {
+        const divToPrint = document.getElementById(divId);
+        const newWin = window.open('', 'Print-Window');
+        newWin.document.open();
+        newWin.document.write('<html><head><title>Print</title><style>body{font-family: Arial, sans-serif;} table{width: 100%; border-collapse: collapse;} th, td{border: 1px solid #ddd; padding: 10px; text-align: left;} th{background-color: #f2f2f2;} tbody tr:nth-child(even){background-color: #f9f9f9;}</style></head><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+        newWin.document.close();
+        setTimeout(function () { newWin.close(); }, 10);
+    }
+
+    function showDetails(courseData) {
+        document.getElementById('courseDiv').style.display = 'none';
+        document.getElementById('courseDetails').style.display = 'block';
+
+        current_eventId = courseData.eventId;
+        document.getElementById('courseName').textContent = courseData.title;
+        document.getElementById('courseTime').textContent = formatDateTime(new Date(courseData.start_dt)) + ' ~ ' + formatDateTime(new Date(courseData.end_dt));
+        document.getElementById('courseTimezone').textContent = courseData.tz;
+        document.getElementById('courseLevel').textContent = courseData.class_level;
+        document.getElementById('courseType').textContent = courseData.class_category;
+        document.getElementById('courseParticipants').textContent = courseData.who ? replaceCommas(courseData.who) : '';
+        document.getElementById('courseDescription').textContent = courseData.description;
+    }
+    function hideDetails() {
+        document.getElementById('courseDiv').style.display = 'block';
+        document.getElementById('courseDetails').style.display = 'none';
     }
 
     async function fetchData() {
@@ -660,7 +887,7 @@
                     <p><i class="fas fa-user"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
                 </div>
                 <div class="course-arrow"><i class="fas fa-angle-right"></i></div>`;
-                courseItem.onclick = () => showCourseDetails(course, true);
+                courseItem.onclick = () => showDetails(course);
                 courseList.appendChild(courseItem);
             });
 

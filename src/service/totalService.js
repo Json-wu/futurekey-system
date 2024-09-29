@@ -36,4 +36,20 @@ async function GetTotalData(sdate, edate) {
     }
 }
 
-module.exports = { InsertTotalData, GetTotalData};
+async function GetTotalDataBySubid(subid, sdate, edate) {
+    try {
+        return await new Promise((resolve, reject) => {
+            db.all(`select * from class_his where subid='${subid}' AND date >= '${sdate}' AND date <='${edate}' order by id desc`, (err, data) => {
+                if (err) {
+                    resolve(null);
+                }
+                resolve(data);
+            })
+        });
+    } catch (error) {
+        logMessage(`GetTotalDataBySubid-class_his error，${error.message}`, 'error');
+        return null;
+    }
+}
+
+module.exports = { InsertTotalData, GetTotalData, GetTotalDataBySubid };
