@@ -61,7 +61,9 @@ async function task_total() {
 
 async function task_newClass() {
   console.log(`任务task_newClass执行:开始校验新课程！！！`, new Date());
-  CheckCourse();
+  let date_s = moment().format('YYYY-MM-DD');
+  let date_e = moment().add(30,'day').format('YYYY-MM-DD');
+  CheckCourse(date_s, date_e);
 }
 let sdt='2024-08-10';
 async function task_newClass2() {
@@ -184,13 +186,13 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     }
     // Record course information to database
     users = users.filter(x => x != '');
-    let usersInfo = users.map(item => {
-      return {
-        name: item,
-        state: 0,
-        evaluate: ''
-      }
-    });
+    // let usersInfo = users.map(item => {
+    //   return {
+    //     name: item,
+    //     state: 0,
+    //     evaluate: ''
+    //   }
+    // });
     //InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
     // Send a message to students’ parents
     

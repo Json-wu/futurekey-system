@@ -101,9 +101,10 @@ const sendSms_USA = async (phoneNumber, message) => {
 
 const autoSendSms = async (phone, type, user, time) => {
   try {
-    const phoneNumber = phone;
+    // 移除电话号码中的空格、横杠等字符
+    const phoneNumber = phone.replace(/\D/g, '');
     const templateParam = { user, time };
-    logMessage(`phone:${phone}, type:${type}, user:${user}, time:${time}`, 'info');
+    logMessage(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time}`, 'info');
     // 1.中国内地 9. 港澳台
     if (type == 1) {
       return await sendSms(phoneNumber, {user: user, day: timerSet_class.timeout});
@@ -214,7 +215,7 @@ const verifyCode = (phoneNumber, code) => {
 // sendSms_USA('16503089650', `
 // Your registration code is: ${code}, if you are not operating by yourself, please ignore this SMS!`);
 // sendSms_val('6503089650');
-// autoSendSms('16503089650', 2, 'Katherine', '2024-09-03 09:30');
+// autoSendSms('1650308aa | .,+a9650', 2, 'Katherine', '2024-09-03 09:30');
 
 
 module.exports = { sendSms, autoSendSms, SendSms_teacher, SendSms_teacher, sendSms_val, verifyCode };
