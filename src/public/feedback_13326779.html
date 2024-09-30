@@ -14,6 +14,8 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            overflow-y: hidden;
+            min-width: 320px;
         }
 
         .container {
@@ -121,28 +123,45 @@
         }
 
         .input-group_detail {
-            margin: 20px;
+            height: 30px;
+            margin: 15px;
             background-color: #ffffff;
             display: flex;
             align-items: center;
             padding: 10px;
-            border-radius: 15px;
+            border-radius: 10px;
         }
 
         .input-group_detail label {
+            width: 100px;
             display: block;
-            font-size: 14px;
+            font-size: 12px;
             color: #6b6969;
-            margin-bottom: 8px;
+            /* margin-bottom: 8px; */
             margin-right: 10px;
+            text-align: right;
         }
 
         .input-group_detail span {
             display: block;
-            font-size: 14px;
+            font-size: 12px;
             color: #080808;
-            margin-bottom: 8px;
+            /* margin-bottom: 8px; */
             margin-right: 10px;
+        }
+
+        .input-group_detail textarea {
+            width: 80%;
+            display: block;
+            font-size: 12px;
+            color: #080808;
+            /* margin-bottom: 8px; */
+            margin-right: 10px;
+           
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            resize: none;
         }
 
         .date-buttons {
@@ -184,8 +203,7 @@
 
         .course-list {
             /* margin-top: 20px; */
-            max-height: 500px;
-            min-height: 200px;
+            max-height: 300px;
             /* 设置最大高度 */
             overflow-y: auto;
             /* 启用垂直滚动 */
@@ -486,6 +504,89 @@
             margin-right: 10px;
         }
 
+        .rating-container {
+            width: 530px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin: 50px auto;
+        }
+
+        .dropdown {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .arrow {
+            transition: transform 0.3s;
+        }
+
+        .arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .rating-item span {
+            font-size: 16px;
+        }
+
+        .stars {
+            display: flex;
+            cursor: pointer;
+        }
+
+        .star {
+            font-size: 20px;
+            color: lightgray;
+        }
+
+        .star.selected {
+            color: gold;
+        }
+
+        .score {
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .comment-box {
+            /* margin-top: 20px; */
+        }
+
+        .comment-box textarea {
+            width: 96%;
+            height: 60px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 14px;
+            resize: none;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            margin-top: 5px;
+            color: gray;
+        }
+        .details{
+            margin-top: 20px;
+        }
+
         /* 媒体查询，用于调整PC端显示样式 */
         @media (min-width: 768px) {
             .container {
@@ -510,7 +611,7 @@
             }
 
             .course-list {
-                max-height: unset;
+                max-height: 420px;
                 /* 移除最大高度限制 */
                 flex-grow: 1;
                 /* 使课程列表区域拉伸 */
@@ -573,7 +674,7 @@
             <!-- 课消统计 -->
             <div id="total">
                 <h2>Statistics Result</h2>
-                <p id="totalDuration">Total Duration: 0 hours</p>
+                <p id="totalDuration">Total Duration: 0.00 hours</p>
                 <div class="table-container">
                     <table border="1">
                         <thead>
@@ -599,8 +700,8 @@
         </div>
         <!-- course details -->
         <div id="courseDetails" style="display: none;">
-            <h2>Course Detail</h2>
-            <div class="table-container">
+            <h4>Course Detail</h4>
+            <div class="table-container" id="detailDiv">
                 <div class="input-group_detail">
                     <label>Course Name:</label>
                     <span id="courseName"></span>
@@ -622,19 +723,136 @@
                     <span id="courseType"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>Participants:</label>
-                    <span id="courseParticipants"></span>
+                    <label>who:</label>
+                    <span id="who"></span>
                 </div>
                 <div class="input-group_detail">
                     <label>Description:</label>
                     <span id="courseDescription"></span>
                 </div>
                 <div class="input-group_detail">
+                    <label>coursePreview:</label>
+                    <textarea id="coursePreview"></textarea>
+                </div>
+                <div class="input-group_detail">
+                    <label>courseHomework:</label>
+                    <textarea id="courseHomework"></textarea>
+                </div>
+                <div style="display: flex; align-items: center; margin: 20px 0;">
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #ccc;">
+                    <span style="padding: 0 10px; color: #333;">学生评价</span>
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #ccc;">
+                </div>
+
+                <div class="rating-container">
+                    <div class="dropdown" onclick="toggleDetails()">
+                        <span>刘小枫</span>
+                        <span id="arrow" class="arrow">&#9660;</span>
+                    </div>
+
+                    <div id="details" class="details hidden">
+                        <div class="rating-item">
+                            <span>听说</span>
+                            <div class="stars" data-rating="0" data-category="listening">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="listening-score">0</span>
+                        </div>
+
+                        <div class="rating-item">
+                            <span>读写</span>
+                            <div class="stars" data-rating="0" data-category="reading-writing">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="reading-writing-score">0</span>
+                        </div>
+
+                        <div class="rating-item">
+                            <span>专注</span>
+                            <div class="stars" data-rating="0" data-category="focus">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="focus-score">0</span>
+                        </div>
+
+                        <div class="comment-box">
+                            <label for="comment">评语</label>
+                            <textarea id="comment" maxlength="200"></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span>/200
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rating-container">
+                    <div class="dropdown" onclick="toggleDetails()">
+                        <span>刘小枫2</span>
+                        <span id="arrow2" class="arrow">&#9660;</span>
+                    </div>
+
+                    <div id="details2" class="details hidden">
+                        <div class="rating-item">
+                            <span>听说</span>
+                            <div class="stars" data-rating="0" data-category="listening">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="listening-score">0</span>
+                        </div>
+
+                        <div class="rating-item">
+                            <span>读写</span>
+                            <div class="stars" data-rating="0" data-category="reading-writing">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="reading-writing-score">0</span>
+                        </div>
+
+                        <div class="rating-item">
+                            <span>专注</span>
+                            <div class="stars" data-rating="0" data-category="focus">
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                                <span class="star">&#9733;</span>
+                            </div>
+                            <span class="score" id="focus-score">0</span>
+                        </div>
+
+                        <div class="comment-box">
+                            <label for="comment">评语</label>
+                            <textarea id="comment2" maxlength="200"></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span>/200
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+            <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideDetails()">back</button>
-                <button class="leave-button" onclick="printDiv('total')">print</button>
+                <button class="stats-button" onclick="hideDetail()">back</button>
+                <button class="leave-button" onclick="printDiv('detailDiv')">print</button>
             </div>
         </div>
     </div>
@@ -761,6 +979,10 @@
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('Statistics').style.display = 'none';
     }
+    function hideDetail() {
+        document.getElementById('courseDiv').style.display = 'block';
+        document.getElementById('courseDetails').style.display = 'none';
+    }
 
     // 课时统计
     async function calculateStatistics() {
@@ -790,25 +1012,27 @@
                 return;
             }
             const teacherDurations = data.data.find(item => item.type === 'teacher');
-            let totalDuration = teacherDurations.duration;
-            const TotalList = document.getElementById('TotalList');
-            TotalList.innerHTML = '';
+            if (teacherDurations) {
+                let totalDuration = teacherDurations.duration;
+                const TotalList = document.getElementById('TotalList');
+                TotalList.innerHTML = '';
 
-            // const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            // const formatter = new Intl.DateTimeFormat('en-US', options);
+                // const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+                // const formatter = new Intl.DateTimeFormat('en-US', options);
 
-            teacherDurations.items.forEach(course => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+                teacherDurations.items.forEach(course => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
                 <td>${course.title}</td>
                 <td>${formatDateTime(new Date(course.sdate))}</td>
                 <td>${formatDateTime(new Date(course.edate))}</td>
                 <td>${course.hours}</td>
             `;
-                TotalList.appendChild(row);
-            });
+                    TotalList.appendChild(row);
+                });
 
-            document.getElementById('totalDuration').textContent = `Total Duration: ${totalDuration.toFixed(2)} hours`;
+                document.getElementById('totalDuration').textContent = `Total Duration: ${totalDuration.toFixed(2)} hours`;
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
             alert('Error fetching data');
@@ -834,12 +1058,79 @@
         document.getElementById('courseTimezone').textContent = courseData.tz;
         document.getElementById('courseLevel').textContent = courseData.class_level;
         document.getElementById('courseType').textContent = courseData.class_category;
-        document.getElementById('courseParticipants').textContent = courseData.who ? replaceCommas(courseData.who) : '';
+        document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
         document.getElementById('courseDescription').textContent = courseData.description;
+        document.getElementById('coursePreview').textContent = courseData.coursePreview;
+        document.getElementById('courseHomework').textContent = courseData.homework;
+        // displayData(courseData.student);
     }
     function hideDetails() {
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('courseDetails').style.display = 'none';
+    }
+
+    function displayData(data) {
+        const studentList = document.getElementById('studentList');
+        studentList.innerHTML = "";
+        data.forEach(student => {
+            const studentItem = document.createElement('div');
+            studentItem.classList.add('student-item');
+            studentItem.innerHTML = `
+                <h3>${student.name}</h3>
+                <label for="status-${student.code}">Status:</label>
+                <div class="status">
+                    <label><input type="radio" name="status-${student.code}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Normal</label>
+                    <label><input type="radio" name="status-${student.code}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Late</label>
+                    <label><input type="radio" name="status-${student.code}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Absent</label>
+                </div>
+                <div class="status">
+                    <label for="feedback-${student.code}">Feedback:</label>
+                    <textarea id="feedback-${student.code}">${student.evaluate}</textarea>
+                </div>
+                 <div class="status">
+                    <label for="feedback-${student.code}">HomeWork Upload:</label>
+                    <div class="upload-btn-wrapper">
+                        <button class="btn">Choose File</button>
+                        <input type="file" id="fileUpload" onchange="uploadFile()"  />
+                    </div>
+                    <span class="file-name" id="fileName">No file</span>
+                    <div class="status" id="status"></div>
+                </div>
+            `;
+            studentList.appendChild(studentItem);
+        });
+    }
+
+    function uploadFile() {
+        const fileInput = document.getElementById('fileUpload');
+        const fileName = document.getElementById('fileName');
+        const status = document.getElementById('status');
+        const file = fileInput.files[0];
+
+        if (file) {
+
+
+            // 创建 FormData 对象
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 向服务器发送文件
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json()) // 假设服务器返回文本
+                .then(result => {
+                    fileName.innerHTML = result.data;
+                    status.textContent = result.msg;
+                })
+                .catch(error => {
+                    status.textContent = 'Failed to upload file.';
+                    console.error('Error:', error);
+                });
+        } else {
+            fileName.textContent = "No file chosen";
+        }
     }
 
     async function fetchData() {
@@ -956,6 +1247,52 @@
             notificationList.appendChild(listItem);
         });
     }
+
+    function toggleDetails() {
+        const details = document.getElementById('details');
+        const arrow = document.getElementById('arrow');
+
+        if (details.classList.contains('hidden')) {
+            details.classList.remove('hidden');
+            arrow.classList.add('rotated');
+        } else {
+            details.classList.add('hidden');
+            arrow.classList.remove('rotated');
+        }
+    }
+
+    const stars = document.querySelectorAll('.stars');
+    stars.forEach(starContainer => {
+        starContainer.addEventListener('click', (e) => {
+            const category = starContainer.getAttribute('data-category');
+            const selectedStar = e.target;
+            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+
+            // Update the star selection visually
+            updateStars(starContainer, starIndex);
+
+            // Update the score
+            document.getElementById(`${category}-score`).textContent = starIndex;
+        });
+    });
+
+    function updateStars(container, rating) {
+        const stars = container.children;
+        for (let i = 0; i < stars.length; i++) {
+            stars[i].classList.remove('selected');
+            if (i < rating) {
+                stars[i].classList.add('selected');
+            }
+        }
+    }
+
+    // Character count for the comment box
+    const commentBox = document.getElementById('comment');
+    const charCount = document.getElementById('charCount');
+
+    commentBox.addEventListener('input', () => {
+        charCount.textContent = commentBox.value.length;
+    });
 
     function formatDate(date) {
         const year = date.getFullYear();
