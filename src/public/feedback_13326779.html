@@ -123,8 +123,11 @@
         }
 
         .input-group_detail {
-            height: 30px;
-            margin: 15px;
+            width: 80%;
+            height: 20px;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
             background-color: #ffffff;
             display: flex;
             align-items: center;
@@ -155,12 +158,9 @@
             display: block;
             font-size: 12px;
             color: #080808;
-            /* margin-bottom: 8px; */
             margin-right: 10px;
-           
             border: 1px solid #ccc;
             border-radius: 5px;
-            padding: 10px;
             resize: none;
         }
 
@@ -211,9 +211,9 @@
 
         .course-item {
             background-color: #f3f6ff;
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 15px;
-            margin-bottom: 15px;
+            margin: 15px 15px auto;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
@@ -505,24 +505,24 @@
         }
 
         .rating-container {
-            width: 530px;
+            width: 77%;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 15px;
-            margin: 50px auto;
+            padding: 10px 20px 10px 20px;
+            margin: 10px auto 20px auto;
         }
 
         .dropdown {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 18px;
+            font-size: 14px;
             cursor: pointer;
         }
 
         .arrow {
-            transition: transform 0.3s;
+            transition: transform 0.5s;
         }
 
         .arrow.rotated {
@@ -537,11 +537,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 10px 0;
+            margin: 10px 60px 0 10px;
         }
 
         .rating-item span {
-            font-size: 16px;
+            font-size: 13px;
         }
 
         .stars {
@@ -550,8 +550,9 @@
         }
 
         .star {
-            font-size: 20px;
+            font-size: 20px !important;
             color: lightgray;
+            margin-left: 10px;
         }
 
         .star.selected {
@@ -564,17 +565,20 @@
         }
 
         .comment-box {
-            /* margin-top: 20px; */
+            font-size: 13px;
+            margin-left: 10px;
+            margin-top: 10px;
         }
 
         .comment-box textarea {
-            width: 96%;
-            height: 60px;
+            width: 95%;
+            height: 40px;
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
-            font-size: 14px;
+            font-size: 13px;
             resize: none;
+            margin-top: 10px;
         }
 
         .char-counter {
@@ -583,7 +587,8 @@
             margin-top: 5px;
             color: gray;
         }
-        .details{
+
+        .details {
             margin-top: 20px;
         }
 
@@ -743,7 +748,9 @@
                     <span style="padding: 0 10px; color: #333;">学生评价</span>
                     <hr style="flex-grow: 1; border: none; border-top: 1px solid #ccc;">
                 </div>
-
+               <div id="studentList">
+                    <!-- 学生评价将动态插入到这里 -->
+               </div>
                 <div class="rating-container">
                     <div class="dropdown" onclick="toggleDetails()">
                         <span>刘小枫</span>
@@ -790,58 +797,6 @@
                         <div class="comment-box">
                             <label for="comment">评语</label>
                             <textarea id="comment" maxlength="200"></textarea>
-                            <div class="char-counter">
-                                <span id="charCount">0</span>/200
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="rating-container">
-                    <div class="dropdown" onclick="toggleDetails()">
-                        <span>刘小枫2</span>
-                        <span id="arrow2" class="arrow">&#9660;</span>
-                    </div>
-
-                    <div id="details2" class="details hidden">
-                        <div class="rating-item">
-                            <span>听说</span>
-                            <div class="stars" data-rating="0" data-category="listening">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="listening-score">0</span>
-                        </div>
-
-                        <div class="rating-item">
-                            <span>读写</span>
-                            <div class="stars" data-rating="0" data-category="reading-writing">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="reading-writing-score">0</span>
-                        </div>
-
-                        <div class="rating-item">
-                            <span>专注</span>
-                            <div class="stars" data-rating="0" data-category="focus">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="focus-score">0</span>
-                        </div>
-
-                        <div class="comment-box">
-                            <label for="comment">评语</label>
-                            <textarea id="comment2" maxlength="200"></textarea>
                             <div class="char-counter">
                                 <span id="charCount">0</span>/200
                             </div>
@@ -1062,7 +1017,7 @@
         document.getElementById('courseDescription').textContent = courseData.description;
         document.getElementById('coursePreview').textContent = courseData.coursePreview;
         document.getElementById('courseHomework').textContent = courseData.homework;
-        // displayData(courseData.student);
+        displayData(courseData.student);
     }
     function hideDetails() {
         document.getElementById('courseDiv').style.display = 'block';
@@ -1073,31 +1028,126 @@
         const studentList = document.getElementById('studentList');
         studentList.innerHTML = "";
         data.forEach(student => {
+            const scode = student.code;
             const studentItem = document.createElement('div');
-            studentItem.classList.add('student-item');
-            studentItem.innerHTML = `
-                <h3>${student.name}</h3>
-                <label for="status-${student.code}">Status:</label>
-                <div class="status">
-                    <label><input type="radio" name="status-${student.code}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Normal</label>
-                    <label><input type="radio" name="status-${student.code}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Late</label>
-                    <label><input type="radio" name="status-${student.code}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Absent</label>
+            studentItem.classList.add('rating-container');
+            studentItem.id = scode;
+
+            const studentInfo = document.createElement('div');
+            studentInfo.classList.add('dropdown');
+            studentInfo.onclick = () => toggleDetails(scode);
+            studentInfo.innerHTML = `
+                <span>${student.name}</span>
+                <span class="arrow" id="arrow_${scode}">&#9660;</span>
+            `;
+
+            const studentDetails = document.createElement('div');
+            studentDetails.classList.add('details', 'hidden');
+            studentDetails.id = `details_${scode}`;
+
+            const listening = document.createElement('div');
+            listening.classList.add('rating-item');
+            listening.innerHTML = `
+                <span>Listening</span>
+                <div class="stars" data-rating="${student.read}" data-category="listening" data-code="${scode}">
+                    <span class="star read_${scode} ${student.read >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star read_${scode} ${student.read >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star read_${scode} ${student.read >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star read_${scode} ${student.read >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star read_${scode} ${student.read >= 5 ? 'selected' : ''}">&#9733;</span>
                 </div>
-                <div class="status">
-                    <label for="feedback-${student.code}">Feedback:</label>
-                    <textarea id="feedback-${student.code}">${student.evaluate}</textarea>
+                <span class="score">${student.read}</span>
+            `;
+            listening.querySelector('.read_'+scode).onclick = (event) => handleRating(event, scode);
+            const stars = document.querySelectorAll('.stars');
+    stars.forEach(starContainer => {
+        starContainer.addEventListener('click', (e) => {
+            const category = starContainer.getAttribute('data-category');
+            const selectedStar = e.target;
+            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+
+            // Update the star selection visually
+            updateStars(starContainer, starIndex);
+
+            // Update the score
+            document.getElementById(`${category}-score`).textContent = starIndex;
+        });
+    });
+
+            const readingWriting = document.createElement('div');
+            readingWriting.classList.add('rating-item');
+            readingWriting.innerHTML = `
+                <span>Reading/Writing</span>
+                <div class="stars2" data-rating="${student.write}" data-category="reading-writing" data-code="${scode}">
+                    <span class="star write_${scode} ${student.write >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star write_${scode} ${student.write >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star write_${scode} ${student.write >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star write_${scode} ${student.write >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star write_${scode} ${student.write >= 5 ? 'selected' : ''}">&#9733;</span>
                 </div>
-                 <div class="status">
-                    <label for="feedback-${student.code}">HomeWork Upload:</label>
-                    <div class="upload-btn-wrapper">
-                        <button class="btn">Choose File</button>
-                        <input type="file" id="fileUpload" onchange="uploadFile()"  />
-                    </div>
-                    <span class="file-name" id="fileName">No file</span>
-                    <div class="status" id="status"></div>
+                <span class="score">${student.write}</span>
+            `;
+            readingWriting.querySelector('.write_'+scode).onclick = (event) => handleRating(event, scode);
+
+            const focus = document.createElement('div');
+            focus.classList.add('rating-item');
+            focus.innerHTML = `
+                <span>Focus</span>
+                <div class="stars_${scode}" data-rating="${student.level}" data-category="focus" data-code="${scode}">
+                    <span class="star level_${scode} ${student.level >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star level_${scode} ${student.level >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star level_${scode} ${student.level >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star level_${scode} ${student.level >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star level_${scode} ${student.level >= 5 ? 'selected' : ''}">&#9733;</span>
+                </div>
+                <span class="score">${student.level}</span>
+            `;
+            focus.querySelector('.level_'+scode).onclick = (event) => handleRating(event, scode);
+
+            const commentBox = document.createElement('div');
+            commentBox.classList.add('comment-box');
+            commentBox.innerHTML = `
+                <label for="comment">Comment</label>
+                <textarea id="comment_${scode}" maxlength="200">${student.evaluate}</textarea>
+                <div class="char-counter">
+                    <span id="charCount_${scode}">${student.evaluate.length}</span>/200
                 </div>
             `;
+            commentBox.querySelector('textarea').oninput = (event) => handleComment(event, scode);
+
+            studentDetails.appendChild(listening);
+            studentDetails.appendChild(readingWriting);
+            studentDetails.appendChild(focus);
+            studentDetails.appendChild(commentBox);
+
+            studentItem.appendChild(studentInfo);
+            studentItem.appendChild(studentDetails);
+
             studentList.appendChild(studentItem);
+
+            // studentItem.innerHTML = `
+            //     <h3>${student.name}</h3>
+            //     <label for="status-${student.code}">Status:</label>
+            //     <div class="status">
+            //         <label><input type="radio" name="status-${student.code}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Normal</label>
+            //         <label><input type="radio" name="status-${student.code}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Late</label>
+            //         <label><input type="radio" name="status-${student.code}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Absent</label>
+            //     </div>
+            //     <div class="status">
+            //         <label for="feedback-${student.code}">Feedback:</label>
+            //         <textarea id="feedback-${student.code}">${student.evaluate}</textarea>
+            //     </div>
+            //      <div class="status">
+            //         <label for="feedback-${student.code}">HomeWork Upload:</label>
+            //         <div class="upload-btn-wrapper">
+            //             <button class="btn">Choose File</button>
+            //             <input type="file" id="fileUpload" onchange="uploadFile()"  />
+            //         </div>
+            //         <span class="file-name" id="fileName">No file</span>
+            //         <div class="status" id="status"></div>
+            //     </div>
+            // `;
+            // studentList.appendChild(studentItem);
         });
     }
 
@@ -1248,9 +1298,9 @@
         });
     }
 
-    function toggleDetails() {
-        const details = document.getElementById('details');
-        const arrow = document.getElementById('arrow');
+    function toggleDetails(scode) {
+        const details = document.getElementById('details_'+scode);
+        const arrow = document.getElementById('arrow_'+scode);
 
         if (details.classList.contains('hidden')) {
             details.classList.remove('hidden');
@@ -1259,6 +1309,19 @@
             details.classList.add('hidden');
             arrow.classList.remove('rotated');
         }
+    }
+
+    function handleRating(e,scode){
+        console.log('handleRating');
+        const category = starContainer.getAttribute('data-category');
+            const selectedStar = e.target;
+            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+
+            // Update the star selection visually
+            updateStars(starContainer, starIndex);
+
+            // Update the score
+            document.getElementById(`${category}-score`).textContent = starIndex;
     }
 
     const stars = document.querySelectorAll('.stars');
