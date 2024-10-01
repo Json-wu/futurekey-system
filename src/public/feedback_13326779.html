@@ -9,7 +9,7 @@
         body {
             margin: 0;
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(to bottom, #6a00ff, #b2dfff);
+            background: #FFFFFF;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,8 +19,7 @@
         }
 
         .container {
-            background: linear-gradient(to bottom, rgba(255, 0, 0, 0.5), rgba(0, 0, 255, 0.5));
-            /* color: #ffffff; */
+            background: linear-gradient(to bottom, #2F51FF, #F7F9FC);
             width: 360px;
             padding: 20px;
             border-radius: 20px;
@@ -43,7 +42,7 @@
 
         .notification-icon {
             font-size: 24px;
-            color: #007bff;
+            color: #e8ecf1;
             cursor: pointer;
             position: relative;
             display: inline-block;
@@ -122,8 +121,35 @@
             border: 1px solid #ddd;
         }
 
+        .row-group {
+            width: 90%;
+            height: 20px;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .row-group label {
+            width: 200px;
+            display: block;
+            font-size: 14px;
+            color: #0c0c0c;
+            margin-bottom: 8px;
+            margin-right: 10px;
+            text-align: right;
+        }
+        .row-group span{
+            width: 100%;
+            font-size: 14px;
+        }
+
         .input-group_detail {
-            width: 80%;
+            width: 90%;
             height: 20px;
             margin-top: 10px;
             margin-left: auto;
@@ -136,11 +162,11 @@
         }
 
         .input-group_detail label {
-            width: 100px;
+            /* width: 100px; */
             display: block;
             font-size: 12px;
             color: #6b6969;
-            /* margin-bottom: 8px; */
+            margin-bottom: 8px;
             margin-right: 10px;
             text-align: right;
         }
@@ -153,8 +179,22 @@
             margin-right: 10px;
         }
 
-        .input-group_detail textarea {
-            width: 80%;
+        .input-group_detail2 {
+            width: 90%;
+            height: 80px;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .input-group_detail2 textarea {
+            width: 70%;
+            height: 80px;
             display: block;
             font-size: 12px;
             color: #080808;
@@ -172,14 +212,14 @@
         }
 
         .date-buttons button {
-            background-color: #007bff;
+            background-color: #2e4deb;
             color: white;
             border: none;
             padding: 10px;
             font-size: 16px;
             border-radius: 8px;
             cursor: pointer;
-            width: 50px;
+            width: 30%;
             /* 调整按钮宽度 */
             height: 50px;
             /* 调整按钮高度 */
@@ -188,8 +228,18 @@
             align-items: center;
         }
 
-        .date-buttons button:hover {
-            background-color: #0056b3;
+        .date-buttons3 button {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            width: 30%;
+            /* 确保两个按钮在一行内 */
         }
 
         .date-buttons input[type="date"] {
@@ -202,10 +252,11 @@
         }
 
         .course-list {
-            /* margin-top: 20px; */
-            max-height: 300px;
+            margin-top: 20px;
+            max-height: 440px;
             /* 设置最大高度 */
             overflow-y: auto;
+            overflow-x: hidden;
             /* 启用垂直滚动 */
         }
 
@@ -213,12 +264,16 @@
             background-color: #f3f6ff;
             border-radius: 10px;
             padding: 15px;
-            margin: 15px 15px auto;
+            margin: 0 15px 15px auto;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
             display: flex;
             align-items: center;
             cursor: pointer;
             /* 添加鼠标指针样式 */
+        }
+
+        .course-item-absent{
+            background-color: #edb781;
         }
 
         .course-icon {
@@ -231,6 +286,12 @@
             align-items: center;
             margin-right: 10px;
             font-size: 18px;
+        }
+
+        .add-course {
+            cursor: pointer;
+            font-size: 14px;
+            color: #999;
         }
 
         .course-info {
@@ -264,23 +325,9 @@
             margin-top: 20px;
         }
 
-        .date-buttons button {
-            background-color: #007bff;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            width: 30%;
-            /* 确保两个按钮在一行内 */
-        }
-
         .stats-button,
         .leave-button {
-            background-color: #007bff;
+            background-color: #2F51FF;
             color: white;
             text-align: center;
             padding: 12px;
@@ -290,6 +337,7 @@
             border: none;
             cursor: pointer;
             width: 48%;
+            height: 55px;
             /* 确保两个按钮在一行内 */
         }
 
@@ -299,78 +347,96 @@
             background-color: #0056b3;
         }
 
-        /* Modal Styles */
+        /* Modal Background */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 1;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
+        /* Modal Content */
         .modal-content {
-            background: linear-gradient(to bottom, rgba(106, 0, 255, 0.8), rgba(178, 223, 255, 0.8));
-            /* background-color: white; */
+            background-color: #fff;
+            margin: 15% auto;
             padding: 20px;
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
+            border-radius: 5px;
+            width: 400px;
+            height: 290px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
-        .modal-content select {
+        .modal-content textarea {
+            margin-top: 5px;
+            width: 99%;
+        }
+
+        /* Close Button */
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #000;
+        }
+
+        /* Modal Title */
+        h2 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+        }
+
+        /* Label */
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        /* Select Dropdown */
+        select {
             width: 100%;
-            padding: 10px;
+            padding: 5px;
+            margin-top: 5px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 4px;
         }
 
-        .modal-content button {
+        /* Modal Footer */
+        .modal-footer {
             margin-top: 20px;
-            background-color: #28a745;
-            color: white;
+            text-align: right;
+        }
+
+        /* Buttons */
+        button {
+            padding: 8px 16px;
+            margin-left: 10px;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
         }
 
-        .modal-content button:hover {
-            background-color: #218838;
+        #cancelBtn {
+            background-color: #f0f0f0;
+            color: #333;
         }
 
-        .close {
-            float: right;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: red;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .button-group button {
+        #submitBtn {
             background-color: #007bff;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            flex: 1;
-            margin: 0 5px;
         }
 
-        .button-group button:hover {
+        #submitBtn:hover {
             background-color: #0056b3;
         }
 
@@ -390,6 +456,7 @@
         .upload-icon {
             font-size: 36px;
             color: #007bff;
+            text-align: left;
         }
 
         .upload-btn-wrapper {
@@ -446,6 +513,7 @@
         .table-container {
             max-height: 400px;
             overflow-y: auto;
+            overflow-x: hidden;
             border: 1px solid #ddd;
         }
 
@@ -505,7 +573,7 @@
         }
 
         .rating-container {
-            width: 77%;
+            width: 85%;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -525,8 +593,8 @@
             transition: transform 0.5s;
         }
 
-        .arrow.rotated {
-            transform: rotate(180deg);
+        .rotated {
+            transform: rotate(90deg);
         }
 
         .hidden {
@@ -537,7 +605,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 10px 60px 0 10px;
+            margin: 10px 0 0 10px;
         }
 
         .rating-item span {
@@ -552,7 +620,7 @@
         .star {
             font-size: 20px !important;
             color: lightgray;
-            margin-left: 10px;
+            margin-left: auto;
         }
 
         .star.selected {
@@ -592,6 +660,86 @@
             margin-top: 20px;
         }
 
+        .upload-icon {
+            cursor: pointer;
+            font-size: 20px;
+            color: #080808;
+        }
+
+        .upload-icon input[type="file"] {
+            display: none;
+        }
+
+        .uploaded-files {
+            margin-top: 10px;
+            /* height: 100%;
+            overflow-y: auto; */
+        }
+
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .uploaded-file span {
+            margin-right: 10px;
+        }
+
+        .uploaded-file i {
+            font-size: 10px;
+        }
+
+        .delete-icon {
+            cursor: pointer;
+            color: red;
+        }
+
+        .radio-group {
+            display: inline-block;
+        }
+
+        .radio-group label {
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 0px !important;
+        }
+
+        .attendance-group {
+            display: inline-block;
+            display: flex;
+            margin: -10px 10px 0 -5px
+        }
+        .attendance-group label {
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .leave-icon {
+            color: red;
+            font-size: 14px;
+            display: none; /* 默认隐藏 */
+        }
+        .leave-icon.show {
+            display: inline-block; /* 显示图标 */
+        }
+        .leave-icon.hide {
+            display: none; /* 显示图标 */
+        }
+
+        .timezone-container {
+            display: flex;
+            align-items: center;
+        }
+        .timezone-container label {
+            color: #FFFFFF;
+            margin-right: 10px;
+            margin-top: 0 !important;
+        }
+        .timezone-container select {
+            width: 150px;
+        }
+
         /* 媒体查询，用于调整PC端显示样式 */
         @media (min-width: 768px) {
             .container {
@@ -615,8 +763,12 @@
                 /* 调整高度以尽量铺满屏幕 */
             }
 
+            .table-container {
+                max-height: 425px;
+            }
+
             .course-list {
-                max-height: 420px;
+                max-height: 390px;
                 /* 移除最大高度限制 */
                 flex-grow: 1;
                 /* 使课程列表区域拉伸 */
@@ -624,6 +776,14 @@
 
             .notification-popup {
                 top: 75px;
+            }
+
+            .date-buttons input[type="date"] {
+                font-size: 10px;
+            }
+
+            .date-buttons button {
+                height: 40px;
             }
         }
     </style>
@@ -654,9 +814,24 @@
             </div>
 
             <!-- 当前时区显示 -->
-            <div class="input-group">
-                <label id="timezone"></label>
+            <div class="timezone-container">
+                <label for="timezoneSelect">timezone：</label>
+                <select id="timezoneSelect" onchange="updateTimezone()">
+                    <option value="Asia/Shanghai">Asia/Shanghai</option>
+                    <option value="America/New_York">America/New_York</option>
+                    <option value="Europe/London">Europe/London</option>
+                    <!-- 其他时区选项 -->
+                </select>
             </div>
+            <!-- <div class="input-group">
+                <label id="timezone">timezone</label>
+                <select id="timezoneSelect" onchange="updateTimezone()">
+                    <option value="UTC">UTC</option>
+                    <option value="America/New_York">America/New_York</option>
+                    <option value="Europe/London">Europe/London</option>
+                    <option value="Asia/Shanghai">Asia/Shanghai</option>
+                </select>
+            </div> -->
 
             <!-- 课程列表 -->
             <div class="course-list" id="courseList">
@@ -699,13 +874,16 @@
 
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideStatistics()">back</button>
-                <button class="leave-button" onclick="printDiv('total')">print</button>
+                <button class="stats-button" onclick="hideStatistics()">Back</button>
+                <button class="leave-button" onclick="printDiv('total')">Print</button>
             </div>
         </div>
         <!-- course details -->
         <div id="courseDetails" style="display: none;">
-            <h4>Course Detail</h4>
+            <div class="button-group">
+                <h4 style="margin-top: 0; margin-bottom: 10px;color: #FFFFFF;">Course Detail</h4>
+                <button class="stats-button" style="margin-bottom: 10px;" onclick="openLeaveModal(current_course)">Leave of absence</button>
+            </div>
             <div class="table-container" id="detailDiv">
                 <div class="input-group_detail">
                     <label>Course Name:</label>
@@ -732,102 +910,74 @@
                     <span id="who"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>Description:</label>
-                    <span id="courseDescription"></span>
+                    <label>Signed up:</label>
+                    <span id="signedup"></span>
                 </div>
-                <div class="input-group_detail">
+                <div class="input-group_detail input-group_detail2">
                     <label>coursePreview:</label>
                     <textarea id="coursePreview"></textarea>
+                    <label class="upload-icon">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" id="fileUpload_preview"
+                            onchange="uploadFile('fileUpload_preview','uploadedFiles_preview')" multiple>
+                    </label>
+                    <div class="uploaded-files" id="uploadedFiles_preview"></div>
                 </div>
-                <div class="input-group_detail">
+
+                <div class="input-group_detail input-group_detail2">
                     <label>courseHomework:</label>
                     <textarea id="courseHomework"></textarea>
+                    <label class="upload-icon">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" id="fileUpload_homework"
+                            onchange="uploadFile('fileUpload_homework','uploadedFiles_homework')" multiple>
+                    </label>
+                    <div class="uploaded-files" id="uploadedFiles_homework"></div>
                 </div>
                 <div style="display: flex; align-items: center; margin: 20px 0;">
-                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #ccc;">
-                    <span style="padding: 0 10px; color: #333;">学生评价</span>
-                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #ccc;">
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                    <span style="padding: 0 10px; color: #333;">Student evaluation</span>
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
                 </div>
-               <div id="studentList">
+                <div id="studentList">
                     <!-- 学生评价将动态插入到这里 -->
-               </div>
-                <div class="rating-container">
-                    <div class="dropdown" onclick="toggleDetails()">
-                        <span>刘小枫</span>
-                        <span id="arrow" class="arrow">&#9660;</span>
-                    </div>
-
-                    <div id="details" class="details hidden">
-                        <div class="rating-item">
-                            <span>听说</span>
-                            <div class="stars" data-rating="0" data-category="listening">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="listening-score">0</span>
-                        </div>
-
-                        <div class="rating-item">
-                            <span>读写</span>
-                            <div class="stars" data-rating="0" data-category="reading-writing">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="reading-writing-score">0</span>
-                        </div>
-
-                        <div class="rating-item">
-                            <span>专注</span>
-                            <div class="stars" data-rating="0" data-category="focus">
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                                <span class="star">&#9733;</span>
-                            </div>
-                            <span class="score" id="focus-score">0</span>
-                        </div>
-
-                        <div class="comment-box">
-                            <label for="comment">评语</label>
-                            <textarea id="comment" maxlength="200"></textarea>
-                            <div class="char-counter">
-                                <span id="charCount">0</span>/200
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideDetail()">back</button>
-                <button class="leave-button" onclick="printDiv('detailDiv')">print</button>
+                <button class="stats-button" onclick="hideDetail()">Back</button>
+                <button class="leave-button" onclick="Save()">Save</button>
             </div>
         </div>
     </div>
-
     <!-- Full-day Leave Modal -->
+    <!-- Modal Structure -->
     <div id="leaveModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <span class="close" onclick="closeLeaveModal()">&times;</span>
-            <h2>Infomation of Leave</h2>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="leaveReason">Reason:</label>
+            <span class="close-btn" onclick="closeLeaveModal()">&times;</span>
+            <h2>Leave Reason</h2>
+            <p>You are applying for leave, please confirm your leave time and reason:</p>
+            <div class="row-group">
+                <label>Leave Time：</label>
+                <span id="leave_time"></span>
+            </div>
+            <div class="row-group">
+                <label>Leave Reason：</label>
                 <select id="leaveReason">
-                    <option value="sick">Sick Leave</option>
                     <option value="personal">Personal Leave</option>
+                    <option value="sick">Sick Leave</option>
                     <option value="other">Other</option>
                 </select>
             </div>
+            <div class="row-group">
+                <label>Leave Comment：</label>
+                <textarea id="leaveComment" rows="3" placeholder="Enter your comment here..."></textarea>
+            </div>
             <input type="hidden" id="leaveCourse" value="">
-            <br><br>
-            <button onclick="submitLeaveRequest()">Submit</button>
+            <div class="modal-footer">
+                <button id="cancelBtn" onclick="closeLeaveModal()">Cancel</button>
+                <button id="submitBtn" class="submit-btn" onclick="submitLeaveRequest()">Submit</button>
+            </div>
         </div>
     </div>
 </body>
@@ -839,27 +989,43 @@
     const teacher_name = 'Amanda';
     let current_eventId = "";
     let today_course = [];
+    let current_course = null;
+    let timezoneSet = 'UTC';
+    let current_date;
+   
 
     document.addEventListener('DOMContentLoaded', () => {
         const teachName = document.getElementsByClassName('welcome-message')[0];
         teachName.innerText = `Welcome, Teacher ${teacher_name}！`;
 
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
+        timezoneSet = timeZone;
+        document.getElementById('timezoneSelect').value = timeZone;
+        // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
+
+        current_date = formatDate();
 
         const selectedDate = document.getElementById('selectedDate');
-        selectedDate.value = formatDate(new Date());
+        selectedDate.value = formatDate();
         fetchData();
         fetchNewMessages();
 
         // Poll for new messages every 30 seconds
         setInterval(fetchNewMessages, 30000);
     });
-
+    
+    function updateTimezone(){
+        const timeZone = document.getElementById('timezoneSelect').value;
+        timezoneSet = timeZone;
+        // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
+        
+        fetchData();
+    }
     // Function to open the leave modal
     function openLeaveModal(course) {
         if (course) {
             document.getElementById('leaveCourse').value = JSON.stringify(course);
+            document.getElementById('leave_time').innerText = formatDateTime(course.start_dt)+" ~ "+formatTime(course.end_dt);
         } else {
             // if today is not a class day, the leave date is today
             if (today_course.length == 0) {
@@ -867,6 +1033,7 @@
                 return;
             } else {
                 document.getElementById('leaveCourse').value = '';
+                document.getElementById('leave_time').innerText = current_date
             }
         }
         document.getElementById('leaveModal').style.display = 'flex';
@@ -874,12 +1041,14 @@
 
     // Function to close the leave modal
     function closeLeaveModal() {
+        document.getElementById('leaveCourse').value = '';
         document.getElementById('leaveModal').style.display = 'none';
     }
 
     // Function to submit the leave request
     function submitLeaveRequest(course) {
         const reason = document.getElementById('leaveReason').value;
+        const comment = document.getElementById('leaveComment').value;
         try {
             let course;
             if (document.getElementById('leaveCourse').value != '') {
@@ -888,16 +1057,18 @@
             let body = {
                 code: subid,
                 name: teacher_name,
+                reason,
+                comment
             };
             if (course) {
-                body.start_dt = formatDateTime(new Date(course.start_dt));
-                body.end_dt = formatDateTime(new Date(course.end_dt));
+                body.courseId = course.id;
+                body.start_dt = formatDateTime(course.start_dt);
+                body.end_dt = formatDateTime(course.end_dt);
             } else {
+                body.courseId=null;
                 const selectedDate = document.getElementById('selectedDate');
-                const nowTimeDate = new Date(selectedDate.value)
-                nowTimeDate.setHours(23, 59, 59, 999)
-                body.start_dt = formatDateTime(new Date((new Date(selectedDate.value)).setHours(0, 0, 0, 0)));
-                body.end_dt = formatDateTime(new Date((new Date(selectedDate.value)).setHours(23, 59, 59, 999)));
+                body.start_dt = formatDate(selectedDate.value)+' 00:00';
+                body.end_dt = formatDate(selectedDate.value)+' 23:59';
             }
             fetch(url + '/leave/send', {
                 method: 'POST',
@@ -935,6 +1106,8 @@
         document.getElementById('Statistics').style.display = 'none';
     }
     function hideDetail() {
+        current_course = null;
+        current_eventId = "";
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('courseDetails').style.display = 'none';
     }
@@ -948,8 +1121,8 @@
             alert('Please enter valid start and end dates');
             return;
         }
-        sDate = formatDate(sDate);
-        eDate = formatDate(eDate);
+        sDate = document.getElementById('startDate').value;
+        eDate = document.getElementById('endDate').value
 
         // get the total duration of all courses
         try {
@@ -979,8 +1152,8 @@
                     const row = document.createElement('tr');
                     row.innerHTML = `
                 <td>${course.title}</td>
-                <td>${formatDateTime(new Date(course.sdate))}</td>
-                <td>${formatDateTime(new Date(course.edate))}</td>
+                <td>${formatDateTime(course.sdate)}</td>
+                <td>${formatDateTime(course.edate)}</td>
                 <td>${course.hours}</td>
             `;
                     TotalList.appendChild(row);
@@ -1003,21 +1176,56 @@
         setTimeout(function () { newWin.close(); }, 10);
     }
 
-    function showDetails(courseData) {
+    async function showDetails(courseId) {
         document.getElementById('courseDiv').style.display = 'none';
         document.getElementById('courseDetails').style.display = 'block';
 
-        current_eventId = courseData.eventId;
+        current_eventId = courseId;
+       
+        const response = await fetch(url + '/course/QueryById?id=' + courseId);
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Network response was not ok ' + response.statusText);
+        }
+        courseData = result.data;
+        current_course = courseData;
+
         document.getElementById('courseName').textContent = courseData.title;
-        document.getElementById('courseTime').textContent = formatDateTime(new Date(courseData.start_dt)) + ' ~ ' + formatDateTime(new Date(courseData.end_dt));
+        document.getElementById('courseTime').textContent = formatDateTime(courseData.start_dt) + ' - ' + formatTime(courseData.end_dt);
         document.getElementById('courseTimezone').textContent = courseData.tz;
         document.getElementById('courseLevel').textContent = courseData.class_level;
         document.getElementById('courseType').textContent = courseData.class_category;
         document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
-        document.getElementById('courseDescription').textContent = courseData.description;
-        document.getElementById('coursePreview').textContent = courseData.coursePreview;
+        document.getElementById('signedup').innerHTML = courseData.signed_up+'/5';
+        document.getElementById('coursePreview').textContent = courseData.preview;
         document.getElementById('courseHomework').textContent = courseData.homework;
+
+        document.getElementById('uploadedFiles_preview').innerHTML = '';
+        document.getElementById('uploadedFiles_homework').innerHTML = '';
+        // 加载已上传的文件
+        if (courseData.value1) {
+            loadUploadedFiles(courseData.value1.split('/'), 'uploadedFiles_preview');
+        }
+        if (courseData.value2) {
+            loadUploadedFiles(courseData.value2.split('/'), 'uploadedFiles_homework');
+        }
+
         displayData(courseData.student);
+    }
+    function loadUploadedFiles(files, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        files.forEach(filename => {
+            if (filename === '') return;
+            const fileItem = document.createElement('div');
+            fileItem.classList.add('uploaded-file');
+            fileItem.innerHTML = `
+            <span><a href="/download/${filename}" target="_blank">${subStrFilename(filename)}</a></span>
+            <i class="fas fa-trash delete-icon" onclick="deleteFile('${filename}', '${containerId}')"></i>
+        `;
+            container.appendChild(fileItem);
+        });
     }
     function hideDetails() {
         document.getElementById('courseDiv').style.display = 'block';
@@ -1029,17 +1237,23 @@
         studentList.innerHTML = "";
         data.forEach(student => {
             const scode = student.code;
+            if (scode == '' || student.name == '') return;
             const studentItem = document.createElement('div');
             studentItem.classList.add('rating-container');
             studentItem.id = scode;
 
             const studentInfo = document.createElement('div');
             studentInfo.classList.add('dropdown');
-            studentInfo.onclick = () => toggleDetails(scode);
+            // studentInfo.onclick = () => toggleDetails(scode);
             studentInfo.innerHTML = `
-                <span>${student.name}</span>
-                <span class="arrow" id="arrow_${scode}">&#9660;</span>
+                <span onclick="toggleDetails(${scode})">${student.name.replace(/\d+$/, '')}</span>
+                <div class="radio-group">
+                    <label><input type="radio" name="attendance_${scode}" value="1" ${student.state === '1' ? 'checked' : ''} onchange="handleStatusChange('${scode}','${student.name}', this)">Late</label>
+                    <label><input type="radio" name="attendance_${scode}" value="9" ${student.state === '9' ? 'checked' : ''} onchange="handleStatusChange('${scode}','${student.name}', this)">Absent</label>
+                </div>
+                <i class="fas fa-angle-right" id="arrow_${scode}" onclick="toggleDetails(${scode})"></i>
             `;
+            // <span class="arrow" id="arrow_${scode}">&#9660;</span>
 
             const studentDetails = document.createElement('div');
             studentDetails.classList.add('details', 'hidden');
@@ -1048,72 +1262,98 @@
             const listening = document.createElement('div');
             listening.classList.add('rating-item');
             listening.innerHTML = `
-                <span>Listening</span>
+                <span style="width:80px">Listening</span>
                 <div class="stars" data-rating="${student.read}" data-category="listening" data-code="${scode}">
-                    <span class="star read_${scode} ${student.read >= 1 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star read_${scode} ${student.read >= 2 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star read_${scode} ${student.read >= 3 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star read_${scode} ${student.read >= 4 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star read_${scode} ${student.read >= 5 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.read >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.read >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.read >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.read >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.read >= 5 ? 'selected' : ''}">&#9733;</span>
                 </div>
-                <span class="score">${student.read}</span>
+                <span class="score score_read" >${student.read}</span>
             `;
-            listening.querySelector('.read_'+scode).onclick = (event) => handleRating(event, scode);
-            const stars = document.querySelectorAll('.stars');
-    stars.forEach(starContainer => {
-        starContainer.addEventListener('click', (e) => {
-            const category = starContainer.getAttribute('data-category');
-            const selectedStar = e.target;
-            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+            const stars1 = listening.querySelectorAll('.stars');
+            stars1.forEach(starContainer => {
+                starContainer.addEventListener('click', (e) => {
+                    const category = starContainer.getAttribute('data-category');
+                    const selectedStar = e.target;
+                    const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
 
-            // Update the star selection visually
-            updateStars(starContainer, starIndex);
+                    // Update the star selection visually
+                    updateStars(starContainer, starIndex);
 
-            // Update the score
-            document.getElementById(`${category}-score`).textContent = starIndex;
-        });
-    });
+                    // Update the score
+                    listening.getElementsByClassName(`score`)[0].textContent = starIndex;
+                });
+            });
 
             const readingWriting = document.createElement('div');
             readingWriting.classList.add('rating-item');
             readingWriting.innerHTML = `
-                <span>Reading/Writing</span>
-                <div class="stars2" data-rating="${student.write}" data-category="reading-writing" data-code="${scode}">
-                    <span class="star write_${scode} ${student.write >= 1 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star write_${scode} ${student.write >= 2 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star write_${scode} ${student.write >= 3 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star write_${scode} ${student.write >= 4 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star write_${scode} ${student.write >= 5 ? 'selected' : ''}">&#9733;</span>
+                <span style="width:80px">Reading/Writing</span>
+                <div class="stars" data-rating="${student.write}" data-category="reading-writing" data-code="${scode}">
+                    <span class="star ${student.write >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.write >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.write >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.write >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.write >= 5 ? 'selected' : ''}">&#9733;</span>
                 </div>
-                <span class="score">${student.write}</span>
+                <span class="score score_write">${student.write}</span>
             `;
-            readingWriting.querySelector('.write_'+scode).onclick = (event) => handleRating(event, scode);
+            const stars2 = readingWriting.querySelectorAll('.stars');
+            stars2.forEach(starContainer => {
+                starContainer.addEventListener('click', (e) => {
+                    const category = starContainer.getAttribute('data-category');
+                    const selectedStar = e.target;
+                    const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+
+                    // Update the star selection visually
+                    updateStars(starContainer, starIndex);
+
+                    // Update the score
+                    readingWriting.getElementsByClassName(`score`)[0].textContent = starIndex;
+                });
+            });
 
             const focus = document.createElement('div');
             focus.classList.add('rating-item');
             focus.innerHTML = `
-                <span>Focus</span>
-                <div class="stars_${scode}" data-rating="${student.level}" data-category="focus" data-code="${scode}">
-                    <span class="star level_${scode} ${student.level >= 1 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star level_${scode} ${student.level >= 2 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star level_${scode} ${student.level >= 3 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star level_${scode} ${student.level >= 4 ? 'selected' : ''}">&#9733;</span>
-                    <span class="star level_${scode} ${student.level >= 5 ? 'selected' : ''}">&#9733;</span>
+                <span style="width:80px">Focus</span>
+                <div class="stars" data-rating="${student.level}" data-category="focus" data-code="${scode}">
+                    <span class="star ${student.level >= 1 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.level >= 2 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.level >= 3 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.level >= 4 ? 'selected' : ''}">&#9733;</span>
+                    <span class="star ${student.level >= 5 ? 'selected' : ''}">&#9733;</span>
                 </div>
-                <span class="score">${student.level}</span>
+                <span class="score score_level">${student.level}</span>
             `;
-            focus.querySelector('.level_'+scode).onclick = (event) => handleRating(event, scode);
+            const stars3 = focus.querySelectorAll('.stars');
+            stars3.forEach(starContainer => {
+                starContainer.addEventListener('click', (e) => {
+                    const category = starContainer.getAttribute('data-category');
+                    const selectedStar = e.target;
+                    const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
+
+                    // Update the star selection visually
+                    updateStars(starContainer, starIndex);
+
+                    // Update the score
+                    focus.getElementsByClassName(`score`)[0].textContent = starIndex;
+                });
+            });
 
             const commentBox = document.createElement('div');
             commentBox.classList.add('comment-box');
             commentBox.innerHTML = `
-                <label for="comment">Comment</label>
+                <label>Comment</label>
                 <textarea id="comment_${scode}" maxlength="200">${student.evaluate}</textarea>
                 <div class="char-counter">
                     <span id="charCount_${scode}">${student.evaluate.length}</span>/200
                 </div>
             `;
             commentBox.querySelector('textarea').oninput = (event) => handleComment(event, scode);
+            // Character count for the comment box
 
             studentDetails.appendChild(listening);
             studentDetails.appendChild(readingWriting);
@@ -1124,41 +1364,30 @@
             studentItem.appendChild(studentDetails);
 
             studentList.appendChild(studentItem);
-
-            // studentItem.innerHTML = `
-            //     <h3>${student.name}</h3>
-            //     <label for="status-${student.code}">Status:</label>
-            //     <div class="status">
-            //         <label><input type="radio" name="status-${student.code}" value="0" ${student.state === "0" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Normal</label>
-            //         <label><input type="radio" name="status-${student.code}" value="1" ${student.state === "1" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Late</label>
-            //         <label><input type="radio" name="status-${student.code}" value="9" ${student.state === "9" ? "checked" : ""} onchange="handleStatusChange('${student.code}', this)"> Absent</label>
-            //     </div>
-            //     <div class="status">
-            //         <label for="feedback-${student.code}">Feedback:</label>
-            //         <textarea id="feedback-${student.code}">${student.evaluate}</textarea>
-            //     </div>
-            //      <div class="status">
-            //         <label for="feedback-${student.code}">HomeWork Upload:</label>
-            //         <div class="upload-btn-wrapper">
-            //             <button class="btn">Choose File</button>
-            //             <input type="file" id="fileUpload" onchange="uploadFile()"  />
-            //         </div>
-            //         <span class="file-name" id="fileName">No file</span>
-            //         <div class="status" id="status"></div>
-            //     </div>
-            // `;
-            // studentList.appendChild(studentItem);
         });
     }
 
-    function uploadFile() {
-        const fileInput = document.getElementById('fileUpload');
-        const fileName = document.getElementById('fileName');
-        const status = document.getElementById('status');
-        const file = fileInput.files[0];
+    // 截取文件名，保持后缀
+    function subStrFilename(filename) {
+        const extension = filename.substring(filename.lastIndexOf('.'));
+        const name = filename.substring(0, filename.lastIndexOf('.'));
+        if (name.length > 5) {
+            return '...' + name.substring(name.length - 5) + extension;
+        }
+        return filename;
+    }
+    function uploadFile(fid, sid) {
+        const files = document.getElementById(fid).files;
+        const uploadedFilesContainer = document.getElementById(sid);
+        const existingFiles = uploadedFilesContainer.children.length;
 
-        if (file) {
-
+        if (existingFiles + files.length > 2) {
+            alert('You can upload up to two attachments only.');
+            return;
+        }
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileId = 'file-' + Date.now() + '-' + i;
 
             // 创建 FormData 对象
             const formData = new FormData();
@@ -1169,30 +1398,64 @@
                 method: 'POST',
                 body: formData
             })
-                .then(response => response.json()) // 假设服务器返回文本
+                .then(response => response.json()) // 假设服务器返回JSON
                 .then(result => {
-                    fileName.innerHTML = result.data;
-                    status.textContent = result.msg;
+                    if (result.code !== 0) {
+                        alert('Failed to upload file.');
+                        return;
+                    }
+                    // 显示已上传文件
+                    const fileElement = document.createElement('div');
+                    fileElement.className = 'uploaded-file';
+                    fileElement.id = fileId;
+                    fileElement.innerHTML = `
+                        <span><a href="/download/${result.data.filePath}" target="_blank" id="${result.data.filePath}">${subStrFilename(result.data.filePath)}</a></span>
+                        <i class="fas fa-trash delete-icon" onclick="deleteFile('${fileId}', '${result.data.filePath}')"></i>
+                    `;
+                    uploadedFilesContainer.appendChild(fileElement);
                 })
                 .catch(error => {
-                    status.textContent = 'Failed to upload file.';
+                    alert('Failed to upload file.');
                     console.error('Error:', error);
                 });
-        } else {
-            fileName.textContent = "No file chosen";
         }
+    }
+
+    function deleteFile(fileId, filename) {
+        // 向服务器发送删除请求
+        fetch('/delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ filename: filename })
+        })
+            .then(response => response.json()) // 假设服务器返回JSON
+            .then(result => {
+                if (result.code == 0) {
+                    // 删除前端显示的文件
+                    const fileElement = document.getElementById(fileId);
+                    fileElement.parentNode.removeChild(fileElement);
+                } else {
+                    alert('Failed to delete file.');
+                }
+            })
+            .catch(error => {
+                alert('Failed to delete file.');
+                console.error('Error:', error);
+            });
     }
 
     async function fetchData() {
         try {
             const selectedDate = document.getElementById('selectedDate');
-            dt = selectedDate.value;
+            current_date = selectedDate.value;
             const response = await fetch(url + '/course/GetData', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ date: dt, subid })
+                body: JSON.stringify({ date: current_date, subid })
             });
             const result = await response.json();
 
@@ -1214,6 +1477,9 @@
             result.data.forEach((course, index) => {
                 const courseItem = document.createElement('div');
                 courseItem.classList.add('course-item');
+                if(course.attend == 9){
+                    courseItem.classList.add('course-item-absent');
+                }
                 if (index % 3 == 0) {
                     courseItem.innerHTML += `<div class="course-icon">🎓</div>`;
                 } else if (index % 3 == 1) {
@@ -1223,15 +1489,28 @@
                 }
                 courseItem.innerHTML +=
                     `<div class="course-info">
-                    <h4>${course.title}</h4>
-                    <p><i class="fas fa-clock"></i>&nbsp;&nbsp;${course.date}&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}</p>
+                    <h4 onclick="showDetails('${course.id}')">${course.title}</h4>
+                   
+                    <p><i class="fas fa-clock"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)} <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave"></i></p>
                     <p><i class="fas fa-user"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p><i class="fas fa-plus add-course"></i>&nbsp;&nbsp;${course.signed_up}/5</p>
+                    <div class="attendance-group">
+                        <label><input type="radio" name="attendance_${course.id}" value="1" onchange="handleAttendanceChange('${course.id}','1')">Attendance</label>
+                        <label><input type="radio" name="attendance_${course.id}" value="9" onchange="handleAttendanceChange('${course.id}','9')">NoAttendance</label>
+                    </div>
                 </div>
-                <div class="course-arrow"><i class="fas fa-angle-right"></i></div>`;
-                courseItem.onclick = () => showDetails(course);
+                <div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
+                // courseItem.onclick = () => showDetails(course.id);
                 courseList.appendChild(courseItem);
             });
 
+              // 页面加载完毕后设置radio选中状态
+              result.data.forEach(course => {
+                const attendanceRadio = document.querySelector(`input[name="attendance_${course.id}"][value="${course.attend}"]`);
+                if (attendanceRadio) {
+                    attendanceRadio.checked = true;
+                }
+            });
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
@@ -1263,12 +1542,12 @@
         updateNotificationCount(messages.length);
     }
 
-    function changeDate(days) {
+    async function changeDate(days) {
         const dateInput = document.getElementById('selectedDate');
         const currentDate = new Date(dateInput.value);
         currentDate.setDate(currentDate.getDate() + days);
         dateInput.value = currentDate.toISOString().split('T')[0];
-        fetchData();
+        await fetchData();
     }
 
     // 显示或隐藏消息弹出框
@@ -1299,8 +1578,8 @@
     }
 
     function toggleDetails(scode) {
-        const details = document.getElementById('details_'+scode);
-        const arrow = document.getElementById('arrow_'+scode);
+        const details = document.getElementById('details_' + scode);
+        const arrow = document.getElementById('arrow_' + scode);
 
         if (details.classList.contains('hidden')) {
             details.classList.remove('hidden');
@@ -1311,33 +1590,12 @@
         }
     }
 
-    function handleRating(e,scode){
-        console.log('handleRating');
-        const category = starContainer.getAttribute('data-category');
-            const selectedStar = e.target;
-            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
-
-            // Update the star selection visually
-            updateStars(starContainer, starIndex);
-
-            // Update the score
-            document.getElementById(`${category}-score`).textContent = starIndex;
+    function handleComment(e, scode) {
+        console.log('handleComment');
+        const comment = e.target.value;
+        const charCount = document.getElementById('charCount_' + scode);
+        charCount.textContent = comment.length;
     }
-
-    const stars = document.querySelectorAll('.stars');
-    stars.forEach(starContainer => {
-        starContainer.addEventListener('click', (e) => {
-            const category = starContainer.getAttribute('data-category');
-            const selectedStar = e.target;
-            const starIndex = Array.from(starContainer.children).indexOf(selectedStar) + 1;
-
-            // Update the star selection visually
-            updateStars(starContainer, starIndex);
-
-            // Update the score
-            document.getElementById(`${category}-score`).textContent = starIndex;
-        });
-    });
 
     function updateStars(container, rating) {
         const stars = container.children;
@@ -1349,21 +1607,116 @@
         }
     }
 
-    // Character count for the comment box
-    const commentBox = document.getElementById('comment');
-    const charCount = document.getElementById('charCount');
+    async function Save() {
+        // 保存学生评价
+        const studentInfos = [];
+        const students = document.getElementById('studentList').children;
+        for (let i = 0; i < students.length; i++) {
+            const student = students[i];
+            const code = student.id;
+            const read = student.getElementsByClassName('score_read')[0].textContent;
+            const write = student.getElementsByClassName('score_write')[0].textContent;
+            const level = student.getElementsByClassName('score_level')[0].textContent;
+            const evaluate = document.getElementById('comment_' + code).value;
 
-    commentBox.addEventListener('input', () => {
-        charCount.textContent = commentBox.value.length;
-    });
+            studentInfos.push({ code, read, write, level, evaluate });
+        }
+
+        const preview = document.getElementById('coursePreview').value;
+        const homework = document.getElementById('courseHomework').value;
+        let previewfiles = '';
+        const previewFiles = Array.from(document.querySelectorAll('#uploadedFiles_preview .uploaded-file'));
+        previewFiles.forEach(file => {
+            const fileName = file.children[0].childNodes[0].id;
+            previewfiles += fileName + '/';
+        });
+
+        const homeworkFiles = Array.from(document.querySelectorAll('#uploadedFiles_homework .uploaded-file'));
+        let homeworkfiles = '';
+        homeworkFiles.map(file => {
+            const fileName = file.children[0].childNodes[0].id;
+            homeworkfiles += fileName + '/';
+        });
+
+        const response = await fetch(url + '/course/SaveInfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, students: studentInfos, preview, homework, previewfiles, homeworkfiles })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert('Feedback submitted faild');
+        } else {
+            alert('Feedback submitted successfully');
+        }
+    }
+
+    // Example function to handle status change
+    async function handleStatusChange(code, name, radioButton) {
+        const state = radioButton.value;
+        console.log(`Studentcode: ${code}, Status: ${state}`);
+        const response = await fetch(url + '/course/SignStudentStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: current_eventId, code, name, state })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert(`Failed to reported student ${name.replace(/\d+$/, '')}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+        } else {
+            alert(`Successfully reported student ${name.replace(/\d+$/, '')}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+        }
+    }
+
+    async function handleAttendanceChange(courseId, attend) {
+        const response = await fetch(url + '/course/EditData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: courseId, attend: attend })
+        });
+        const result = await response.json();
+
+        if (result.code != 0) {
+            alert(`Failed to report leave request!`);
+        } else {
+            alert(`Successfully reported leave request!`);
+        }
+    }
+
 
     function formatDate(date) {
+        if(date == undefined){
+            date = new Date();
+        }else{
+            date = new Date(date);
+        }
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezoneSet != timeZone) {
+            date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+        }
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
     function formatDateTime(date) {
+        if(date == undefined){
+            date = new Date();
+        }else{
+            date = new Date(date);
+        }
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezoneSet != timeZone) {
+            date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+        }
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
@@ -1372,7 +1725,16 @@
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
     function formatTime(date) {
-        date = new Date(date);
+        if(date == undefined){
+            date = new Date();
+        }else{
+            date = new Date(date);
+        }
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezoneSet != timeZone) {
+            date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+        }
+       
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${hours}:${minutes}`;
@@ -1380,7 +1742,7 @@
 
     function replaceCommas(str) {
         console.log(str);
-        let resStr = str.split(/[,，]+/).join('，')
+        let resStr = str.split(/[,，]+/).map(x=> x.replace(/\d+$/, '')).join('，')
         resStr = resStr.substring(0, resStr.length - 1);
         return resStr;
     }

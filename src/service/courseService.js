@@ -161,6 +161,35 @@ async function SignStudentStatus(id, code, state) {
     }
 }
 
+async function SaveInfo(body){
+    try {
+        const { id, students, preview, homework, previewfiles, homeworkfiles } = body;
+        let result = await new Promise((resolve, reject) => {
+            db.run(`update courses set preview='${preview}', homework='${homework}',value1='${previewfiles}', value2='${homeworkfiles}' where id ='${id}'`, (err, data) => {
+                if (err) {
+                    resolve(false);
+                }
+                resolve(true);
+            });
+        });
+
+        students.forEach(async student => {
+            let resdata = await new Promise((resolve, reject) => {
+                db.run(`update student_detail set read=${student.read}, write=${student.write}, level=${student.level}, evaluate='${student.evaluate}', remarks='${student.remarks}', homework='${student.homework}' where course_id ='${id}' and code='${student.code}'`, (err, data) => {
+                    if (err) {
+                        resolve(false);
+                    }
+                    resolve(true);
+                });
+            });
+        });
+        return result;
+    } catch (error) {
+        logMessage(`SaveInfo error，${error.message}`, 'error');
+        return false;
+    }
+}
+
 async function GetDataByid(id) {
     try {
         return await new Promise((resolve, reject) => {
@@ -313,4 +342,4 @@ async function InitCourse() {
     }
 }
 
-module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse, GetDataByid };
+module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse, GetDataByid, SaveInfo };

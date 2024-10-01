@@ -191,10 +191,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
       return res.status(400).send('No file uploaded.');
     }
+
     const fileUrl = `view file: <a href="/download/${req.file.filename}">${req.file.filename}</a>`;
-    res.json({code:0, data: fileUrl, msg:'File uploaded successfully!'});
+    res.json({code:0, data:{filePath: `${req.file.filename}`, filename: req.file.name}});
   } catch (error) {
-    res.json({code:1, data: null, msg:'Failed to upload file.'});
+    res.json({code:1, message: error.message});
   }
 });
 
@@ -217,6 +218,19 @@ app.get('/download/:filename', (req, res) => {
     res.status(404).send('File not found.');
   }
 });
+// 文件删除
+app.post('/delete', (req, res) => {
+  const filename = req.body.filename;
+  const filePath = path.join(__dirname, '../uploads', filename);
+  // 检查文件是否存在
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    res.json({code: 0, msg: 'File deleted successfully.'} );
+  } else {
+    res.json({code: 0, msg: 'File not found.'});
+  }
+});
+
  
 // 错误处理中间件
 app.use((err, req, res, next) => {

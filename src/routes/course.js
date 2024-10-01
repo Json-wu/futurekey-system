@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const courseService = require('../service/courseService');
 const studentDetailService = require('../service/studentDetailService');
+const leaveService = require('../service/leaveService');
 
 // teacher's page
 router.get('', (req, res) => {
@@ -29,7 +30,8 @@ router.post('/GetData', async (req, res) => {
             for (let index = 0; index < result.length; index++) {
                 let item = result[index];
                 item.student = await studentDetailService.GetDataAll(item.id);
-                
+                let leave = await leaveService.getLeaveByid(item.id, item.date);
+                item.isleave = leave ==null ? false : true;
             }
             res.status(200).json({ code: 0, msg: 'ok', data: result });
         } else {
@@ -82,7 +84,7 @@ router.post('/EditStuData', async (req, res) => {
 var setSendMail = null;
 
 router.post('/SignStudentStatus', async (req, res) => {
-    const { id, code, state } = req.body;
+    const { id, code, name, state } = req.body;
     try {
         const result = await courseService.SignStudentStatus(id, code, state);
         if (result) {
@@ -94,7 +96,7 @@ router.post('/SignStudentStatus', async (req, res) => {
                     console.log('5 seconds have passed!');
                     // 可以在这里执行其他操作，例如发送响应或处理其他任务
     
-                    courseService.sendMailSignStatus(id, studentName, state);
+                    courseService.sendMailSignStatus(id, name, state);
                     clearTimeout(setSendMail);
                 }, 5000);
             }
@@ -111,6 +113,19 @@ router.get('/init',  async (req, res)=>{
     courseService.InitCourse();
     res.status(200).json({ code: 0, msg: 'init ok' });
 })
+
+router.post('/SaveInfo', async (req, res) => {
+    try {
+        const result = await courseService.SaveInfo(req.body);
+        if (result) {
+            res.status(200).json({ code: 0, msg: 'ok' });
+        } else {
+            res.status(500).json({ code: 1, msg: 'Failed to sumit.' });
+        }
+    } catch (error) {
+        res.status(500).json({ code: 1, msg: 'Failed to sumit.' });
+    }
+});
 
 
 

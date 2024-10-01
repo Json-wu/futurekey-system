@@ -22,7 +22,7 @@ db.serialize(() => {
 
   db.run("CREATE TABLE IF NOT EXISTS message_info (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, msg TEXT, isread TEXT, create_date DATETIME, url TEXT,value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
 
-  db.run("CREATE TABLE IF NOT EXISTS leave (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, start_dt TEXT, end_dt TEXT, create_date DATETIME, status TEXT,value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
+  db.run("CREATE TABLE IF NOT EXISTS leave (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, start_dt TEXT, end_dt TEXT, create_date DATETIME, status TEXT, reason TEXT, comment TEXT, courseId TEXT,value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
 
   db.run("CREATE TABLE IF NOT EXISTS student_detail (id INTEGER PRIMARY KEY AUTOINCREMENT, course_id TEXT, subcalendar_id TEXT, name TEXT, code TEXT, state TEXT, parent_name TEXT, parent_code TEXT,read TEXT, write TEXT, level TEXT, evaluate TEXT, remarks TEXT, homework TEXT, value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
 
