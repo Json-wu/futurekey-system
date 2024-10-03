@@ -2,9 +2,11 @@
 const axios = require('axios');
 const { logMessage } = require('../libs/logger');
 const db = require('../libs/db');
+const config = require('../config/config');
 
 const calendarKeyOrId = process.env.TEAMUP_KEY;
 const apiKey = process.env.TEAMUP_APIKEY;
+const teamup = config.teamup;
 
 /**
  * 按时间段获取teamup日历数据
@@ -44,6 +46,9 @@ async function fetchTeamUpCalendar(sDate, eDate) {
 
 async function createAnEvent(body){
   try {
+    if(process.env.NODE_ENV === 'development' || !teamup.modify){
+      return;
+    }
     const url = `https://api.teamup.com/${calendarKeyOrId}/events`;
     const response = await axios.post(url, body, {
       headers: {
@@ -64,9 +69,12 @@ async function createAnEvent(body){
     return null;
   }
 }
-async function updateAnEvent(body){
+async function updateAnEvent(id, body){
   try {
-    const url = `https://api.teamup.com/${calendarKeyOrId}/events/${body.id}`;
+    if(process.env.NODE_ENV === 'development' || !teamup.modify){
+      return;
+    }
+    const url = `https://api.teamup.com/${calendarKeyOrId}/events/${id}`;
     const response = await axios.put(url, body, {
       headers: {
         'Teamup-Token': apiKey,
@@ -88,6 +96,9 @@ async function updateAnEvent(body){
 }
 async function deleteAnEvent(eventId){
   try {
+    if(process.env.NODE_ENV === 'development' || !teamup.modify){
+      return;
+    }
     const url = `https://api.teamup.com/${calendarKeyOrId}/events/${eventId}`;
     const response = await axios.delete(url, {
       headers: {

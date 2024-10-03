@@ -10,13 +10,15 @@
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
     <p>Hi Teacher <strong>[<%= teacherName %>]</strong>,</p>
     <p>You have a new class with <strong>[<%= users.join(',') %>]</strong>.</p>
-    <p>Please check out the <a href="<%=emailConfig.back_url %>?subid=<%= sub_eventid %>&dt=<%= dt %>" style="color: #007bff;
+    <p>Please check out the <a href="<%=emailConfig.web_url %>/back?subid=<%= sub_eventid %>&dt=<%= dt %>" style="color: #007bff;
                 text-decoration: none;">teacher's home page</a> for your upcoming classes and class management tools.
     </p>
+
     <p>FutureKey School<br>
         <em>[<%= time %>
                 <%= tz %>]</em>
     </p>
+    To unsubscribe, please click <a href="<%=emailConfig.web_url %>/subscribe/<%= sub_eventid %>">here</a>
 </body>
 
 </html>

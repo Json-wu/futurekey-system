@@ -6,13 +6,18 @@ const { sendEmail } = require('../service/emailService');
 const { logMessage } = require('../libs/logger');
 const ejs = require('ejs');
 const path = require('path');
-const { fetchTeamUpCalendar } = require('../service/teamupService');
+const { fetchTeamUpCalendar, updateAnEvent } = require('../service/teamupService');
 const messageService = require('../service/messageService');
-const teacherData = require('../config/teacher');
+const teacherData = require('../config/teacher.json');
 const { StuInsertData } = require('./studentDetailService')
 const studentDetailService = require('../service/studentDetailService');
+const { replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml } = require('../libs/common');
+const { getCustomerDetail } = require('../service/xbbService');
+const { SendSms_parent } = require('../service/smsService');
 
 const emailConfig = config.email;
+const smsConfig = config.sms;
+
 async function InsertData(info) {
     try {
         let class_level = '';
@@ -80,11 +85,14 @@ async function EditData(id, attend) {
                 resolve(true);
             });
         });
-        // 如果不出席发邮件提醒
+        // 如果不出席发邮件提醒，修改teamup状态
         if (result && attend == 9) {
             let couData = await GetDataByid(id);
             if (couData)
                 sendMail(couData);
+
+            // edit teamup
+            //await updateAnEvent(id, {who: ''});
         }
         return result;
     } catch (error) {
@@ -142,7 +150,7 @@ async function EditStuData(id, student, value1) {
         return false;
     }
 }
-
+// 修改学生上课状态
 async function SignStudentStatus(id, code, state) {
     try {
         let couData = await GetDataByid(id);
@@ -212,23 +220,85 @@ async function Clear() {
 
 function sendMail(couData) {
     try {
-        let students = JSON.parse(couData.student).map(x => x.name).join(',');
-        sendEmail(emailConfig.receive, '老师课程不出席提醒', '', `参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`);
-        logMessage(`老师课程不出席提醒  .参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`, 'info');
+        var fpath = path.join(__dirname, `../public/email_reminderTeacher.html`);
+        couData.who = replaceNumberToNull(couData.who);
+        couData.start_dt = formatDateTime(couData.start_dt, couData.tz);
+        couData.end_dt = formatTime(couData.end_dt, couData.tz);
+        couData.email = emailConfig.receive;
+
+        const html = ejsHtml(fpath, {couData,emailConfig});
+        let msg = `Teacher ${couData.teacher}'s Late Absent Reminder`;
+
+        sendEmail(emailConfig.receive, msg, '', html);
+
+        logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
     } catch (error) {
-        logMessage(`老师课程不出席提醒邮件发送失败，，${error.message}`, 'error');
+        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
 async function sendMailSignStatus(id, studentName, state) {
     try {
         let couData = await GetDataByid(id);
-        let students = JSON.parse(couData.student).map(x => x.name).join(',');
 
-        let msg = state == 1 ? `学生[${studentName}]迟到提醒` : `学生[${studentName}]缺课提醒`;
-        sendEmail(emailConfig.receive, msg, '', `参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`);
-        logMessage(`${msg}  .参与人：${students}     课程标题：${couData.title}     课程时间：${couData.time}  ${couData.tz}`, 'info');
+        var fpath = path.join(__dirname, `../public/email_reminderStudent.html`);
+        couData.who = replaceNumberToNull(couData.who);
+        couData.start_dt = formatDateTime(couData.start_dt, couData.tz);
+        couData.end_dt = formatTime(couData.end_dt, couData.tz);
+        couData.email = emailConfig.receive;
+
+        studentName = replaceNumberToNull(studentName).replace(" ", ""); 
+
+        let msg = state == 1 ? `Student ${studentName}'s Late Reminder` : `Student ${studentName}'s Absent Reminder`;
+
+        const html = ejsHtml(fpath, {state, studentName, couData, emailConfig, msg});
+        sendEmail(emailConfig.receive, msg, '', html);
+        // 给家长发短信
+        // 如果迟到或者缺课给家长发短信提醒
+        if(smsConfig.sendToParent){
+            sendSmsToParent(studentName, couData.start_dt, state);
+        }
+
+        logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
     } catch (error) {
-        logMessage(`老师课程不出席提醒邮件发送失败，，${error.message}`, 'error');
+        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
+    }
+}
+
+async function sendSmsToParent(studentName, time, state) {
+    try {
+        let usercode = studentName.match(/\d{8,10}/);
+        let userInfo = null;
+        
+        if (usercode != null) {
+          userInfo = await getCustomerDetail(usercode[0], 1);
+        } else {
+          userInfo = await getCustomerDetail(studentName);
+        }
+        if (userInfo) {
+          // send sms
+          if (userInfo.monther &&userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
+            let phones = userInfo.monther.subForm_1;
+            for (let index = 0; index < phones.length; index++) {
+                const subForm = phones[index];
+                let phone = subForm.text_2 ? subForm.text_2.trim() : '';
+                if (phone.length > 0) {
+                  let codenum = '86';
+                  if (subForm.text_1) {
+                    codenum = subForm.text_1.text;
+                    codenum = codenum.split(" ")[1].replace(/^0+/, '');
+                    phone =  codenum+ phone;
+                  }
+                
+                  let user = userInfo.child.text_2;
+                  let type = state==1? '迟到':'缺课';
+                  SendSms_parent(phone, {user, time, type});//, teacherName
+                }
+              }
+          }
+        }
+       logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
+    } catch (error) {
+        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
 
@@ -292,7 +362,7 @@ async function InitCourse() {
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
         let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
         let data = await fetchTeamUpCalendar('2024-06-01', date_end);
-        data = data.filter(x => x.who && x.who.length > 0);
+        data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
         if (data != null && data.length > 0) {
             //Clear();
 

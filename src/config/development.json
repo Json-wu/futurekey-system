@@ -1,15 +1,20 @@
 {
+  "teamup":{
+    "modify": false
+  },
   "sms": {
-    "enable": false,
+    "enable": true,
     "signName": "科爱信",
-    "templateCode": "SMS_473240033",
+    "templateCode": "SMS_474215215",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": "",
+    "templateCode_student": "SMS_474180232",
+    "sendToParent": false,
     "sms_msg":""
   },
   "email": {
-    "enable": false,
+    "enable": true,
     "service": "gmail",
     "host": "smtp.gmail.com",
     "port": 587,
@@ -18,7 +23,7 @@
       "user": "no_reply@gdfdlearning.org"
     },
     "receive": "yongqiangwu1@163.com",
-    "back_url": "http://localhost:3000/classroom/back"
+    "web_url": "http://localhost:3000/classroom"
   },
   "bot_webhook": {
     "enable": false,

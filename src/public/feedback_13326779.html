@@ -5,9 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher management system</title>
-    <style>
-       
-    </style>
     <!-- 引入 Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/css/teacher.css">
@@ -293,7 +290,8 @@
             }).then(response => response.json())
                 .then(data => {
                     if (data.code == 0) {
-                        alert('Leave request submitted successfully!');
+                        fetchData(); 
+                        // alert('Leave request submitted successfully!');
                     } else {
                         alert(data.msg);
                     }
@@ -302,8 +300,6 @@
                     alert('Leave request submitted error!');
                     console.log('Error:', error)
                 });
-
-
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
@@ -445,7 +441,9 @@
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('courseDetails').style.display = 'none';
     }
-
+    function replaceNumberToNull(str){
+        return str? str.replace(/\d+/g,''):str;
+    }
     function displayData(data) {
         const studentList = document.getElementById('studentList');
         studentList.innerHTML = "";
@@ -460,10 +458,10 @@
             studentInfo.classList.add('dropdown');
             // studentInfo.onclick = () => toggleDetails(scode);
             studentInfo.innerHTML = `
-                <span onclick="toggleDetails(${scode})">${student.name.replace(/\d+$/, '')}</span>
+                <span onclick="toggleDetails(${scode})">${replaceNumberToNull(student.name)}</span>
                 <div class="radio-group">
-                    <label><input type="radio" name="attendance_${scode}" value="1" ${student.state === '1' ? 'checked' : ''} onchange="handleStatusChange('${scode}','${student.name}', this)">Late</label>
-                    <label><input type="radio" name="attendance_${scode}" value="9" ${student.state === '9' ? 'checked' : ''} onchange="handleStatusChange('${scode}','${student.name}', this)">Absent</label>
+                    <label><input type="radio" name="attendance_${scode}" value="1" ${student.state === '1' ? 'checked' : ''} onchange="confirmHandleStatusChange('${scode}','${student.name}', 1)">Late</label>
+                    <label><input type="radio" name="attendance_${scode}" value="9" ${student.state === '9' ? 'checked' : ''} onchange="confirmHandleStatusChange('${scode}','${student.name}', 9)">Absent</label>
                 </div>
                 <i class="fas fa-angle-right" id="arrow_${scode}" onclick="toggleDetails(${scode})"></i>
             `;
@@ -557,6 +555,10 @@
                 });
             });
 
+            const homewk = document.createElement('div');
+            homewk.classList.add('rating-item');
+            homewk.innerHTML = ` <span style="width:80px">Homework</span><a href="baidu.com"> <span><a href="/download/${student.homework}" target="_blank">${subStrFilename(student.homework)}</a></span></a>`;
+
             const commentBox = document.createElement('div');
             commentBox.classList.add('comment-box');
             commentBox.innerHTML = `
@@ -572,6 +574,7 @@
             studentDetails.appendChild(listening);
             studentDetails.appendChild(readingWriting);
             studentDetails.appendChild(focus);
+            studentDetails.appendChild(homewk);
             studentDetails.appendChild(commentBox);
 
             studentItem.appendChild(studentInfo);
@@ -690,6 +693,7 @@
 
             result.data.forEach((course, index) => {
                 const courseItem = document.createElement('div');
+                courseItem.id = "div_"+course.id;
                 courseItem.classList.add('course-item');
                 if (course.attend == 9) {
                     courseItem.classList.add('course-item-absent');
@@ -709,8 +713,8 @@
                     <p><i class="fas fa-user"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
                     <p><i class="fas fa-plus add-course"></i>&nbsp;&nbsp;${course.signed_up}/5</p>
                     <div class="attendance-group">
-                        <label><input type="radio" name="attendance_${course.id}" value="1" onchange="handleAttendanceChange('${course.id}','1')">Attendance</label>
-                        <label><input type="radio" name="attendance_${course.id}" value="9" onchange="handleAttendanceChange('${course.id}','9')">NoAttendance</label>
+                        <label><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Attendance</label>
+                        <label><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">NoAttendance</label>
                     </div>
                 </div>
                 <div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
@@ -868,9 +872,23 @@
         }
     }
 
+    function confirmHandleStatusChange(code, name, state) {
+        let msg = "Are you sure you reported the student as late? The system will immediately send a text message reminder to parents!?";
+        if(state==9){
+            msg = "Are you sure to report a student's absence from class? The system will immediately send a text message reminder to parents!?";
+        }
+        const confirmation = confirm(msg);
+        if (confirmation) {
+            handleStatusChange(code, name, state);
+        } else {
+            // 如果用户取消确认，则恢复原来的选中状态
+            const originalValue = current_course.student.find(st => st.code == code).state;
+            document.querySelector(`input[name="attendance_${code}"][value="${originalValue}"]`).checked = true;
+        }
+    }
+
     // Example function to handle status change
-    async function handleStatusChange(code, name, radioButton) {
-        const state = radioButton.value;
+    async function handleStatusChange(code, name, state) {
         console.log(`Studentcode: ${code}, Status: ${state}`);
         const response = await fetch(url + '/course/SignStudentStatus', {
             method: 'POST',
@@ -882,12 +900,28 @@
         const result = await response.json();
 
         if (result.code != 0) {
-            alert(`Failed to reported student ${name.replace(/\d+$/, '')}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+            alert(`Failed to reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
         } else {
-            alert(`Successfully reported student ${name.replace(/\d+$/, '')}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+            current_course.student.find(st => st.code == code).state = state;
+            // alert(`Successfully reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
         }
     }
 
+    function confirmAttendanceChange(courseId, value) {
+        let msg = "Are you sure you will attend?";
+        if(value==9){
+            msg = "Are you sure you won't attend?";
+        }
+        const confirmation = confirm(msg);
+        if (confirmation) {
+            handleAttendanceChange(courseId, value);
+        } else {
+            // 如果用户取消确认，则恢复原来的选中状态
+            const originalValue = today_course.find(course => course.id == courseId).attend;
+            document.querySelector(`input[name="attendance_${courseId}"][value="${originalValue}"]`).checked = true;
+        }
+    }
+    
     async function handleAttendanceChange(courseId, attend) {
         const response = await fetch(url + '/course/EditData', {
             method: 'POST',
@@ -901,7 +935,15 @@
         if (result.code != 0) {
             alert(`Failed to report leave request!`);
         } else {
-            alert(`Successfully reported leave request!`);
+            const original = today_course.find(course => course.id == courseId);
+            original.attend = attend;
+            if(attend!=9){
+                document.getElementById("div_"+courseId).classList.remove('course-item-absent');
+            }else{
+                document.getElementById("div_"+courseId).classList.add('course-item-absent');
+            }
+            
+            //alert(`Successfully reported leave request!`);
         }
     }
 

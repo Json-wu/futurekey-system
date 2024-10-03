@@ -1,10 +1,15 @@
 {
+  "teamup":{
+    "modify": false
+  },
   "sms": {
     "enable": true,
     "signName": "科爱信",
-    "templateCode": "SMS_473240033",
+    "templateCode": "SMS_474215215",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
+    "templateCode_student": "SMS_474180232",
+    "sendToParent": false,
     "templateCode_GAT": ""
   },
   "email": {
@@ -17,7 +22,7 @@
       "user": "no_reply@gdfdlearning.org"
     },
     "receive": "info@futurekey.com",
-    "back_url": "https://futurekey.com/classroom/back"
+    "web_url": "https://futurekey.com/classroom"
   },
   "bot_webhook": {
     "enable": true,

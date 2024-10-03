@@ -9,12 +9,10 @@ const { getCustomerDetail } = require('../service/xbbService');
 const { autoSendSms, SendSms_teacher } = require('../service/smsService');
 const { getCustomerDetail_check } = require('../service/xbbService');
 const { sendEmail } = require('../service/emailService');
-const teacherData = require('../config/teacher');
+const teacherData = require('../config/teacher.json');
 const { CheckCourse } = require('../service/courseService');
-const { getDateNow } = require('./common');
-const ejs = require('ejs');
+const { getDateNow, ejsHtml } = require('./common');
 const path = require('path');
-const fs = require('fs');
 const { InsertTotalData } = require('../service/totalService');
 const { sendBotMsg } = require('../service/botService');
 
@@ -168,20 +166,22 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     let ownerList =[];
     let teacherInfo = teacherData[sub_eventid];
     let teacherName = '';
+   
     if (teacherInfo == null) {
       console.log('未找到老师信息');
       logMessage(`Teacher information not found.[${sub_eventid}]`, 'error');
     } else {
-      teacherName = teacherInfo.name;
-      // send msg to teacher  teacherName
-      try {
-        var fpath = path.join(__dirname, `../public/email.html`);
-        var html_source = fs.readFileSync(fpath, 'utf-8');
-        var dt = moment(new Date(time)).format('YYYY-MM-DD');
-        const html = ejs.render(html_source, { teacherName, users, emailConfig, sub_eventid, time, tz, dt });
-        sendEmail(teacherInfo.email, 'New Class Notification', '', html);
-      } catch (error) {
-        logMessage(`Failed send email to teacher.: ${error.message}`, 'error');
+      if(teacherInfo.enable_email==1){
+        teacherName = teacherInfo.name;
+        // send msg to teacher  teacherName
+        try {
+          var dt = moment(new Date(time)).format('YYYY-MM-DD');
+          var fpath = path.join(__dirname, `../public/email.html`);
+          const html =ejsHtml(fpath, { teacherName, users, emailConfig, sub_eventid, time, tz, dt });
+          sendEmail(teacherInfo.email, 'New Class Notification', '', html);
+        } catch (error) {
+          logMessage(`Failed send email to teacher.: ${error.message}`, 'error');
+        }
       }
     }
     // Record course information to database

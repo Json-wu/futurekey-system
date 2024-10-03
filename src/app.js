@@ -17,6 +17,7 @@ const { scheduleLoad } = require('./libs/scheduler');
 const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
+const teacherData = require('./config/teacher.json');
 
 const app = express();
 app.use(cors());
@@ -138,6 +139,27 @@ app.get('/classroom/email-logs', (req, res) => {
 // 反馈表
 app.get('/classroom/back', (req, res) => {
   res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));
+});
+
+app.get('/classroom/subscribe/:email', (req, res) => {
+  // 读取JSON文件
+const jsonFilePath = path.join(__dirname,'config','email.json');
+let emailData = require(jsonFilePath);
+
+// 修改JSON内容的示例路由
+  // 修改JSON对象
+  emailData[req.params.email]=0;
+
+  // 将修改后的JSON对象写回文件
+  fs.writeFile(jsonFilePath, JSON.stringify(emailData), (err) => {
+    if (err) {
+      console.error('Error writing to JSON file', err);
+      res.status(500).send('Error writing to subscribe');
+    } else {
+      res.send('subscribe successfully');
+    }
+  });
+  
 });
 
 

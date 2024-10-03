@@ -2,10 +2,10 @@ const nodemailer = require('nodemailer');
 const config = require('../config/config');
 const { logMessage } = require('../libs/logger');
 const db = require('../libs/db');
-const ejs = require('ejs');
-const path = require('path');
 const fs = require('fs');
-const moment = require('moment');
+const path = require('path');
+const emailConfigPath = path.join(__dirname, '../config/email.json');
+let emailData;
 
 const emailConfig = config.email;
 
@@ -30,7 +30,21 @@ async function sendEmail(toMail, title, text, html) {
       logMessage(`Email send is not enable. message:toMail-${toMail}, content-${html}`, 'info');
       return 'Email send is not enable.';
     }
-    logMessage(`开始发送邮件:toMail-${toMail},content-${html}`, 'info');
+    logMessage(`Start sending email: toMail-${toMail}, content-${html}`, 'info');
+
+   
+
+    try {
+      const emailConfigContent = fs.readFileSync(emailConfigPath, 'utf-8');
+      emailData = JSON.parse(emailConfigContent);
+    } catch (error) {
+      logMessage(`Error loading email configuration: ${error.message}`, 'error');
+      return 'Error loading email configuration';
+    }
+    if (emailData[toMail] == 0) {
+      logMessage(`User has unsubscribed from emails: toMail-${toMail}, content-${html}`, 'info');
+      return 'User has unsubscribed from emails';
+    }
     // 配置邮件选项
     const mailOptions = {
       from: emailConfig.auth.user, // 发件人地址
@@ -43,16 +57,16 @@ async function sendEmail(toMail, title, text, html) {
     // 发送邮件
     return await new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          logMessage(`发送邮件出错:` + error.message, 'error');
-          InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'fail');
-          console.log('发送邮件出错:', error);
-          return resolve('Email sent error');
-        }
-        InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'success');
-        logMessage(`邮件发送成功,res:${JSON.stringify(info.response)}`, 'info');
-        //console.log('邮件发送成功:', info.response);
-        return resolve('Email sent');
+      if (error) {
+        logMessage(`Error sending email:` + error.message, 'error');
+        InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'fail');
+        console.log('Error sending email:', error);
+        return resolve('Email sent error');
+      }
+      InsertData(mailOptions.from, mailOptions.to, mailOptions.subject, mailOptions.html, 'success');
+      logMessage(`Email sent successfully, response: ${JSON.stringify(info.response)}`, 'info');
+      //console.log('Email sent successfully:', info.response);
+      return resolve('Email sent');
       });
     });
   } catch (error) {
@@ -78,6 +92,6 @@ function InsertData(fromMail, toMail, title, html, status) {
 // var dt = moment(new Date('2024-08-24 14:55:09')).format('YYYY-MM-DD');
 // const html = ejs.render(htmlss, { teacherName: 'teacherName', users: ['jack'], emailConfig, sub_eventid: '13326779', time: '2024-08-26', tz: "shanghang", dt });
 // sendEmail('1056836206@qq.com', '测试邮件', '邮件内容的文本部分', html);
-// sendEmail('1056836206@qq.com','参与人信息缺失提醒','',`课程标题：faith with  Joe G1     课程时间：2024-08-06 16:00<br>`);
+// sendEmail('yongqiangwu1@163.com','test Email','',`课程标题：faith with  Joe G1     课程时间：2024-08-06 16:00<br>To unsubscribe, please click <a href="http://localhost:3000/classroom/subscribe/13326779">here</a>`);
 
 module.exports = { sendEmail };

@@ -1,6 +1,10 @@
 const moment = require('moment');
 const crypto = require('crypto');
-const teacher = require('../config/teacher');
+const teacher = require('../config/teacher.json');
+const fs = require('fs');
+const ejs = require('ejs');
+const timezoneSet = 'Asia/Shanghai';
+
 
 /*
 * 获取当前日期
@@ -52,4 +56,62 @@ function getSubEventId(teacher_name) {
     }
     return sub_eventid;
 }
-module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign, getSubEventId };
+
+function replaceNumberToNull(str){
+    return str? str.replace(/\d+/g,''):str;
+}
+
+function formatDate(date, timezoneSet) {
+    if (date == undefined) {
+        date = new Date();
+    } else {
+        date = new Date(date);
+    }
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezoneSet != timeZone) {
+        date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+function formatDateTime(date, timezoneSet) {
+    if (date == undefined) {
+        date = new Date();
+    } else {
+        date = new Date(date);
+    }
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezoneSet != timeZone) {
+        date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+function formatTime(date, timezoneSet) {
+    if (date == undefined) {
+        date = new Date();
+    } else {
+        date = new Date(date);
+    }
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezoneSet != timeZone) {
+        date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+    }
+
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+}
+
+function ejsHtml(fpath, data){
+    var html_source = fs.readFileSync(fpath, 'utf-8');
+    return ejs.render(html_source, data);
+}
+
+module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign, getSubEventId,replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml };

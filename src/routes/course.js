@@ -95,7 +95,6 @@ router.post('/SignStudentStatus', async (req, res) => {
                 setSendMail = setTimeout(() => {
                     console.log('5 seconds have passed!');
                     // 可以在这里执行其他操作，例如发送响应或处理其他任务
-    
                     courseService.sendMailSignStatus(id, name, state);
                     clearTimeout(setSendMail);
                 }, 5000);

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher's absence reminder</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <p>Teacher <strong><%= couData.teacher %></strong>'s absence reminder</p>
+    <p><strong>Course title：</strong><%= couData.title %></p>
+    <p><strong>Student name：</strong><%= couData.who %></p>
+    <p><strong>Course time：</strong><%= couData.start_dt %>~<%= couData.end_dt %></p>
+    <p><strong>timezone：</strong><%= couData.tz %></p>
+   
+
+    <p>FutureKey School<br>
+    </p>
+    To unsubscribe, please click <a href="<%=emailConfig.web_url %>/subscribe/<%= couData.email %>">here</a>
+</body>
+
+</html>

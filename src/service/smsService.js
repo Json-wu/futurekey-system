@@ -3,6 +3,7 @@ const Core = require('@alicloud/pop-core');
 const config = require('../config/config');
 const { logMessage } = require('../libs/logger');
 const db = require('../libs/db');
+const moment = require('moment');
 
 const smsConfig = config.sms;
 const timerSet_class = config.timerSet_class;
@@ -30,7 +31,8 @@ const client_USA = new Core({
 // Send SMS
 const sendSms = async (phoneNumber, templateParam) => {
   try {
-    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在${templateParam.day}分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
+    // let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您的孩子${templateParam.user}在${templateParam.day}分钟后参加课程。如有任何问题可联系专属顾问，如果已请假，请忽略本消息。`;
+    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒${templateParam.user}同学参加${templateParam.time}课程。若有问题，请联系课程顾问。若请假，请忽略。`;
 
     if (!smsConfig.enable) {
       logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
@@ -103,11 +105,18 @@ const autoSendSms = async (phone, type, user, time) => {
   try {
     // 移除电话号码中的空格、横杠等字符
     const phoneNumber = phone.replace(/\D/g, '');
+   
+    moment.locale('zh-cn', {
+      weekdays: '周日_周一_周二_周三_周四_周五_周六'.split('_')
+      })
+    time = moment(new Date(time)).format('ddddHH:mm');
+    console.log(`今天是: ${time}`);
     const templateParam = { user, time };
     logMessage(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time}`, 'info');
     // 1.中国内地 9. 港澳台
     if (type == 1) {
-      return await sendSms(phoneNumber, {user: user, day: timerSet_class.timeout});
+      return await sendSms(phoneNumber, {user, time});
+      // return await sendSms(phoneNumber, {user: user, day: timerSet_class.timeout});
     }
     else { // 2 美国
       let message = `Please remind your child ${templateParam.user} to attend ${templateParam.time}’s class. Pls ignore if you have already reported an absence.`;
@@ -140,6 +149,42 @@ const SendSms_teacher = async (phone, type, user, time) => {
     //console.error('Error autoSendSms:', error.message);
   }
 }
+
+const SendSms_parent = async (phoneNumber, templateParam) => {
+  try {
+    moment.locale('zh-cn', {
+      weekdays: '周日_周一_周二_周三_周四_周五_周六'.split('_')
+      })
+      templateParam.time = moment(new Date(templateParam.time)).format('ddddHH:mm');
+    let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您，${templateParam.user}在${templateParam.time}的课程已经${templateParam.type}。如果有问题请联系专属顾问，如果已请假，请忽略本消息。`;
+    if (!smsConfig.enable) {
+      logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
+      return false;
+    }
+    console.log(`begin send SMS ` + SMSmsg);
+    logMessage(`begin send SMS ` + SMSmsg, 'info');
+    let msg = {
+      PhoneNumbers: phoneNumber,
+      SignName: smsConfig.signName,
+      TemplateCode: smsConfig.templateCode_student,
+      TemplateParam: JSON.stringify(templateParam)
+    };
+    const result = await client.sendSMS(msg);
+    if(result.Code != 'OK'){
+      InsertData(phoneNumber, SMSmsg, 'fail');
+      logMessage('SMS sent fail' + JSON.stringify(result), 'error');
+      return false;
+    }else{
+      InsertData(phoneNumber, SMSmsg, 'success');
+      logMessage('SMS sent successfully，' + JSON.stringify(result), 'info');
+      return true;
+    }
+  } catch (err) {
+    console.log('Error sending SMS:' + err.message, 'error');
+    logMessage('SMS sent fail' + err.message, 'error');
+    return false;
+  }
+};
 
 
 function InsertData(phone, msg, status) {
@@ -210,12 +255,15 @@ const verifyCode = (phoneNumber, code) => {
   return false;
 };
 // Example usage
-// autoSendSms('13052515651',1, '张小明','2024/08/06 19:00');
+// autoSendSms('13052515651',1, '张小明','2024/10/03 19:00');
 // const code = generateVerificationCode();
 // sendSms_USA('16503089650', `
 // Your registration code is: ${code}, if you are not operating by yourself, please ignore this SMS!`);
 // sendSms_val('6503089650');
 // autoSendSms('1650308aa | .,+a9650', 2, 'Katherine', '2024-09-03 09:30');
+// autoSendSms('13052515651', 1,'Joke', '2024-10-03 16:00');
+// SendSms_parent('13052515651', {user: 'Joke', time: '2024-10-02 19:00', type: '缺课'});
+// SendSms_parent('13052515651', {user: 'Joke', time: '2024-10-03 19:00', type: '迟到'});
 
 
-module.exports = { sendSms, autoSendSms, SendSms_teacher, SendSms_teacher, sendSms_val, verifyCode };
+module.exports = { sendSms, autoSendSms, SendSms_teacher, SendSms_teacher, sendSms_val, verifyCode, SendSms_parent };
