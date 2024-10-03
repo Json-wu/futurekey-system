@@ -1,6 +1,6 @@
 {
   "teamup":{
-    "modify": false
+    "modify": true
   },
   "sms": {
     "enable": true,
@@ -10,7 +10,7 @@
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": "",
     "templateCode_student": "SMS_474180232",
-    "sendToParent": false,
+    "sendToParent": true,
     "sms_msg":""
   },
   "email": {
@@ -22,7 +22,7 @@
     "auth": {
       "user": "no_reply@gdfdlearning.org"
     },
-    "receive": "yongqiangwu1@163.com",
+    "receive": "info@futurekey.com",
     "web_url": "http://localhost:3000/classroom"
   },
   "bot_webhook": {

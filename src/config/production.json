@@ -1,6 +1,6 @@
 {
   "teamup":{
-    "modify": false
+    "modify": true
   },
   "sms": {
     "enable": true,
@@ -9,7 +9,7 @@
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_student": "SMS_474180232",
-    "sendToParent": false,
+    "sendToParent": true,
     "templateCode_GAT": ""
   },
   "email": {
