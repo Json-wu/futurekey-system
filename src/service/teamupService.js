@@ -71,7 +71,7 @@ async function createAnEvent(body){
 }
 async function updateAnEvent(id, body){
   try {
-    if(process.env.NODE_ENV === 'development' || !teamup.modify){
+    if(!teamup.modify){
       return;
     }
     const url = `https://api.teamup.com/${calendarKeyOrId}/events/${id}`;

@@ -92,7 +92,8 @@ async function EditData(id, attend) {
                 sendMail(couData);
 
             // edit teamup
-            //await updateAnEvent(id, {who: ''});
+            await updateAnEvent(id, {who: '',  "start_dt": new Date(couData.start_dt).toISOString(),
+                "end_dt": new Date(couData.end_dt).toISOString(), title: couData.title+"[decline]"});
         }
         return result;
     } catch (error) {
