@@ -77,25 +77,41 @@ async function GetDataAll(sdate, edate) {
 }
 async function EditData(id, attend) {
     try {
-        let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set attend=${attend} where id ='${id}'`, (err, data) => {
-                if (err) {
-                    resolve(false);
-                }
-                resolve(true);
-            });
-        });
         // 如果不出席发邮件提醒，修改teamup状态
-        if (result && attend == 9) {
+        if (attend == 9) {
             let couData = await GetDataByid(id);
             if (couData)
                 sendMail(couData);
 
             // edit teamup
-            await updateAnEvent(id, {who: '',  "start_dt": new Date(couData.start_dt).toISOString(),
+            let upbool = await updateAnEvent(id, {who: '',  "start_dt": new Date(couData.start_dt).toISOString(),
                 "end_dt": new Date(couData.end_dt).toISOString(), title: couData.title+"[decline]"});
+            if(upbool){
+                logMessage(`edit teamup success`, 'info');
+                let result = await new Promise((resolve, reject) => {
+                    db.run(`update courses set attend=${attend} where id ='${id}'`, (err, data) => {
+                        if (err) {
+                            resolve(false);
+                        }
+                        resolve(true);
+                    });
+                });
+                return result;
+            }else{
+                logMessage(`edit teamup failed`, 'error');
+                return false;
+            }
+        }else{
+            let result = await new Promise((resolve, reject) => {
+                db.run(`update courses set attend=${attend} where id ='${id}'`, (err, data) => {
+                    if (err) {
+                        resolve(false);
+                    }
+                    resolve(true);
+                });
+            });
+            return result;
         }
-        return result;
     } catch (error) {
         logMessage(`EditData error，${error.message}`, 'error');
         return false;
@@ -222,17 +238,17 @@ async function Clear() {
 function sendMail(couData) {
     try {
         var fpath = path.join(__dirname, `../public/email_reminderTeacher.html`);
-        couData.who = replaceNumberToNull(couData.who);
-        couData.start_dt = formatDateTime(couData.start_dt, couData.tz);
-        couData.end_dt = formatTime(couData.end_dt, couData.tz);
-        couData.email = emailConfig.receive;
 
-        const html = ejsHtml(fpath, {couData,emailConfig});
+        let start_dt = formatDateTime(couData.start_dt, couData.tz);
+        let end_dt = formatTime(couData.end_dt, couData.tz);
+        let who = replaceNumberToNull(couData.who);
+        
+        const html = ejsHtml(fpath, {title: couData.title, teacher: couData.teacher, who, start_dt, end_dt, email: emailConfig.receive});
         let msg = `Teacher ${couData.teacher}'s Late Absent Reminder`;
 
         sendEmail(emailConfig.receive, msg, '', html);
 
-        logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
+        logMessage(`${msg}. Participants: ${who} Course title: ${couData.title} Course time: ${start_dt}-${end_dt} ${couData.tz}`, 'info');
     } catch (error) {
         logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
@@ -362,7 +378,8 @@ async function InitCourse() {
     try {
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
         let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        let data = await fetchTeamUpCalendar('2024-06-01', date_end);
+        // let data = await fetchTeamUpCalendar('2024-06-01', date_end);
+        let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
         if (data != null && data.length > 0) {
             //Clear();
@@ -390,7 +407,7 @@ async function InitCourse() {
                 is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
                 class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
 
-                stmt.run(info.id, info.subcalendar_id, info.title, teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1');
+                stmt.run(info.id, info.subcalendar_id, info.title, teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signups.map(x=>x.name).join(','), is_trial_class, class_category, is_full, '1', '1');
 
                 info.who.split(/[,，]+/).forEach(student => {
                     if(student.trim().length >0){

@@ -72,7 +72,7 @@ async function createAnEvent(body){
 async function updateAnEvent(id, body){
   try {
     if(!teamup.modify){
-      return;
+      return false;
     }
     const url = `https://api.teamup.com/${calendarKeyOrId}/events/${id}`;
     const response = await axios.put(url, body, {
@@ -84,14 +84,14 @@ async function updateAnEvent(id, body){
     
     if (!response.status == 200) {
       logMessage(`Failed updateAnEvent: ${response.statusText}`, 'error');
-      return null;
+      return false;
     }
     logMessage('Successfully updateAnEvent', 'info');
-    return response.data.events;
+    return true;
 
   } catch (error) {
     logMessage(`Error to updateAnEvent: ${error.stack}`, 'error');
-    return null;
+    return false;
   }
 }
 async function deleteAnEvent(eventId){

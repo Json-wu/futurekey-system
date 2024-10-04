@@ -30,6 +30,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 设置EJS作为模板引擎
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+
 app.use(bodyParser.json());
 app.use('/classroom/course', courseRoutes);
 app.use('/classroom/sms', smsRoutes);
@@ -138,7 +143,10 @@ app.get('/classroom/email-logs', (req, res) => {
 
 // 反馈表
 app.get('/classroom/back', (req, res) => {
-  res.sendFile(path.join(__dirname, `/public/feedback_${req.query.subid}.html`));
+  const teacher_id = req.query.subid;
+  const teacher_name = teacherData[req.query.subid] ? teacherData[req.query.subid].name: '';
+  const params = { teacher_id, teacher_name };
+  res.render('teacher', params);
 });
 
 app.get('/classroom/subscribe/:email', (req, res) => {

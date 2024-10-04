@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher management system</title>
+    <!-- 引入 Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="http://www.keaixin.com.cn/css/teacher.css">
+   
+</head>
+
+<body>
+    <div class="container">
+        <input type="hidden" id="teacherId" value="<%=teacher_id %>">
+        <input type="hidden" id="teacherName" value="<%=teacher_name %>">
+        <!-- Top Area -->
+        <div class="header">
+            <div class="welcome-message">Welcome, Teacher <%=teacher_name %>！</div>
+            <div class="notification-icon" onclick="toggleNotificationPopup()">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notification-count">10</span>
+            </div>
+            <div class="notification-popup" id="notification-popup">
+                <ul id="notification-list"></ul>
+            </div>
+        </div>
+        <!-- Course Management -->
+        <div id="courseDiv" style="display: block;">
+            <!-- 日期选择和前一天、后一天按钮 -->
+            <div class="date-buttons">
+                <button onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
+                <input type="date" id="selectedDate" value="2024-12-02" onchange="fetchData()">
+                <button onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <!-- 当前时区显示 -->
+            <div class="timezone-container">
+                <label for="timezoneSelect">timezone：</label>
+                <select id="timezoneSelect" onchange="updateTimezone()">
+                    <option value="America/Los_Angeles">PT (GMT-7)</option>
+                    <option value="America/Denver">MT (GMT-6)</option>
+                    <option value="America/Chicago">CT (GMT-5)</option>
+                    <option value="America/New_York">ET (GMT-4)</option>
+                    <option value="Asia/Shanghai">Shanghai (GMT+8)</option>
+                    <!-- 其他时区选项 -->
+                </select>
+            </div>
+
+            <!-- 课程列表 -->
+            <div class="course-list" id="courseList">
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="button-group">
+                <button class="stats-button" onclick="showStatistics()">Lesson time statistics</button>
+                <button class="leave-button" onclick="openLeaveModal()">Leave of absence</button>
+            </div>
+        </div>
+        <!-- Course Consumption Statistics -->
+        <div id="Statistics" style="display: none;">
+            <div class="date-buttons">
+                <input type="date" id="startDate" class="date-input">~
+                <input type="date" id="endDate" class="date-input">
+                <button onclick="calculateStatistics()">statistics</button>
+            </div>
+
+            <!-- 课消统计 -->
+            <div id="total">
+                <h2>Statistics Result</h2>
+                <p id="totalDuration">Total Duration: 0.00 hours</p>
+                <div class="table-container">
+                    <table border="1">
+                        <thead>
+                            <tr>
+                                <th class="head-th">Course Name</th>
+                                <th class="head-th">Course Start Time</th>
+                                <th class="head-th">Course End Time</th>
+                                <th class="head-th">Course Duration (hours)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="TotalList">
+                            <!-- 课程明细将动态插入到这里 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="button-group">
+                <button class="stats-button" onclick="hideStatistics()">Back</button>
+                <button class="leave-button" onclick="printDiv('total')">Print</button>
+            </div>
+        </div>
+        <!-- course details -->
+        <div id="courseDetails" style="display: none;">
+            <div class="button-group">
+                <h4 style="margin-top: 20px; margin-bottom: 10px;color: #FFFFFF;">Course Detail</h4>
+                <button class="stats-button" style="margin-bottom: 10px;" onclick="openLeaveModal(current_course)">Leave
+                    of absence</button>
+            </div>
+            <div class="table-container2" id="detailDiv">
+                <div class="input-group_detail">
+                    <label>Course Name:</label>
+                    <span id="courseName"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Course Time:</label>
+                    <span id="courseTime"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Time Zone:</label>
+                    <span id="courseTimezone"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Level:</label>
+                    <span id="courseLevel"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Type:</label>
+                    <span id="courseType"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>who:</label>
+                    <span id="who"></span>
+                </div>
+                <div class="input-group_detail">
+                    <label>Signed up:</label>
+                    <span id="signedup"></span>
+                </div>
+                <div class="input-group_detail input-group_detail2" style="display: none;">
+                    <label>coursePreview:</label>
+                    <textarea id="coursePreview"></textarea>
+                    <label class="upload-icon">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" id="fileUpload_preview"
+                            onchange="uploadFile('fileUpload_preview','uploadedFiles_preview')" multiple>
+                    </label>
+                    <div class="uploaded-files" id="uploadedFiles_preview"></div>
+                </div>
+
+                <div class="input-group_detail input-group_detail2" style="display: none;">
+                    <label>courseHomework:</label>
+                    <textarea id="courseHomework"></textarea>
+                    <label class="upload-icon">
+                        <i class="fas fa-upload"></i>
+                        <input type="file" id="fileUpload_homework"
+                            onchange="uploadFile('fileUpload_homework','uploadedFiles_homework')" multiple>
+                    </label>
+                    <div class="uploaded-files" id="uploadedFiles_homework"></div>
+                </div>
+                <div style="display: flex; align-items: center; margin: 20px 0;">
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                    <span style="padding: 0 10px; color: #333;">Student evaluation</span>
+                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                </div>
+                <div id="studentList">
+                    <!-- 学生评价将动态插入到这里 -->
+                </div>
+            </div>
+            <!-- 底部按钮 -->
+            <div class="button-group">
+                <button class="stats-button" onclick="hideDetail()">Back</button>
+                <button class="leave-button" onclick="Save()">Save</button>
+            </div>
+        </div>
+    </div>
+    <!-- Full-day Leave Modal -->
+    <!-- Modal Structure -->
+    <div id="leaveModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeLeaveModal()">&times;</span>
+            <h2>Leave Reason</h2>
+            <p>You are applying for leave, please confirm your leave time and reason:</p>
+            <div class="row-group">
+                <label>Leave Time：</label>
+                <span id="leave_time"></span>
+            </div>
+            <div class="row-group">
+                <label>Leave Reason：</label>
+                <select id="leaveReason">
+                    <option value="personal">Personal Leave</option>
+                    <option value="sick">Sick Leave</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="row-group">
+                <label>Leave Comment：</label>
+                <textarea id="leaveComment" rows="3" placeholder="Enter your comment here..."></textarea>
+            </div>
+            <input type="hidden" id="leaveCourse" value="">
+            <div class="modal-footer">
+                <button id="cancelBtn" onclick="closeLeaveModal()">Cancel</button>
+                <button id="submitBtn" class="submit-btn" onclick="submitLeaveRequest()">Submit</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script src="/js/teacher.js"></script>
