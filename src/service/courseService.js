@@ -378,8 +378,8 @@ async function InitCourse() {
     try {
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
         let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        // let data = await fetchTeamUpCalendar('2024-06-01', date_end);
-        let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
+        let data = await fetchTeamUpCalendar('2024-06-01', date_end);
+        // let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
         if (data != null && data.length > 0) {
             //Clear();
