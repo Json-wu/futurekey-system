@@ -219,6 +219,7 @@
         display: flex;
         flex-direction: column;
         height: 90vh;
+        overflow-y: auto;
     }
 
     .header {
@@ -450,8 +451,8 @@
         margin-top: 20px;
         max-height: 350px;
         /* 设置最大高度 */
-        overflow-y: auto;
-        overflow-x: hidden;
+        /* overflow-y: auto;
+        overflow-x: hidden; */
         flex-grow: 1;
         /* 启用垂直滚动 */
     }
@@ -465,6 +466,7 @@
         display: flex;
         align-items: center;
         cursor: pointer;
+        position: relative;
         /* 添加鼠标指针样式 */
     }
 
@@ -800,8 +802,9 @@
         font-size: 16px;
         cursor: pointer;
         border-radius: 4px;
-        padding: 0 10px 0 10px;
+        padding: 0 10px 0 40px;
         height: 40px;
+        position: relative;
     }
 
     .dropdown span {
@@ -972,6 +975,33 @@ overflow-y: auto; */
 
     .timezone-container select {
         width: 150px;
+    }
+
+    .new-badge {
+        background: linear-gradient(to bottom, #FF6161, #FFc197);
+        color: white;
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 20px;
+        position: absolute;
+        top: -10px;
+        right: 0px;
+    }
+
+    .new-badge-stu {
+        background: linear-gradient(to bottom, #FF6161, #FFc197);
+        color: white;
+        padding: 5px;
+        font-size: 8px;
+        border-radius: 50%;
+        position: absolute;
+        top: -12px;
+        left: -2px;
+        width: 17px;
+        height: 17px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     /* 媒体查询，用于调整PC端显示样式 */
@@ -1280,7 +1310,10 @@ overflow-y: auto; */
             const studentInfo = document.createElement('div');
             studentInfo.classList.add('dropdown');
             // studentInfo.onclick = () => toggleDetails(scode);
-            studentInfo.innerHTML = `
+            if(student.value2=='1'){
+                studentInfo.innerHTML = `<div class="new-badge-stu">NEW</div>`;
+            }
+            studentInfo.innerHTML += `
                 <span onclick="toggleDetails(${scode})">${replaceNumberToNull(student.name)}</span>
                 <div class="radio-group">
                     <label><input type="radio" name="attendance_${scode}" value="1" ${student.state === '1' ? 'checked' : ''} onchange="confirmHandleStatusChange('${scode}','${student.name}', 1)">Late</label>
@@ -1546,8 +1579,11 @@ overflow-y: auto; */
                         <label><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Attendance</label>
                         <label><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">NoAttendance</label>
                     </div>
-                </div>
-                <div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
+                </div>`;
+                if(course.value2=='1'){
+                    courseItem.innerHTML +=`<div class="new-badge">NEW</div>`;
+                }
+                courseItem.innerHTML +=`<div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
                 // courseItem.onclick = () => showDetails(course.id);
                 courseList.appendChild(courseItem);
             });
@@ -1832,7 +1868,7 @@ overflow-y: auto; */
     function replaceCommas(str) {
         console.log(str);
         let resStr = str.split(/[,，]+/).map(x => x.replace(/\d+$/, '')).join('，')
-        resStr = resStr.substring(0, resStr.length - 1);
+        //resStr = resStr.substring(0, resStr.length - 1);
         return resStr;
     }
 </script>

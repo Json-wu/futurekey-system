@@ -32,9 +32,9 @@ async function InsertData(info) {
         is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
         class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
 
-        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1');
+        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
 
         stmt.finalize();
         await StuInsertData(info.id, info.subcalendar_id, info.who);
@@ -84,18 +84,47 @@ async function EditData(id, attend) {
                 sendMail(couData);
 
             // edit teamup
-            let upbool = await updateAnEvent(id, {who: '',  "start_dt": new Date(couData.start_dt).toISOString(),
-                "end_dt": new Date(couData.end_dt).toISOString(), title: couData.title+"[decline]"});
-            if(upbool){
+            let upTitle = couData.title+"[decline]";
+            let upData = await updateAnEvent(id, {who: '', title: upTitle });
+            if(upData){
                 logMessage(`edit teamup success`, 'info');
+                let sql = `update courses set attend='${attend}', value2='0', id = '${upData.id}', who='', title="${upTitle}"  where id ='${id}'`;
                 let result = await new Promise((resolve, reject) => {
-                    db.run(`update courses set attend=${attend} where id ='${id}'`, (err, data) => {
+                    db.run(sql, (err, data) => {
                         if (err) {
                             resolve(false);
                         }
                         resolve(true);
                     });
                 });
+                
+                // 课程取消给家长发短信通知
+                if(smsConfig.sendToParent){
+                    let stus = couData.who.split(/[,，]+/);
+                    for (let index = 0; index < stus.length; index++) {
+                        const studentName = stus[index];
+                        if(studentName.trim().length == 0){
+                            continue;
+                        }
+                        sendSmsToParent(studentName, couData.start_dt, '99');
+                        
+                        let usercode = studentName.match(/\d{8,10}/);
+                        let ucode='';
+                        if (usercode != null) {
+                            ucode=usercode[0];
+                        }
+                        let uname = studentName.replace(ucode, '').trim();
+                        await new Promise((resolve, reject) => {
+                            let sql2 = `delete from student_detail where course_id = '${couData.id}' and (name='${uname}' or code='${ucode}')`;
+                            db.run(sql2, function(err) {
+                                if (err) {
+                                    return resolve(null);
+                                }
+                                resolve(this.lastID);
+                            });
+                        });
+                    }
+                }
                 return result;
             }else{
                 logMessage(`edit teamup failed`, 'error');
@@ -103,7 +132,7 @@ async function EditData(id, attend) {
             }
         }else{
             let result = await new Promise((resolve, reject) => {
-                db.run(`update courses set attend=${attend} where id ='${id}'`, (err, data) => {
+                db.run(`update courses set attend=${attend}, value2='0' where id ='${id}'`, (err, data) => {
                     if (err) {
                         resolve(false);
                     }
@@ -280,6 +309,12 @@ async function sendMailSignStatus(id, studentName, state) {
         logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
+/**
+ * 学生迟到/缺课给家长发短信提醒
+ * @param {*} studentName 
+ * @param {*} time 
+ * @param {*} state 
+ */
 
 async function sendSmsToParent(studentName, time, state) {
     try {
@@ -307,13 +342,19 @@ async function sendSmsToParent(studentName, time, state) {
                   }
                 
                   let user = userInfo.child.text_2;
-                  let type = state==1? '迟到':'缺课';
-                  SendSms_parent(phone, {user, time, type});//, teacherName
+                  let type ='迟到';
+                  if(state==1){ 
+                    type = '迟到';
+                  }else if(state==9){
+                    type = '缺课';
+                  }else{
+                    type = '取消';
+                  }
+                  SendSms_parent(phone, {user, time, type});
                 }
               }
           }
         }
-       logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
     } catch (error) {
         logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
@@ -350,10 +391,12 @@ async function CheckCourse(sdt,edt) {
 
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
+                    UpdateCourseInfo(oldInfo, item);
                 }else{
                     if(item.who.trim().length > 0){
                         ischange = true;
                         item.teacherName = name;
+                        item.is_new = '1';
                         InsertData(item);
                     }
                 }
@@ -371,6 +414,50 @@ async function CheckCourse(sdt,edt) {
         logMessage(`CheckCourse error:${error.message}`, 'error');
     }
 }
+
+async function UpdateCourseInfo(oldInfo, newInfo) {
+    try {
+        let result = await new Promise((resolve, reject) => {
+            db.run(`update courses set who='${newInfo.who}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}' where id ='${oldInfo.id}'`, (err, data) => {
+                if (err) {
+                    resolve(false);
+                }
+                resolve(true);
+            });
+        });
+        if(result){
+            if(oldInfo.who != newInfo.who){
+                let oldStudents = oldInfo.who.split(/[,，]+/).map(s => s.trim());
+                let newStudents = newInfo.who.split(/[,，]+/).map(s => s.trim());
+                let removedStudents = oldStudents.filter(student => !newStudents.includes(student));
+                console.log('Removed students:', removedStudents);
+                removedStudents.forEach(async student => {
+                    let usercode = student.match(/\d{8,10}/);
+                    let ucode='';
+                    if (usercode != null) {
+                        ucode=usercode[0];
+                    }
+                    let uname = student.replace(ucode, '').trim();
+                    await new Promise((resolve, reject) => {
+                        db.run(`delete student_detail where course_id = '${oldInfo.id}' and (name='${uname}' or code='${ucode}')`, function(err) {
+                            if (err) {
+                                return resolve(null);
+                            }
+                            resolve(this.lastID);
+                        });
+                    });
+                });
+                let addedStudents = newStudents.filter(student => !oldStudents.includes(student));
+                console.log('Added students:', addedStudents);
+               
+                await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents.join(','));
+            }
+        }
+       
+    } catch (error) {
+        logMessage(`UpdateCourseInfo error:${error.message}`, 'error');
+    }
+}
 /**
  * 初始化课程
  */
@@ -378,7 +465,7 @@ async function InitCourse() {
     try {
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
         let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        let data = await fetchTeamUpCalendar('2024-06-01', date_end);
+        let data = await fetchTeamUpCalendar('2024-10-01', date_end);
         // let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
         if (data != null && data.length > 0) {

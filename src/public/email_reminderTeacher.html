@@ -8,16 +8,16 @@
 </head>
 
 <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <p>Teacher <strong><%= couData.teacher %></strong>'s absence reminder</p>
-    <p><strong>Course title：</strong><%= couData.title %></p>
-    <p><strong>Student name：</strong><%= couData.who %></p>
-    <p><strong>Course time：</strong><%= couData.start_dt %>~<%= couData.end_dt %></p>
-    <p><strong>timezone：</strong><%= couData.tz %></p>
+    <p>Teacher <strong><%= teacher %></strong>'s absence reminder</p>
+    <p><strong>Course title：</strong><%= title %></p>
+    <p><strong>Student name：</strong><%= who %></p>
+    <p><strong>Course time：</strong><%= start_dt %>~<%= end_dt %></p>
+    <p><strong>timezone：</strong><%= tz %></p>
    
 
     <p>FutureKey School<br>
     </p>
-    To unsubscribe, please click <a href="<%=emailConfig.web_url %>/subscribe/<%= couData.email %>">here</a>
+    To unsubscribe, please click <a href="<%=emailConfig.web_url %>/subscribe/<%= email %>">here</a>
 </body>
 
 </html>

@@ -3,18 +3,18 @@
     "modify": true
   },
   "sms": {
-    "enable": false,
+    "enable": true,
     "signName": "科爱信",
     "templateCode": "SMS_474215215",
     "signName_USA": "FutureKey",
     "templateCode_USA": "SMS_471695218",
     "templateCode_GAT": "",
     "templateCode_student": "SMS_474180232",
-    "sendToParent": false,
+    "sendToParent": true,
     "sms_msg":""
   },
   "email": {
-    "enable": false,
+    "enable": true,
     "service": "gmail",
     "host": "smtp.gmail.com",
     "port": 587,

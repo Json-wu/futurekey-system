@@ -5,6 +5,7 @@ const db = require('../libs/db');
 const config = require('../config/config');
 
 const calendarKeyOrId = process.env.TEAMUP_KEY;
+const calendarKeyOrId_modify = process.env.TEAMUP_KEY_MODIFY;
 const apiKey = process.env.TEAMUP_APIKEY;
 const teamup = config.teamup;
 
@@ -62,7 +63,7 @@ async function createAnEvent(body){
       return null;
     }
     logMessage('Successfully createAnEvent', 'info');
-    return response.data.events;
+    return response.data.event;
 
   } catch (error) {
     logMessage(`Error to createAnEvent: ${error.stack}`, 'error');
@@ -72,10 +73,17 @@ async function createAnEvent(body){
 async function updateAnEvent(id, body){
   try {
     if(!teamup.modify){
-      return false;
+      return null;
     }
-    const url = `https://api.teamup.com/${calendarKeyOrId}/events/${id}`;
-    const response = await axios.put(url, body, {
+    let ubody = await getAnEvent(id);
+    if(!ubody){
+      return null;
+    }
+    // class_level、is_trial_class、class_size、is_full/满员
+    ubody.who = body.who;
+    ubody.title = body.title;
+    const url = `https://api.teamup.com/${calendarKeyOrId_modify}/events/${id}`;
+    const response = await axios.put(url, ubody, {
       headers: {
         'Teamup-Token': apiKey,
         'Content-Type': 'application/json'
@@ -84,14 +92,14 @@ async function updateAnEvent(id, body){
     
     if (!response.status == 200) {
       logMessage(`Failed updateAnEvent: ${response.statusText}`, 'error');
-      return false;
+      return null;
     }
+    
     logMessage('Successfully updateAnEvent', 'info');
-    return true;
-
+    return response.data.event;
   } catch (error) {
     logMessage(`Error to updateAnEvent: ${error.stack}`, 'error');
-    return false;
+    return null;
   }
 }
 async function deleteAnEvent(eventId){
@@ -111,12 +119,35 @@ async function deleteAnEvent(eventId){
       return null;
     }
     logMessage('Successfully deleteAnEvent', 'info');
-    return response.data.events;
+    return response.data.event;
 
   } catch (error) {
     logMessage(`Error to deleteAnEvent: ${error.stack}`, 'error');
     return null;
   }
 }
+async function getAnEvent(eventId){
+  try {
+    if(!teamup.modify){
+      return;
+    }
+    const url = `https://api.teamup.com/${calendarKeyOrId}/events/${eventId}`;
+    const response = await axios.get(url, {
+      headers: {
+        'Teamup-Token': apiKey
+      }
+    });
+    
+    if (!response.status == 200) {
+      logMessage(`Failed getAnEvent: ${response.statusText}`, 'error');
+      return null;
+    }
+    logMessage('Successfully getAnEvent', 'info');
+    return response.data.event;
+  } catch (error) {
+    logMessage(`Error to getAnEvent: ${error.stack}`, 'error');
+    return null;
+  }
+}
 // fetchTeamUpCalendar(calendarKeyOrId, apiKey);
-module.exports = { fetchTeamUpCalendar, createAnEvent, updateAnEvent, deleteAnEvent };
+module.exports = { fetchTeamUpCalendar, createAnEvent, updateAnEvent, deleteAnEvent, getAnEvent };

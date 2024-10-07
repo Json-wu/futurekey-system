@@ -26,6 +26,8 @@ db.serialize(() => {
 
   db.run("CREATE TABLE IF NOT EXISTS student_detail (id INTEGER PRIMARY KEY AUTOINCREMENT, course_id TEXT, subcalendar_id TEXT, name TEXT, code TEXT, state TEXT, parent_name TEXT, parent_code TEXT,read TEXT, write TEXT, level TEXT, evaluate TEXT, remarks TEXT, homework TEXT, value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
 
+  db.run("CREATE TABLE IF NOT EXISTS parent_detail (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, codenum TEXT,phone TEXT,child TEXT, value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
+
 
   // Create indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_logs_timestamp ON logs (id,message)");
@@ -37,6 +39,7 @@ db.serialize(() => {
   db.run("CREATE INDEX IF NOT EXISTS Idx_class_his ON class_his (teacher,student,parent,date,hours)");
   db.run("CREATE INDEX IF NOT EXISTS Idx_message_info ON message_info (code,isread,create_date)");
   db.run("CREATE INDEX IF NOT EXISTS Idx_leave ON leave (code,status)");
+  db.run("CREATE INDEX IF NOT EXISTS Idx_parent ON parent_detail (code)");
 });
 
 module.exports = db;
