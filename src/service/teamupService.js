@@ -83,6 +83,7 @@ async function updateAnEvent(id, body){
     ubody.who = body.who;
     ubody.title = body.title;
     const url = `https://api.teamup.com/${calendarKeyOrId_modify}/events/${id}`;
+    logMessage('url updateAnEvent:::'+url, 'info');
     const response = await axios.put(url, ubody, {
       headers: {
         'Teamup-Token': apiKey,
