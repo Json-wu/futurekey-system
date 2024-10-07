@@ -233,7 +233,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
                 type=2;
               }
               let childName = userInfo.child.text_2;
-              autoSendSms(phone, type, childName, time);//, teacherName
+              autoSendSms(phone, type, childName, time, tz);//, teacherName
             }
           }
         }
