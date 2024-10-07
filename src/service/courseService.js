@@ -272,7 +272,7 @@ function sendMail(couData) {
         let end_dt = formatTime(couData.end_dt, couData.tz);
         let who = replaceNumberToNull(couData.who);
         
-        const html = ejsHtml(fpath, {title: couData.title, teacher: couData.teacher, who, start_dt, end_dt, email: emailConfig.receive});
+        const html = ejsHtml(fpath, {title: couData.title, teacher: couData.teacher, who, start_dt, end_dt, email: emailConfig.receive, tz: couData.tz});
         let msg = `Teacher ${couData.teacher}'s Late Absent Reminder`;
 
         sendEmail(emailConfig.receive, msg, '', html);
