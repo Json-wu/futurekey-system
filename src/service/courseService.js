@@ -106,7 +106,7 @@ async function EditData(id, attend) {
                         if(studentName.trim().length == 0){
                             continue;
                         }
-                        sendSmsToParent(studentName, couData.start_dt, '99');
+                        sendSmsToParent(studentName, couData.start_dt, '99', couData.tz);
                         
                         let usercode = studentName.match(/\d{8,10}/);
                         let ucode='';
@@ -301,7 +301,7 @@ async function sendMailSignStatus(id, studentName, state) {
         // 给家长发短信
         // 如果迟到或者缺课给家长发短信提醒
         if(smsConfig.sendToParent){
-            sendSmsToParent(studentName, couData.start_dt, state);
+            sendSmsToParent(studentName, couData.start_dt, state, couData.tz);
         }
 
         logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
@@ -316,7 +316,7 @@ async function sendMailSignStatus(id, studentName, state) {
  * @param {*} state 
  */
 
-async function sendSmsToParent(studentName, time, state) {
+async function sendSmsToParent(studentName, time, state, tz) {
     try {
         let usercode = studentName.match(/\d{8,10}/);
         let userInfo = null;
@@ -350,7 +350,7 @@ async function sendSmsToParent(studentName, time, state) {
                   }else{
                     type = '取消';
                   }
-                  SendSms_parent(phone, {user, time, type});
+                  SendSms_parent(phone, {user, time, type, tz});
                 }
               }
           }

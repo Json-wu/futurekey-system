@@ -163,7 +163,8 @@ const SendSms_parent = async (phoneNumber, templateParam) => {
     moment.locale('zh-cn', {
       weekdays: '周日_周一_周二_周三_周四_周五_周六'.split('_')
       })
-      templateParam.time = moment(new Date(templateParam.time)).format('ddddHH:mm');
+      let time_zone = getGMTOffsetForTime(templateParam.time, templateParam.tz);
+      templateParam.time = moment(new Date(templateParam.time)).format('ddddHH:mm')+`(${time_zone})`;
     let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您，${templateParam.user}在${templateParam.time}的课程已经${templateParam.type}。如果有问题请联系专属顾问，如果已请假，请忽略本消息。`;
     if (!smsConfig.sendToParent) {
       logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
