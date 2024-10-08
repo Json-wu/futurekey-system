@@ -27,12 +27,12 @@ async function InsertData(info) {
         let is_full = '0';
 
         is_full = info.signup_count == info.signup_limit ? '1' : '0';
-        class_level = info.custom.class_level ? info.custom.class_level.join(',') : '-';
+        class_level = info.custom.special_requirement ? info.custom.special_requirement.join(',') : '-';
         class_size = info.custom.class_size ? info.custom.class_size.join(',') : '-';
         is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
         class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
 
-        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
 
@@ -391,7 +391,9 @@ async function CheckCourse(sdt,edt) {
 
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
-                    UpdateCourseInfo(oldInfo, item);
+                    if(ischange){
+                        UpdateCourseInfo(oldInfo, item);
+                    }
                 }else{
                     if(item.who.trim().length > 0){
                         ischange = true;
@@ -418,7 +420,7 @@ async function CheckCourse(sdt,edt) {
 async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', value2='1' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }

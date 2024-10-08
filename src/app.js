@@ -18,6 +18,7 @@ const bodyParser = require('body-parser');
 const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
 const teacherData = require('./config/teacher.json');
+const qywxService = require('./service/qywxService'); 
 
 const app = express();
 app.use(cors());
@@ -186,10 +187,9 @@ app.get('/classroom/checkstudent', async (req, res) => {
   res.json(studentNo);
 });
 app.get('/classroom/test', async (req, res) => {
-  let item ='Melody asdad';
-  let usercode  = item.match(/\d{8}/);
-  console.log(usercode);
-  res.json(usercode);
+  let response = await qywxService.GetQywxUserList();
+  console.log(response);
+  res.send(response);
 });
 
 // 设置存储路径和文件命名规则
