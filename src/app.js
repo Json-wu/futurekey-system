@@ -278,4 +278,5 @@ process.on('uncaughtException', (err)=>{
 
 app.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
+  console.log(`TEAMUP_KEY_MODIFY: ${process.env.TEAMUP_KEY_MODIFY}`);
 });
