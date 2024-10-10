@@ -16,7 +16,7 @@
         <!-- Top Area -->
         <div class="header">
             <div class="welcome-message">Welcome, Teacher <%=teacher_name %>！</div>
-            <div class="notification-icon" onclick="toggleNotificationPopup()">
+            <div class="notification-icon" onclick="toggleNotificationPopup()" style="display: none;">
                 <i class="fas fa-bell"></i>
                 <span class="badge" id="notification-count">10</span>
             </div>
@@ -24,28 +24,37 @@
                 <ul id="notification-list"></ul>
             </div>
         </div>
+        <div class="date-buttons" id="static_date" style="display: none;">
+            <input type="date" id="startDate" class="date-input">~
+            <input style="margin-left: 10px;" type="date" id="endDate" class="date-input">
+            <button onclick="calculateStatistics()">statistics</button>
+        </div>
+        <!-- 日期选择和前一天、后一天按钮 -->
+        <div class="date-buttons" id="course_date">
+            <button onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
+            <input style="margin-left: 10px;" type="date" id="selectedDate" value="2024-12-02" onchange="fetchData()">
+            <button onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+        </div>
+
+        <!-- 当前时区显示 -->
+        <div class="timezone-container">
+            <label for="timezoneSelect">timezone：</label>
+            <select id="timezoneSelect" onchange="updateTimezone()">
+                <option value="America/Los_Angeles">PT (GMT-7)</option>
+                <option value="America/Denver">MT (GMT-6)</option>
+                <option value="America/Chicago">CT (GMT-5)</option>
+                <option value="America/New_York">ET (GMT-4)</option>
+                <option value="Asia/Shanghai">Shanghai (GMT+8)</option>
+                <!-- 其他时区选项 -->
+            </select>
+        </div>
         <!-- Course Management -->
         <div id="courseDiv" class="courseDiv" style="display: block;">
-            <!-- 日期选择和前一天、后一天按钮 -->
-            <div class="date-buttons">
-                <button onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
-                <input type="date" id="selectedDate" value="2024-12-02" onchange="fetchData()">
-                <button onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+            <div style="display: flex; align-items: center; margin: 20px 0;">
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                <span style="padding: 0 10px; color: #FFFFFF;">My courses</span>
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
             </div>
-
-            <!-- 当前时区显示 -->
-            <div class="timezone-container">
-                <label for="timezoneSelect">timezone：</label>
-                <select id="timezoneSelect" onchange="updateTimezone()">
-                    <option value="America/Los_Angeles">PT (GMT-7)</option>
-                    <option value="America/Denver">MT (GMT-6)</option>
-                    <option value="America/Chicago">CT (GMT-5)</option>
-                    <option value="America/New_York">ET (GMT-4)</option>
-                    <option value="Asia/Shanghai">Shanghai (GMT+8)</option>
-                    <!-- 其他时区选项 -->
-                </select>
-            </div>
-
             <!-- 课程列表 -->
             <div class="course-list" id="courseList">
             </div>
@@ -58,15 +67,13 @@
         </div>
         <!-- Course Consumption Statistics -->
         <div id="Statistics" style="display: none;" class="courseDiv" >
-            <div class="date-buttons">
-                <input type="date" id="startDate" class="date-input">~
-                <input type="date" id="endDate" class="date-input">
-                <button onclick="calculateStatistics()">statistics</button>
+            <div style="display: flex; align-items: center; margin: 20px 0;">
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                <span style="padding: 0 10px; color: #FFFFFF;">My Statistics</span>
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
             </div>
-
             <!-- 课消统计 -->
             <div id="total" class="course-list">
-                <h2>Statistics Result</h2>
                 <p id="totalDuration">Total Duration: 0.00 hours</p>
                 <div class="table-container">
                     <table border="1">
@@ -87,16 +94,16 @@
 
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideStatistics()">Back</button>
+                <button class="stats-button" onclick="hideStatistics()">Cancel</button>
                 <button class="leave-button" onclick="printDiv('total')">Print</button>
             </div>
         </div>
         <!-- course details -->
         <div id="courseDetails" style="display: none;">
-            <div class="button-group">
-                <h4 style="margin-top: 20px; margin-bottom: 10px;color: #FFFFFF;">Course Detail</h4>
-                <button class="stats-button" style="margin-bottom: 10px;" onclick="openLeaveModal(current_course)">Leave
-                    of absence</button>
+            <div style="display: flex; align-items: center; margin: 20px 0;">
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                <span style="padding: 0 10px; color: #FFFFFF;">Course Details</span>
+                <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
             </div>
             <div class="table-container2" id="detailDiv">
                 <div class="input-group_detail">
@@ -104,28 +111,49 @@
                     <span id="courseName"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>Course Time:</label>
+                    <label>Class Time:</label>
                     <span id="courseTime"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>Time Zone:</label>
-                    <span id="courseTimezone"></span>
-                </div>
-                <div class="input-group_detail">
-                    <label>Level:</label>
+                    <label>English Level:</label>
                     <span id="courseLevel"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>Type:</label>
+                    <label>Class Type:</label>
                     <span id="courseType"></span>
                 </div>
                 <div class="input-group_detail">
-                    <label>who:</label>
+                    <label>Student's Name:</label>
                     <span id="who"></span>
                 </div>
                 <div class="input-group_detail">
                     <label>Signed up:</label>
                     <span id="signedup"></span>
+                </div>
+
+                <div class="div_container">
+                    <!-- Tabs -->
+                    <div class="tabs">
+                        <div class="tab active" id="preClassTab">Pre-class homework</div>
+                        <div class="tab" id="afterClassTab">Homework after class</div>
+                    </div>
+                
+                    <!-- Tab content -->
+                    <div class="tab-content">
+                        <textarea placeholder="Please fill it out"></textarea>
+                    </div>
+                
+                    <!-- Upload section -->
+                    <div class="upload-section" onclick="checkfile()">
+                        <img src="/images/upload.png" alt="upload icon">
+                        <div class="text">Click Upload file</div>
+                        <div class="description">A maximum of 5 attachments can be uploaded, and the size of each attachment cannot exceed 10M
+                        </div>
+                        <input hidden type="file" id="fileUpload"
+                            onchange="uploadFile()" multiple>
+                        <div class="uploaded-files" id="uploadedFiles_preview" style="display: none;"></div>
+                        <div class="uploaded-files" id="uploadedFiles_homework" style="display: none;"></div>
+                    </div>
                 </div>
                 <div class="input-group_detail input-group_detail2" style="display: none;">
                     <label>coursePreview:</label>
@@ -148,24 +176,21 @@
                     </label>
                     <div class="uploaded-files" id="uploadedFiles_homework"></div>
                 </div>
-                <div style="display: flex; align-items: center; margin: 20px 0;">
-                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
-                    <span style="padding: 0 10px; color: #333;">Student evaluation</span>
-                    <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
+                <div id="studentAttendance" class="studentList">
+                    <!-- 学生考勤将动态插入到这里 -->
                 </div>
-                <div id="studentList">
+                <div id="studentList" class="studentList">
                     <!-- 学生评价将动态插入到这里 -->
                 </div>
             </div>
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideDetail()">Back</button>
+                <button class="stats-button" onclick="hideDetail()">Cancel</button>
                 <button class="leave-button" onclick="Save()">Save</button>
             </div>
         </div>
     </div>
     <!-- Full-day Leave Modal -->
-    <!-- Modal Structure -->
     <div id="leaveModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeLeaveModal()">&times;</span>
@@ -210,15 +235,80 @@
         min-width: 380px;
     }
 
+    .div_container{
+        width: 98%;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .tabs {
+        display: flex;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #666;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .tab.active {
+        background-color: #4a90e2;
+        color: white;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .tab-content {
+        margin-top: 10px;
+        padding: 10px;
+    }
+
+    .tab-content textarea{
+        width: 96%;
+        height: 90px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 12px;
+        resize: none;
+    }
+
+    .upload-section {
+        margin: 10px;
+        padding: 10px;
+        border: 2px dashed #4a90e2;
+        border-radius: 8px;
+        text-align: center;
+        background-color: #f0f7ff;
+        color: #4a90e2;
+    }
+
+    .upload-section img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .upload-section .text {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .upload-section .description {
+        font-size: 12px;
+        color: #777;
+    }
 
     .courseDiv {
         height: 100vh;
-        /* 设置高度为视口高度 */
-        overflow-y: auto;
-        /* 启用纵向滚动条 */
-        border: 1px solid #ddd;
-        /* 可选：添加边框以更好地看到滚动区域 */
-        padding: 10px;
         /* 可选：添加内边距 */
         box-sizing: border-box;
         /* 确保内边距和边框包含在元素的总宽度和高度内 */
@@ -253,7 +343,7 @@
     }
 
     .container {
-        background: linear-gradient(to bottom, #2F51FF, #F7F9FC);
+        background: linear-gradient(to bottom, #2F51FF, #FFFFFF);
         width: 360px;
         padding: 20px;
         border-radius: 20px;
@@ -386,7 +476,7 @@
     }
 
     .input-group_detail {
-        width: 90%;
+        width: 98%;
         height: 20px;
         margin-top: 10px;
         margin-left: auto;
@@ -394,26 +484,23 @@
         background-color: #ffffff;
         display: flex;
         align-items: center;
-        padding: 10px;
-        border-radius: 10px;
+        padding: 10px 0 10px 10px;
+        border-radius: 8px;
     }
 
     .input-group_detail label {
-        /* width: 100px; */
         display: block;
         font-size: 12px;
         color: #6b6969;
-        margin-bottom: 8px;
         margin-right: 10px;
-        text-align: right;
     }
 
     .input-group_detail span {
         display: block;
         font-size: 12px;
-        color: #080808;
-        /* margin-bottom: 8px; */
+        color: #2D2D2D;
         margin-right: 10px;
+        font-weight: bold;
     }
 
     .input-group_detail2 {
@@ -445,7 +532,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .date-buttons button {
@@ -481,7 +568,7 @@
 
     .date-buttons input[type="date"] {
         flex-grow: 1;
-        margin: 0 10px;
+        margin: 0 10px 0 0;
         padding: 10px;
         font-size: 16px;
         border-radius: 8px;
@@ -489,16 +576,7 @@
     }
 
     .course-list {
-        /* margin-bottom: 20px;
-        margin-top: 20px;
-        max-height: 350px;
-        flex-grow: 1; */
-
         flex: 1;
-        /* 使课程列表占据剩余空间 */
-        overflow-y: auto;
-        /* 启用纵向滚动条 */
-        padding: 10px;
         border-bottom: 1px solid #ddd;
     }
 
@@ -563,14 +641,11 @@
     }
 
     .button-group {
-        padding: 10px;
+        flex: 1;
         border-top: 1px solid #ddd;
         display: flex;
         justify-content: space-between;
-        /* 使按钮在容器中均匀分布 */
-        /* display: flex;
-        justify-content: space-between; */
-        /* margin-top: 20px; */
+        padding-bottom: 20px;
     }
 
     .stats-button,
@@ -644,12 +719,6 @@
         margin: 0 0 10px 0;
     }
 
-    /* Label */
-    label {
-        display: block;
-        margin-top: 10px;
-    }
-
     /* Select Dropdown */
     select {
         width: 100%;
@@ -666,13 +735,13 @@
     }
 
     /* Buttons */
-    button {
+    /* button {
         padding: 8px 16px;
         margin-left: 10px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
-    }
+    } */
 
     #cancelBtn {
         background-color: #f0f0f0;
@@ -760,20 +829,15 @@
 
     .table-container {
         margin-bottom: 20px;
-        max-height: 400px;
-        min-height: 400px;
-        overflow-y: auto;
+        min-height: 300px;
         overflow-x: hidden;
         border: 1px solid #ddd;
     }
 
     .table-container2 {
         margin-bottom: 20px;
-        max-height: 480px;
         min-height: 200px;
-        overflow-y: auto;
         overflow-x: hidden;
-        border: 1px solid #ddd;
     }
 
     table {
@@ -836,30 +900,30 @@
     }
 
     .rating-container {
-        width: 95%;
+        width: 98%;
         background-color: #fff;
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         padding: 0px;
-        margin: 8px 8px 20px 8px;
+        margin: 8px 8px 0 5px;
     }
 
     .dropdown {
-        background-color: #7AA7FE;
+        background: #2F51FF0F;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
         border-radius: 4px;
-        padding: 0 10px 0 40px;
-        height: 40px;
+        padding: 0 10px 0 20px;
+        height: 35px;
         position: relative;
     }
 
     .dropdown span {
         color: #070707;
-        font-size: 20px;
+        font-size: 14px;
         font-weight: bold;
     }
 
@@ -886,8 +950,11 @@
         margin: 10px 0 0 10px;
     }
 
-    .rating-item span {
-        font-size: 13px;
+    .rating-item span,
+    .comment-box label {
+        color: #00000073;
+        font-size: 12px;
+        font-weight: bold;
     }
 
     .stars {
@@ -899,6 +966,7 @@
         font-size: 20px !important;
         color: lightgray;
         margin-left: auto;
+        border-radius: 1px;
     }
 
     .star.selected {
@@ -906,23 +974,22 @@
     }
 
     .score {
-        font-size: 16px;
-        margin-left: 10px;
+        width:35px;
     }
 
     .comment-box {
-        font-size: 13px;
+        font-size: 12px;
         margin-left: 10px;
         margin-top: 10px;
     }
 
     .comment-box textarea {
-        width: 90%;
+        width: 94%;
         height: 40px;
         border: 1px solid #ccc;
         border-radius: 5px;
         padding: 10px;
-        font-size: 13px;
+        font-size: 12px;
         resize: none;
         margin-top: 10px;
     }
@@ -1053,6 +1120,94 @@ overflow-y: auto; */
         justify-content: center;
         align-items: center;
     }
+    .rlable label{
+        border-radius: 3px;
+        float: right;
+        margin-right: 10px;
+        padding: 1px 2px 1px 2px;
+    }
+
+    .studentList{
+        background-color: #FFFFFF;
+        border-radius: 8px;
+        margin-top: 10px;
+        padding: 10px;
+    }
+
+
+
+    .student {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .student:last-child {
+        border-bottom: none;
+    }
+
+    .student-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .student-name {
+        margin-left: 10px;
+    }
+
+    .student_att{
+        background: #2F51FF0F;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .status {
+        font-size: 14px;
+        color: #777;
+    }
+
+    .taster {
+        background-color: #4a90e2;
+        color: #fff;
+        padding: 2px 5px;
+        font-size: 12px;
+        border-radius: 4px;
+        margin-left: 5px;
+    }
+
+    .attendance-status {
+        display: flex;
+        align-items: center;
+    }
+
+    .attendance-status select {
+        padding: 5px;
+        border: 1px solid #7AA7FE;
+        border-radius: 4px;
+        color: #484545;
+    }
+
+    .attendance-status .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .blue { background-color: #4a90e2; }
+    .green { background-color: #7ed321; }
+    .red { background-color: #d0021b; }
+    .orange { background-color: #f5a623; }
+
+    select {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
 
     /* 媒体查询，用于调整PC端显示样式 */
     @media (min-width: 768px) {
@@ -1077,12 +1232,8 @@ overflow-y: auto; */
             /* 调整高度以尽量铺满屏幕 */
         }
 
-        .table-container {
-            max-height: 460px;
-        }
-
         .course-list {
-            max-height: 360px;
+            /* max-height: 360px; */
             /* 移除最大高度限制 */
             flex-grow: 1;
             /* 使课程列表区域拉伸 */
@@ -1093,7 +1244,7 @@ overflow-y: auto; */
         }
 
         .date-buttons input[type="date"] {
-            font-size: 10px;
+            font-size: 12px;
         }
 
         .date-buttons button {
@@ -1103,6 +1254,9 @@ overflow-y: auto; */
 </style>
 <script>
     const url = "/classroom";
+    let nowpage = "course";
+    let filetype_check="preview";
+    document.getElementById('uploadedFiles_preview').style.display = 'block';
     const subid = document.getElementById('teacherId').value;
     const teacher_name = document.getElementById('teacherName').value;
     let current_eventId = "";
@@ -1137,9 +1291,8 @@ overflow-y: auto; */
 
     document.addEventListener('DOMContentLoaded', () => {
         const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
-        timezoneSet = timeZone;
-        let tzS = tzSet[timeZone];
-        document.getElementById('timezoneSelect').value = tzS;
+        timezoneSet = tzSet[timeZone];
+        document.getElementById('timezoneSelect').value = timezoneSet;
         // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
 
         current_date = formatDate();
@@ -1147,10 +1300,26 @@ overflow-y: auto; */
         const selectedDate = document.getElementById('selectedDate');
         selectedDate.value = formatDate();
         fetchData();
-        fetchNewMessages();
+        //fetchNewMessages();
 
         // Poll for new messages every 30 seconds
-        setInterval(fetchNewMessages, 30000);
+        //setInterval(fetchNewMessages, 30000);
+    });
+
+    // Tab switching logic
+    const preClassTab = document.getElementById("preClassTab");
+    const afterClassTab = document.getElementById("afterClassTab");
+
+    preClassTab.addEventListener("click", () => {
+        filetype_check = "preview";
+        preClassTab.classList.add("active");
+        afterClassTab.classList.remove("active");
+    });
+
+    afterClassTab.addEventListener("click", () => {
+        filetype_check = "homework";
+        afterClassTab.classList.add("active");
+        preClassTab.classList.remove("active");
     });
 
     function updateTimezone() {
@@ -1158,7 +1327,13 @@ overflow-y: auto; */
         timezoneSet = timeZone;
         // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
 
-        fetchData();
+        if(nowpage == "course"){
+            fetchData();
+        }else if(nowpage == "statistics"){
+            calculateStatistics();
+        }else if(nowpage == "details"){
+            showDetails(current_eventId);
+        }
     }
     // Function to open the leave modal
     function openLeaveModal(course) {
@@ -1236,14 +1411,23 @@ overflow-y: auto; */
 
     // Function for class hour statistics (dummy function, implement your own logic)
     function showStatistics() {
+        nowpage = "statistics";
         document.getElementById('courseDiv').style.display = 'none';
         document.getElementById('Statistics').style.display = 'block';
+
+        document.getElementById('static_date').style.removeProperty('display');
+        document.getElementById('course_date').style.display = 'none';
     }
     function hideStatistics() {
+        nowpage = "course";
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('Statistics').style.display = 'none';
+
+        document.getElementById('static_date').style.display = 'none';
+        document.getElementById('course_date').style.removeProperty('display');
     }
     function hideDetail() {
+        nowpage = "course";
         current_course = null;
         current_eventId = "";
         document.getElementById('courseDiv').style.display = 'block';
@@ -1264,6 +1448,10 @@ overflow-y: auto; */
 
         // get the total duration of all courses
         try {
+            document.getElementById('totalDuration').textContent =`Total Duration: 0.0 hours`;
+            const TotalList = document.getElementById('TotalList');
+            TotalList.innerHTML = '';
+
             const response = await fetch(url + '/total/getdatabysubid', {
                 method: 'POST',
                 headers: {
@@ -1277,12 +1465,10 @@ overflow-y: auto; */
                 alert('查询过程中发生错误');
                 return;
             }
+            
             const teacherDurations = data.data.find(item => item.type === 'teacher');
             if (teacherDurations) {
                 let totalDuration = teacherDurations.duration;
-                const TotalList = document.getElementById('TotalList');
-                TotalList.innerHTML = '';
-
                 // const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
                 // const formatter = new Intl.DateTimeFormat('en-US', options);
 
@@ -1315,6 +1501,8 @@ overflow-y: auto; */
     }
 
     async function showDetails(courseId) {
+        nowpage = "details";
+        document.getElementById('course_date').style.display = 'none';
         document.getElementById('courseDiv').style.display = 'none';
         document.getElementById('courseDetails').style.display = 'block';
 
@@ -1331,7 +1519,6 @@ overflow-y: auto; */
 
         document.getElementById('courseName').textContent = courseData.title;
         document.getElementById('courseTime').textContent = formatDateTime(courseData.start_dt) + ' - ' + formatTime(courseData.end_dt);
-        document.getElementById('courseTimezone').textContent = courseData.tz;
         document.getElementById('courseLevel').textContent = courseData.class_level;
         document.getElementById('courseType').textContent = courseData.class_category;
         document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
@@ -1365,41 +1552,79 @@ overflow-y: auto; */
             container.appendChild(fileItem);
         });
     }
-    function hideDetails() {
-        document.getElementById('courseDiv').style.display = 'block';
-        document.getElementById('courseDetails').style.display = 'none';
-    }
     function replaceNumberToNull(str) {
         return str ? str.replace(/\d+/g, '') : str;
     }
     function displayData(data) {
+        // studentAttendance
+        const studentAttendance = document.getElementById('studentAttendance');
+        studentAttendance.innerHTML = `<div style="display: flex; align-items: center; ">
+                    <div style="width: 4px; height: 24px; background-color: #2F51FF; "></div>
+                        <span style="padding: 0 3px; color: #2F51FF; font-weight: bold">Student attendance</span>
+                        <span style="padding: 0 3px;color: #3f3f43;font-weight: bold;margin-left: auto;font-size: 12px;">Courses Students(${data.length})</span>
+                    </div>`;
+
         const studentList = document.getElementById('studentList');
-        studentList.innerHTML = "";
-        data.forEach(student => {
+        studentList.innerHTML = `<div style="display: flex; align-items: center; ">
+                    <div style="width: 4px; height: 24px; background-color: #2F51FF; "></div>
+                        <span style="padding: 0 3px; color: #2F51FF; font-weight: bold">Student evaluation</span>
+                    </div>`;
+        data.forEach((student,i) => {
             const scode = student.code;
             if (scode == '' || student.name == '') return;
             const studentItem = document.createElement('div');
             studentItem.classList.add('rating-container');
             studentItem.id = scode;
 
-            const studentInfo = document.createElement('div');
-            studentInfo.classList.add('dropdown');
-            // studentInfo.onclick = () => toggleDetails(scode);
-            if (student.value2 == '1') {
-                studentInfo.innerHTML = `<div class="new-badge-stu">NEW</div>`;
+            // 学生考勤
+            {
+                const studentAttendanceItem = document.createElement('div');
+                studentAttendanceItem.classList.add('student_att');
+                // <span class="taster">taster</span>
+                studentAttendanceItem.innerHTML = `
+                    <div class="student">
+                        <div class="student-info">
+                            <div class="student-name">
+                                ${replaceNumberToNull(student.name)}<br>
+                                <span class="status">1927318628</span>
+                            </div>
+                        </div>
+                        <div class="attendance-status">
+                            <select id= "select_${scode}" value="${student.state}" onchange="confirmHandleStatusChange('${scode}','${student.name}', this.value)">
+                                 <option value="0">&#9989; Normal</option>
+                                <option value="1">&#128337; Late</option>
+                                <option value="9">&#10060; Absence</option>
+                               
+                            </select>
+                        </div>
+                    </div>
+                `;
+                studentAttendance.appendChild(studentAttendanceItem);
             }
-            studentInfo.innerHTML += `
-                <span onclick="toggleDetails(${scode})">${replaceNumberToNull(student.name)}</span>
-                <div class="radio-group">
-                    <label><input type="radio" name="attendance_${scode}" value="1" ${student.state === '1' ? 'checked' : ''} onchange="confirmHandleStatusChange('${scode}','${student.name}', 1)">Late</label>
-                    <label><input type="radio" name="attendance_${scode}" value="9" ${student.state === '9' ? 'checked' : ''} onchange="confirmHandleStatusChange('${scode}','${student.name}', 9)">Absent</label>
-                </div>
-                <i class="fas fa-angle-right" id="arrow_${scode}" onclick="toggleDetails(${scode})"></i>
-            `;
-            // <span class="arrow" id="arrow_${scode}">&#9660;</span>
 
+            const studentInfo = document.createElement('div');
+            studentInfo.addEventListener('click', () => toggleDetails(scode));
+            studentInfo.classList.add('dropdown');
+            if (student.value2 == '1') {
+                studentInfo.innerHTML += `<div class="new-badge-stu">NEW</div>`;
+            }
+            if(i==0){
+                studentInfo.innerHTML += `
+                <span >${replaceNumberToNull(student.name)}</span>
+                <i class="fas fa-angle-right rotated" id="arrow_${scode}"></i>
+            `;
+            }else{
+                studentInfo.innerHTML += `
+                <span >${replaceNumberToNull(student.name)}</span>
+                <i class="fas fa-angle-right" id="arrow_${scode}"></i>
+            `;
+            }
             const studentDetails = document.createElement('div');
-            studentDetails.classList.add('details', 'hidden');
+            if(i==0){
+                studentDetails.classList.add('details');
+            }else{
+                studentDetails.classList.add('details', 'hidden');
+            }
             studentDetails.id = `details_${scode}`;
 
             const listening = document.createElement('div');
@@ -1520,20 +1745,27 @@ overflow-y: auto; */
 
             studentList.appendChild(studentItem);
         });
+         // 页面加载完毕后设置radio选中状态
+         data.forEach(stu => {
+            document.getElementById('select_'+stu.code).value = stu.state;
+        });
     }
 
     // 截取文件名，保持后缀
     function subStrFilename(filename) {
         const extension = filename.substring(filename.lastIndexOf('.'));
         const name = filename.substring(0, filename.lastIndexOf('.'));
-        if (name.length > 5) {
+        if (name.length > 35) {
             return '...' + name.substring(name.length - 5) + extension;
         }
         return filename;
     }
-    function uploadFile(fid, sid) {
-        const files = document.getElementById(fid).files;
-        const uploadedFilesContainer = document.getElementById(sid);
+    function checkfile(){
+        document.getElementById('fileUpload_preview').click();
+    }
+    function uploadFile() {
+        const files = document.getElementById('fileUpload').files;
+        const uploadedFilesContainer = document.getElementById('uploadedFiles_'+filetype_check);
         const existingFiles = uploadedFilesContainer.children.length;
 
         if (existingFiles + files.length > 2) {
@@ -1649,11 +1881,8 @@ overflow-y: auto; */
                    
                     <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)} <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave"></i></p>
                     <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}</p>
-                    <div class="attendance-group">
-                        <label><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Attendance</label>
-                        <label><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">NoAttendance</label>
-                    </div>
+                    <p class="rlable"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}<label style="background-color: #E0F3FF;color:#647BF3"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                        <label style="background-color: #FFEEE0;color:#FCBEA4"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Refuse</label></p>
                 </div>`;
                 if (course.value2 == '1') {
                     courseItem.innerHTML += `<div class="new-badge">NEW</div>`;
@@ -1720,7 +1949,7 @@ overflow-y: auto; */
         }
     }
 
-    // 示例：更新消息数
+    // 更新消息数
     function updateNotificationCount(count) {
         document.getElementById('notification-count').innerText = count;
     }
@@ -1770,7 +1999,7 @@ overflow-y: auto; */
         // 保存学生评价
         const studentInfos = [];
         const students = document.getElementById('studentList').children;
-        for (let i = 0; i < students.length; i++) {
+        for (let i = 1; i < students.length; i++) {
             const student = students[i];
             const code = student.id;
             const read = student.getElementsByClassName('score_read')[0].textContent.replace('%', '');
@@ -1814,9 +2043,12 @@ overflow-y: auto; */
     }
 
     function confirmHandleStatusChange(code, name, state) {
+
         let msg = "Are you sure you reported the student as late? The system will immediately send a text message reminder to parents!?";
         if (state == 9) {
             msg = "Are you sure to report a student's absence from class? The system will immediately send a text message reminder to parents!?";
+        }else if(state == 0){
+            msg = "Are you sure to report a student's normal? ";
         }
         const confirmation = confirm(msg);
         if (confirmation) {
@@ -1824,7 +2056,8 @@ overflow-y: auto; */
         } else {
             // 如果用户取消确认，则恢复原来的选中状态
             const originalValue = current_course.student.find(st => st.code == code).state;
-            document.querySelector(`input[name="attendance_${code}"][value="${originalValue}"]`).checked = true;
+            // document.querySelector(`input[name="attendance_${code}"][value="${originalValue}"]`).checked = true;
+            document.getElementById('select_'+code).value = originalValue;
         }
     }
 
@@ -1842,6 +2075,8 @@ overflow-y: auto; */
 
         if (result.code != 0) {
             alert(`Failed to reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+            const originalValue = current_course.student.find(st => st.code == code).state;
+            document.getElementById('select_'+code).value = originalValue;
         } else {
             current_course.student.find(st => st.code == code).state = state;
             // alert(`Successfully reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
@@ -1915,7 +2150,7 @@ overflow-y: auto; */
             date = new Date(date);
         }
         const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];//Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (timezoneSet != timeZone) {
+        if (timezoneSet != tzSet[timeZone]) {
             date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
         }
         const year = date.getFullYear();
@@ -1932,7 +2167,7 @@ overflow-y: auto; */
             date = new Date(date);
         }
         const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];//Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (timezoneSet != timeZone) {
+        if (timezoneSet != tzSet[timeZone]) {
             date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
         }
 
