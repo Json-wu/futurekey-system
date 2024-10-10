@@ -465,9 +465,16 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
  */
 async function InitCourse() {
     try {
+        db.run("DELETE FROM courses where 1=1;");
+        console.log('已清空courses');
+        db.run("DELETE FROM student_detail where 1=1;");
+        console.log('已清空student_detail');
+
+
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
         let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        let data = await fetchTeamUpCalendar('2024-06-01', date_end);
+        let date_start = '2024-06-01';
+        let data = await fetchTeamUpCalendar(date_start, date_end);
         // let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
         if (data != null && data.length > 0) {
@@ -511,11 +518,12 @@ async function InitCourse() {
             })
             stmt_detail.finalize();
             stmt.finalize();
+            return {code:0, msg: `${date_start}-${date_end} init complete`};
         } else {
-            logMessage('InitCourse: not found TeamUp calendar data', 'info');
+            return {code:0, msg: `${date_start}-${date_end} not found TeamUp calendar data`};
         }
     } catch (error) {
-        logMessage(`InitCourse error:${error.message}`, 'error');
+        return {code:1, msg: `${date_start}-${date_end} InitCourse error:${error.message}`};
     }
 }
 

@@ -2,12 +2,17 @@ const express = require('express');
 const router = express.Router();
 const _ = require('underscore');
 const path = require('path');
-const { GetTotalData, GetTotalDataBySubid } = require('../service/totalService');
+const { GetTotalData, GetTotalDataBySubid, InitData } = require('../service/totalService');
 const moment = require('moment');
 
 router.get('', (req, res) => {
     res.sendFile(path.join(__dirname, `../public/classTotal.html`));
 });
+
+router.get('/init',  async (req, res)=>{
+    let result = await InitData(req.query.sDate, req.query.eDate);
+    res.status(200).json(result);
+})
 
 router.get('/getdata', async (req, res) => {
     const { sDate, eDate } = req.query;

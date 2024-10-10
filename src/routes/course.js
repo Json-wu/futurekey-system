@@ -109,8 +109,8 @@ router.post('/SignStudentStatus', async (req, res) => {
 });
 
 router.get('/init',  async (req, res)=>{
-    courseService.InitCourse();
-    res.status(200).json({ code: 0, msg: 'init ok' });
+    let result = await courseService.InitCourse();
+    res.status(200).json(result);
 })
 
 router.post('/SaveInfo', async (req, res) => {

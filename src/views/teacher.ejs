@@ -25,7 +25,7 @@
             </div>
         </div>
         <!-- Course Management -->
-        <div id="courseDiv" style="display: block;">
+        <div id="courseDiv" class="courseDiv" style="display: block;">
             <!-- 日期选择和前一天、后一天按钮 -->
             <div class="date-buttons">
                 <button onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
@@ -57,7 +57,7 @@
             </div>
         </div>
         <!-- Course Consumption Statistics -->
-        <div id="Statistics" style="display: none;">
+        <div id="Statistics" style="display: none;" class="courseDiv" >
             <div class="date-buttons">
                 <input type="date" id="startDate" class="date-input">~
                 <input type="date" id="endDate" class="date-input">
@@ -65,7 +65,7 @@
             </div>
 
             <!-- 课消统计 -->
-            <div id="total">
+            <div id="total" class="course-list">
                 <h2>Statistics Result</h2>
                 <p id="totalDuration">Total Duration: 0.00 hours</p>
                 <div class="table-container">
@@ -198,7 +198,7 @@
 
 </html>
 <style>
-        body {
+    body {
         margin: 0;
         font-family: 'Arial', sans-serif;
         background: #FFFFFF;
@@ -208,6 +208,48 @@
         height: 100vh;
         overflow-y: hidden;
         min-width: 380px;
+    }
+
+
+    .courseDiv {
+        height: 100vh;
+        /* 设置高度为视口高度 */
+        overflow-y: auto;
+        /* 启用纵向滚动条 */
+        border: 1px solid #ddd;
+        /* 可选：添加边框以更好地看到滚动区域 */
+        padding: 10px;
+        /* 可选：添加内边距 */
+        box-sizing: border-box;
+        /* 确保内边距和边框包含在元素的总宽度和高度内 */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 自适应内部元素 */
+    .courseDiv>* {
+        width: 100%;
+        /* 让内部元素宽度自适应父容器 */
+        box-sizing: border-box;
+        /* 确保内边距和边框包含在元素的总宽度和高度内 */
+    }
+
+    /* 可选：美化滚动条 */
+    #courseDiv::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    #courseDiv::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    #courseDiv::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 6px;
+    }
+
+    #courseDiv::-webkit-scrollbar-thumb:hover {
+        background: #555;
     }
 
     .container {
@@ -447,21 +489,24 @@
     }
 
     .course-list {
-        margin-bottom: 20px;
+        /* margin-bottom: 20px;
         margin-top: 20px;
         max-height: 350px;
-        /* 设置最大高度 */
-        /* overflow-y: auto;
-        overflow-x: hidden; */
-        flex-grow: 1;
-        /* 启用垂直滚动 */
+        flex-grow: 1; */
+
+        flex: 1;
+        /* 使课程列表占据剩余空间 */
+        overflow-y: auto;
+        /* 启用纵向滚动条 */
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
     }
 
     .course-item {
         background-color: #f3f6ff;
         border-radius: 10px;
         padding: 15px;
-        margin: 0 15px 15px auto;
+        margin: 0 0 15px auto;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
         display: flex;
         align-items: center;
@@ -518,8 +563,13 @@
     }
 
     .button-group {
+        padding: 10px;
+        border-top: 1px solid #ddd;
         display: flex;
         justify-content: space-between;
+        /* 使按钮在容器中均匀分布 */
+        /* display: flex;
+        justify-content: space-between; */
         /* margin-top: 20px; */
     }
 
@@ -1060,11 +1110,36 @@ overflow-y: auto; */
     let current_course = null;
     let timezoneSet = 'UTC';
     let current_date;
+    const tzSet = {
+        "GMT-1": "Atlantic/Azores",
+        "GMT-2": "America/Noronha",
+        "GMT-3": "America/Sao_Paulo",
+        "GMT-4": "America/New_York",
+        "GMT-5": "America/Chicago",
+        "GMT-6": "America/Denver",
+        "GMT-7": "America/Los_Angeles",
+        "GMT-8": "America/Anchorage",
+        "GMT-9": "Pacific/Honolulu",
+        "GMT+0": "UTC",
+        "GMT+1": "Europe/London",
+        "GMT+2": "Europe/Paris",
+        "GMT+3": "Europe/Moscow",
+        "GMT+4": "Asia/Dubai",
+        "GMT+5": "Asia/Karachi",
+        "GMT+6": "Asia/Dhaka",
+        "GMT+7": "Asia/Bangkok",
+        "GMT+8": "Asia/Shanghai",
+        "GMT+9": "Asia/Tokyo",
+        "GMT+10": "Australia/Sydney",
+        "GMT+11": "Pacific/Noumea",
+        "GMT+12": "Pacific/Auckland"
+    };
 
     document.addEventListener('DOMContentLoaded', () => {
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
         timezoneSet = timeZone;
-        document.getElementById('timezoneSelect').value = timeZone;
+        let tzS = tzSet[timeZone];
+        document.getElementById('timezoneSelect').value = tzS;
         // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
 
         current_date = formatDate();
@@ -1310,7 +1385,7 @@ overflow-y: auto; */
             const studentInfo = document.createElement('div');
             studentInfo.classList.add('dropdown');
             // studentInfo.onclick = () => toggleDetails(scode);
-            if(student.value2=='1'){
+            if (student.value2 == '1') {
                 studentInfo.innerHTML = `<div class="new-badge-stu">NEW</div>`;
             }
             studentInfo.innerHTML += `
@@ -1580,10 +1655,10 @@ overflow-y: auto; */
                         <label><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">NoAttendance</label>
                     </div>
                 </div>`;
-                if(course.value2=='1'){
-                    courseItem.innerHTML +=`<div class="new-badge">NEW</div>`;
+                if (course.value2 == '1') {
+                    courseItem.innerHTML += `<div class="new-badge">NEW</div>`;
                 }
-                courseItem.innerHTML +=`<div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
+                courseItem.innerHTML += `<div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
                 // courseItem.onclick = () => showDetails(course.id);
                 courseList.appendChild(courseItem);
             });
@@ -1776,7 +1851,7 @@ overflow-y: auto; */
     function confirmAttendanceChange(courseId, value) {
         let msg = "Are you sure you will attend?";
         if (value == 9) {
-            msg = "Are you sure you won't attend?";
+            msg = "Are you sure you don't show up for the class? Clicking Confirm will clear the student and notify their parents of the cancellation of the lesson via SMS.";
         }
         const confirmation = confirm(msg);
         if (confirmation) {
@@ -1811,7 +1886,7 @@ overflow-y: auto; */
             } else {
                 document.getElementById("div_" + courseId).classList.add('course-item-absent');
             }
-            
+
             fetchData();
             //alert(`Successfully reported leave request!`);
         }
@@ -1824,7 +1899,7 @@ overflow-y: auto; */
         } else {
             date = new Date(date);
         }
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];//Intl.DateTimeFormat().resolvedOptions().timeZone;
         if (timezoneSet != timeZone) {
             date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
         }
@@ -1839,7 +1914,7 @@ overflow-y: auto; */
         } else {
             date = new Date(date);
         }
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];//Intl.DateTimeFormat().resolvedOptions().timeZone;
         if (timezoneSet != timeZone) {
             date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
         }
@@ -1856,7 +1931,7 @@ overflow-y: auto; */
         } else {
             date = new Date(date);
         }
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];//Intl.DateTimeFormat().resolvedOptions().timeZone;
         if (timezoneSet != timeZone) {
             date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
         }

@@ -1,5 +1,6 @@
 // scheduler.js
 const schedule = require('node-schedule');
+const db = require('../libs/db');
 const moment = require('moment');
 const momenttz = require('moment-timezone');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
@@ -13,7 +14,6 @@ const teacherData = require('../config/teacher.json');
 const { CheckCourse } = require('../service/courseService');
 const { getDateNow, ejsHtml } = require('./common');
 const path = require('path');
-const { InsertTotalData } = require('../service/totalService');
 const { sendBotMsg } = require('../service/botService');
 
 const emailConfig = config.email;
@@ -400,6 +400,21 @@ async function DoRunTotal(date) {
   }
 }
 
-
+async function InsertTotalData(body) {
+  try {
+      const { eventid, subid, title, teacher, student, parent,sdate, edate, hours,date, tz, who, type } = body;
+      return await new Promise((resolve, reject) => {
+          db.run("INSERT INTO class_his (eventid, subid, title, teacher, student, parent,sdate, edate, hours,date, tz, who, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)", [eventid, subid, title, teacher, student, parent,sdate, edate, hours,date, tz,who, type], function(err) {
+              if (err) {
+                  return resolve(null);
+              }
+              resolve(this.lastID);
+          });
+      });
+  } catch (error) {
+      logMessage(`InsertData-class_his error，${error.message}`, 'error');
+      return null;
+  }
+}
 
 module.exports = { scheduleLoad, DoRunTotal };

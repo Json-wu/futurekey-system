@@ -19,6 +19,7 @@ const { logMessage } = require('./libs/logger');
 const { GetStudentNoInfo } = require('./service/studentService');
 const teacherData = require('./config/teacher.json');
 const qywxService = require('./service/qywxService'); 
+const qywxRoutes = require('./routes/qywx');
 
 const app = express();
 app.use(cors());
@@ -44,6 +45,7 @@ app.use('/classroom/plan', planRoutes);
 app.use('/classroom/total', totalRoutes);
 app.use('/classroom/leave', leaveRoutes);
 app.use('/classroom/message', messageRoutes);
+app.use('/classroom/qywx', qywxRoutes);
 
 
 
