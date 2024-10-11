@@ -30,7 +30,7 @@ router.post('/GetData', async (req, res) => {
             for (let index = 0; index < result.length; index++) {
                 let item = result[index];
                 item.student = await studentDetailService.GetDataAll(item.id);
-                let leave = await leaveService.getLeaveByid(item.id, item.date);
+                let leave = await leaveService.getLeaveByid(item.id, item.start_dt, item.end_dt);
                 item.isleave = leave ==null ? false : true;
             }
             res.status(200).json({ code: 0, msg: 'ok', data: result });

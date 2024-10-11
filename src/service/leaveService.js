@@ -2,23 +2,52 @@
 const db = require('../libs/db');
 const moment = require('moment');
 const { logMessage } = require('../libs/logger');
+const courseService = require('./courseService');
 
 async function InsertData(body) {
     try {
-        const { code, name, start_dt, end_dt, reason, comment, courseId } = body;
+        const { code, name, reason, comment, date, courseChecks } = body;
         const create_date = moment().format('YYYY-MM-DD HH:mm:ss');
-        return await new Promise((resolve, reject) => {
-            db.run("INSERT INTO leave (code, name, start_dt, end_dt, status, create_date, reason, comment, courseId) VALUES (?, ?, ?, ?, ?, ?,?,?,?)", [code, name, start_dt, end_dt, 0, create_date, reason, comment, courseId ], function(err) {
-                if (err) {
-                    return resolve(null);
-                }
-                resolve(this.lastID);
+        let isok = true;
+        for (let index = 0; index < courseChecks.length; index++) {
+            const courseId = courseChecks[index];
+            let leave = await getLeaveByid(courseId, date);
+            if(leave != null){
+                continue;
+            }
+            // 创建请假记录
+            let courseData = await courseService.GetDataByid(courseId);
+            let id = await createData({
+                code,
+                name,
+                start_dt: courseData.start_dt,
+                end_dt: courseData.end_dt,
+                status: 0,
+                create_date,
+                reason,
+                comment,
+                courseId
             });
-        });
+            if(id == null){
+                logMessage(`InsertData-leave error，${courseData.title}`, 'error');
+                isok = false;
+            }
+        }
+        return isok;
     } catch (error) {
         logMessage(`InsertData-leave error，${error.message}`, 'error');
-        return null;
+        return false;
     }
+}
+async function createData(body) {
+    return await new Promise((resolve, reject) => {
+        db.run("INSERT INTO leave (code, name, start_dt, end_dt, status, create_date, reason, comment, courseId) VALUES (?, ?, ?, ?, ?, ?,?,?,?)", [body.code, body.name, body.start_dt, body.end_dt, 0, body.create_date, body.reason, body.comment, body.courseId ], function(err) {
+            if (err) {
+                return resolve(null);
+            }
+            resolve(this.lastID);
+        });
+    });
 }
 async function update(id){
     return await new Promise((resolve, reject) => {
@@ -49,11 +78,9 @@ async function GetDataAll() {
     }
 }
 
-async function getLeaveByid(courseId, date){
+async function getLeaveByid(courseId, start_dt, end_dt) {
     try {
-        let st = moment(new Date(date)).format('YYYY-MM-DD')+' 00:00';
-        let et = moment(new Date(date)).format('YYYY-MM-DD')+' 23:59';
-        let sql = `SELECT * FROM leave where courseId = '${courseId}' or (start_dt == '${st}' and end_dt == '${et}')`;
+        let sql = `SELECT * FROM leave WHERE courseId = '${courseId}' AND start_dt == '${start_dt}' AND end_dt == '${end_dt}'`;
         return await new Promise((resolve, reject) => {
             db.get(sql, (err, data) => {
                 if (err) {

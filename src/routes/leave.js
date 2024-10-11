@@ -14,8 +14,11 @@ router.get('',async (req, res) => {
 });
 router.post('/send',async (req, res) => {
     try {
-        const items = await leaveService.InsertData(req.body);
-        res.status(200).json({ code: 0, msg: 'ok', data: items });
+        const isok = await leaveService.InsertData(req.body);
+        if(isok){
+            return res.status(200).json({ code: 0, msg: 'ok' });
+        }
+        res.status(200).json({ code: 1, msg: 'no' });
     } catch (error) {
         res.status(500).json({ code: 1, msg: 'Failed to get.' });
     }

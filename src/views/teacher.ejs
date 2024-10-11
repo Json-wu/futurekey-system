@@ -10,6 +10,14 @@
 </head>
 
 <body>
+    <div class="global-message" id="globalMessage"></div>
+    <div class="custom-confirm" id="customConfirm">
+        <div class="message" id="confirmMessage"></div>
+        <div class="buttons">
+            <button class="confirm" id="confirmYes">Yes</button>
+            <button class="cancel" id="confirmNo">No</button>
+        </div>
+    </div>
     <div class="container">
         <input type="hidden" id="teacherId" value="<%=teacher_id %>">
         <input type="hidden" id="teacherName" value="<%=teacher_name %>">
@@ -24,6 +32,7 @@
                 <ul id="notification-list"></ul>
             </div>
         </div>
+        <!-- 日期选择和统计按钮 -->
         <div class="date-buttons" id="static_date" style="display: none;">
             <input type="date" id="startDate" class="date-input">~
             <input style="margin-left: 10px;" type="date" id="endDate" class="date-input">
@@ -52,21 +61,30 @@
         <div id="courseDiv" class="courseDiv" style="display: block;">
             <div style="display: flex; align-items: center; margin: 20px 0;">
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
-                <span style="padding: 0 10px; color: #FFFFFF;">My courses</span>
+                <span style="padding: 0 10px; color: #FFFFFF;" id="courseTitle">My courses</span>
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
             </div>
             <!-- 课程列表 -->
             <div class="course-list" id="courseList">
             </div>
+            <!-- 全选按钮栏-->
+            <div class="selectAll">
+                <label><input type="checkbox" class="courseCheckBox2" id="selectAll" onclick="selectAll()">Select All</label>
+            </div>
+
+            <div class="button-group" id="course_Leave" style="display: none;">
+                <button class="cancle-button" onclick="hideLeaveCheck()">Cancel</button>
+                <button class="leave-button" onclick="openLeaveModal()">Next</button>
+            </div>
 
             <!-- 底部按钮 -->
-            <div class="button-group">
+            <div class="button-group" id="course_bottom">
                 <button class="stats-button" onclick="showStatistics()">Lesson time statistics</button>
-                <button class="leave-button" onclick="openLeaveModal()">Leave of absence</button>
+                <button class="leave-button" onclick="showLeaveCheck()">Leave of absence</button>
             </div>
         </div>
         <!-- Course Consumption Statistics -->
-        <div id="Statistics" style="display: none;" class="courseDiv" >
+        <div id="Statistics" style="display: none;" class="courseDiv">
             <div style="display: flex; align-items: center; margin: 20px 0;">
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
                 <span style="padding: 0 10px; color: #FFFFFF;">My Statistics</span>
@@ -94,11 +112,11 @@
 
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideStatistics()">Cancel</button>
+                <button class="cancle-button" onclick="hideStatistics()">Cancel</button>
                 <button class="leave-button" onclick="printDiv('total')">Print</button>
             </div>
         </div>
-        <!-- course details -->
+        <!-- Course Details -->
         <div id="courseDetails" style="display: none;">
             <div style="display: flex; align-items: center; margin: 20px 0;">
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
@@ -137,44 +155,26 @@
                         <div class="tab active" id="preClassTab">Pre-class homework</div>
                         <div class="tab" id="afterClassTab">Homework after class</div>
                     </div>
-                
+
                     <!-- Tab content -->
                     <div class="tab-content">
-                        <textarea placeholder="Please fill it out"></textarea>
+                        <textarea placeholder="Please fill it out" id="coursetext_preview"
+                            style="display: none;"></textarea>
+                        <textarea placeholder="Please fill it out" id="coursetext_homework"
+                            style="display: none;"></textarea>
                     </div>
-                
+
                     <!-- Upload section -->
-                    <div class="upload-section" onclick="checkfile()">
-                        <img src="/images/upload.png" alt="upload icon">
+                    <div class="upload-section">
+                        <img src="/images/upload.png" alt="upload icon" onclick="checkfile()">
                         <div class="text">Click Upload file</div>
-                        <div class="description">A maximum of 5 attachments can be uploaded, and the size of each attachment cannot exceed 10M
+                        <div class="description">A maximum of 5 attachments can be uploaded, and the size of each
+                            attachment cannot exceed 10M
                         </div>
-                        <input hidden type="file" id="fileUpload"
-                            onchange="uploadFile()" multiple>
+                        <input hidden type="file" id="fileUpload" onchange="uploadFile()" multiple>
                         <div class="uploaded-files" id="uploadedFiles_preview" style="display: none;"></div>
                         <div class="uploaded-files" id="uploadedFiles_homework" style="display: none;"></div>
                     </div>
-                </div>
-                <div class="input-group_detail input-group_detail2" style="display: none;">
-                    <label>coursePreview:</label>
-                    <textarea id="coursePreview"></textarea>
-                    <label class="upload-icon">
-                        <i class="fas fa-upload"></i>
-                        <input type="file" id="fileUpload_preview"
-                            onchange="uploadFile('fileUpload_preview','uploadedFiles_preview')" multiple>
-                    </label>
-                    <div class="uploaded-files" id="uploadedFiles_preview"></div>
-                </div>
-
-                <div class="input-group_detail input-group_detail2" style="display: none;">
-                    <label>courseHomework:</label>
-                    <textarea id="courseHomework"></textarea>
-                    <label class="upload-icon">
-                        <i class="fas fa-upload"></i>
-                        <input type="file" id="fileUpload_homework"
-                            onchange="uploadFile('fileUpload_homework','uploadedFiles_homework')" multiple>
-                    </label>
-                    <div class="uploaded-files" id="uploadedFiles_homework"></div>
                 </div>
                 <div id="studentAttendance" class="studentList">
                     <!-- 学生考勤将动态插入到这里 -->
@@ -185,7 +185,7 @@
             </div>
             <!-- 底部按钮 -->
             <div class="button-group">
-                <button class="stats-button" onclick="hideDetail()">Cancel</button>
+                <button class="cancle-button" onclick="hideDetail()">Cancel</button>
                 <button class="leave-button" onclick="Save()">Save</button>
             </div>
         </div>
@@ -208,14 +208,15 @@
                     <option value="other">Other</option>
                 </select>
             </div>
-            <div class="row-group">
+            <div class="row-group" style="height:50px;">
                 <label>Leave Comment：</label>
                 <textarea id="leaveComment" rows="3" placeholder="Enter your comment here..."></textarea>
             </div>
             <input type="hidden" id="leaveCourse" value="">
+          
             <div class="modal-footer">
-                <button id="cancelBtn" onclick="closeLeaveModal()">Cancel</button>
-                <button id="submitBtn" class="submit-btn" onclick="submitLeaveRequest()">Submit</button>
+                <button class="cancle-button1" onclick="closeLeaveModal()">Cancel</button>
+                <button class="leave-button1" onclick="submitLeaveRequest()">Submit</button>
             </div>
         </div>
     </div>
@@ -223,6 +224,33 @@
 
 </html>
 <style>
+     .global-message {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none; /* 默认隐藏 */
+    }
+    .global-message.success {
+        background-color: #4CAF50; /* 绿色背景 */
+        color: white;
+    }
+    .global-message.error {
+        background-color: #f44336; /* 红色背景 */
+        color: white;
+    }
+    .global-message.info {
+        background-color: #2196F3; /* 蓝色背景 */
+        color: white;
+    }
+    .global-message.warning {
+        background-color: #ff9800; /* 橙色背景 */
+        color: white;
+    }
     body {
         margin: 0;
         font-family: 'Arial', sans-serif;
@@ -235,13 +263,52 @@
         min-width: 380px;
     }
 
-    .div_container{
+    .div_container {
         width: 98%;
         background-color: white;
         border-radius: 8px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
         margin-top: 10px;
         padding-bottom: 10px;
+    }
+
+    .selectAll {
+        display: none;
+        width: 100%;
+        margin-bottom: 10px;
+        height: 40px;
+        background-color: #f2f9f8;
+        padding: 10px;
+        justify-content: center;
+    }
+    .selectAll label {
+        justify-content: center;
+    }
+
+    .leaveShow {
+        display: block;
+    }
+
+    .leaveHide {
+        display: none;
+    }
+
+    .accept {
+        background-color: #E0F3FF;
+        color:#647BF3;
+        border-radius: 5px;
+    }
+
+    .refuse {
+        background-color: #FFEEE0;
+        color:#FCBEA4";
+        border-radius: 5px;
+    }
+
+    .courseCheckBox,
+    .courseCheckBox2 {
+        height: 15px;
+        width: 15px;
     }
 
     .tabs {
@@ -271,7 +338,7 @@
         padding: 10px;
     }
 
-    .tab-content textarea{
+    .tab-content textarea {
         width: 96%;
         height: 90px;
         padding: 10px;
@@ -343,7 +410,7 @@
     }
 
     .container {
-        background: linear-gradient(to bottom, #2F51FF, #FFFFFF);
+        background: linear-gradient(to bottom, #2F51FF, #F7F9FC);
         width: 360px;
         padding: 20px;
         border-radius: 20px;
@@ -453,6 +520,7 @@
         margin-top: 10px;
         margin-left: auto;
         margin-right: auto;
+        margin-bottom: 20px;
         background-color: #ffffff;
         display: flex;
         align-items: center;
@@ -648,6 +716,40 @@
         padding-bottom: 20px;
     }
 
+    .cancle-button {
+        color: #2F51FF;
+        background-color: white;
+        text-align: center;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        height: 55px;
+    }
+    .cancle-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .cancle-button1 {
+        color: #2F51FF;
+        background-color: white;
+        text-align: center;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        height: 55px;
+    }
+    .cancle-button1:hover {
+        background-color: #f0f0f0;
+    }
+
     .stats-button,
     .leave-button {
         background-color: #2F51FF;
@@ -666,8 +768,24 @@
 
     .date-buttons button:hover,
     .stats-button:hover,
+    .leave-button1:hover,
     .leave-button:hover {
         background-color: #0056b3;
+    }
+
+    .leave-button1 {
+        background-color: #2F51FF;
+        color: white;
+        text-align: center;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        width: 48%;
+        height: 55px;
+        /* 确保两个按钮在一行内 */
     }
 
     /* Modal Background */
@@ -684,12 +802,12 @@
 
     /* Modal Content */
     .modal-content {
-        background-color: #fff;
+        background-color: #dae1eb;
         margin: 15% auto;
         padding: 20px;
         border-radius: 5px;
         width: 400px;
-        height: 290px;
+        height: 350px;
         position: relative;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
@@ -730,18 +848,12 @@
 
     /* Modal Footer */
     .modal-footer {
-        margin-top: 20px;
-        text-align: right;
+        flex: 1;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        padding-top: 7px;
     }
-
-    /* Buttons */
-    /* button {
-        padding: 8px 16px;
-        margin-left: 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    } */
 
     #cancelBtn {
         background-color: #f0f0f0;
@@ -974,7 +1086,7 @@
     }
 
     .score {
-        width:35px;
+        width: 35px;
     }
 
     .comment-box {
@@ -1120,14 +1232,15 @@ overflow-y: auto; */
         justify-content: center;
         align-items: center;
     }
-    .rlable label{
+
+    .rlable label {
         border-radius: 3px;
         float: right;
         margin-right: 10px;
         padding: 1px 2px 1px 2px;
     }
 
-    .studentList{
+    .studentList {
         background-color: #FFFFFF;
         border-radius: 8px;
         margin-top: 10px;
@@ -1157,7 +1270,7 @@ overflow-y: auto; */
         margin-left: 10px;
     }
 
-    .student_att{
+    .student_att {
         background: #2F51FF0F;
         padding: 10px;
         border-radius: 8px;
@@ -1197,17 +1310,28 @@ overflow-y: auto; */
         margin-right: 5px;
     }
 
-    .blue { background-color: #4a90e2; }
-    .green { background-color: #7ed321; }
-    .red { background-color: #d0021b; }
-    .orange { background-color: #f5a623; }
+    .blue {
+        background-color: #4a90e2;
+    }
+
+    .green {
+        background-color: #7ed321;
+    }
+
+    .red {
+        background-color: #d0021b;
+    }
+
+    .orange {
+        background-color: #f5a623;
+    }
 
     select {
         padding: 5px;
         border: 1px solid #ccc;
         border-radius: 4px;
     }
-    
+
 
     /* 媒体查询，用于调整PC端显示样式 */
     @media (min-width: 768px) {
@@ -1251,12 +1375,50 @@ overflow-y: auto; */
             height: 40px;
         }
     }
+
+    .custom-confirm {
+        line-height: 1.6;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #dae1eb;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1001;
+        display: none; /* 默认隐藏 */
+    }
+    .custom-confirm .message {
+        margin-bottom: 20px;
+    }
+    .custom-confirm .buttons {
+        text-align: right;
+    }
+    .custom-confirm .buttons button {
+        margin-left: 10px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+    .custom-confirm .buttons .confirm {
+        background-color: #4CAF50; /* 绿色背景 */
+        color: white;
+    }
+    .custom-confirm .buttons .cancel {
+        background-color: #f44336; /* 红色背景 */
+        color: white;
+    }
 </style>
 <script>
     const url = "/classroom";
     let nowpage = "course";
-    let filetype_check="preview";
+    let filetype_check = "preview";
+    let isLeaveCheck = false;
+    let courseChecks =[];
     document.getElementById('uploadedFiles_preview').style.display = 'block';
+    document.getElementById('coursetext_preview').style.display = 'block';
     const subid = document.getElementById('teacherId').value;
     const teacher_name = document.getElementById('teacherName').value;
     let current_eventId = "";
@@ -1298,7 +1460,7 @@ overflow-y: auto; */
         current_date = formatDate();
 
         const selectedDate = document.getElementById('selectedDate');
-        selectedDate.value = formatDate();
+        selectedDate.value = current_date;
         fetchData();
         //fetchNewMessages();
 
@@ -1306,50 +1468,152 @@ overflow-y: auto; */
         //setInterval(fetchNewMessages, 30000);
     });
 
+    function showMessage(message, type = 'info') {
+        const messageElement = document.getElementById('globalMessage');
+        messageElement.textContent = message;
+
+        // 移除所有类型的类
+        messageElement.classList.remove('success', 'error', 'info', 'warning');
+
+        // 根据类型添加相应的类
+        messageElement.classList.add(type);
+
+        messageElement.style.display = 'block';
+
+         // 添加点击事件监听器，点击时隐藏消息
+        messageElement.onclick = () => {
+            messageElement.style.display = 'none';
+        };
+
+        setTimeout(() => {
+            messageElement.style.display = 'none';
+        }, 5000); // 5秒后自动消失
+    }
+
+    function showConfirm(message, callback) {
+        const confirmElement = document.getElementById('customConfirm');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmYes = document.getElementById('confirmYes');
+        const confirmNo = document.getElementById('confirmNo');
+
+        confirmMessage.textContent = message;
+        confirmElement.style.display = 'block';
+
+        confirmYes.onclick = () => {
+            confirmElement.style.display = 'none';
+            callback(true);
+        };
+
+        confirmNo.onclick = () => {
+            confirmElement.style.display = 'none';
+            callback(false);
+        };
+    }
     // Tab switching logic
     const preClassTab = document.getElementById("preClassTab");
     const afterClassTab = document.getElementById("afterClassTab");
+    const coursetext_preview = document.getElementById("coursetext_preview");
+    const coursetext_homework = document.getElementById("coursetext_homework");
+    const fileUpload_preview = document.getElementById("uploadedFiles_preview");
+    const fileUpload_homework = document.getElementById("uploadedFiles_homework");
 
     preClassTab.addEventListener("click", () => {
         filetype_check = "preview";
         preClassTab.classList.add("active");
         afterClassTab.classList.remove("active");
+
+        coursetext_preview.style.display = 'block';
+        fileUpload_preview.style.display = 'block';
+        coursetext_homework.style.display = 'none';
+        fileUpload_homework.style.display = 'none';
     });
 
     afterClassTab.addEventListener("click", () => {
         filetype_check = "homework";
         afterClassTab.classList.add("active");
         preClassTab.classList.remove("active");
+
+        coursetext_preview.style.display = 'none';
+        fileUpload_preview.style.display = 'none';
+        coursetext_homework.style.display = 'block';
+        fileUpload_homework.style.display = 'block';
     });
+
+    function showLeaveCheck() {
+        isLeaveCheck = true;
+        
+        document.querySelector('.selectAll').style.display = 'block';
+        document.getElementById('course_bottom').style.display = 'none';
+        document.getElementById('courseTitle').innerText = 'Course Selection';
+        document.getElementById('course_Leave').style.removeProperty('display');
+
+        fetchData();
+    }
+
+    function hideLeaveCheck() {
+        courseChecks = [];
+        isLeaveCheck = false;
+        document.querySelector('.selectAll').style.display = 'none';
+        document.getElementById('course_bottom').style.removeProperty('display');
+        document.getElementById('courseTitle').innerText = 'Course List';
+        document.getElementById('course_Leave').style.display = 'none';
+
+        const checkboxes1 = document.querySelectorAll('.course-arrow');
+        checkboxes1.forEach(checkbox => {
+            checkbox.classList.remove('leaveHide');
+        });
+
+        const checkboxes2 = document.querySelectorAll('.rlable');
+        checkboxes2.forEach(checkbox => {
+            checkbox.classList.remove('leaveHide');
+        });
+
+        const checkboxes = document.querySelectorAll('.courseCheckBox');
+        checkboxes.forEach(checkbox => {
+            checkbox.classList.add('leaveHide');
+        });
+    }
+
+    function selectAll() {
+        const selectAllVal = document.getElementById('selectAll').checked;
+        const checkboxes = document.querySelectorAll('.courseCheckBox');
+        checkboxes.forEach(checkbox => {
+            if(checkbox.disabled){
+                return;
+            }
+            checkbox.checked = selectAllVal;
+        });
+    }
 
     function updateTimezone() {
         const timeZone = document.getElementById('timezoneSelect').value;
         timezoneSet = timeZone;
         // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
 
-        if(nowpage == "course"){
+        if (nowpage == "course") {
             fetchData();
-        }else if(nowpage == "statistics"){
+        } else if (nowpage == "statistics") {
             calculateStatistics();
-        }else if(nowpage == "details"){
+        } else if (nowpage == "details") {
             showDetails(current_eventId);
         }
     }
     // Function to open the leave modal
-    function openLeaveModal(course) {
-        if (course) {
-            document.getElementById('leaveCourse').value = JSON.stringify(course);
-            document.getElementById('leave_time').innerText = formatDateTime(course.start_dt) + " ~ " + formatTime(course.end_dt);
-        } else {
-            // if today is not a class day, the leave date is today
-            if (today_course.length == 0) {
-                alert("You don't have any classes scheduled today, so there's no need to take a leave!");
-                return;
-            } else {
-                document.getElementById('leaveCourse').value = '';
-                document.getElementById('leave_time').innerText = current_date
+    function openLeaveModal() {
+        courseChecks=[];
+        // 获取所有勾选的课程
+        const checkboxes = document.querySelectorAll('.courseCheckBox');
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                courseChecks.push(checkbox.value);
             }
+        });
+        if(courseChecks.length == 0){
+            showMessage('Please select at least one course', 'warning');
+            return;
         }
+
+        document.getElementById('leave_time').innerText = current_date
         document.getElementById('leaveModal').style.display = 'flex';
     }
 
@@ -1360,30 +1624,19 @@ overflow-y: auto; */
     }
 
     // Function to submit the leave request
-    function submitLeaveRequest(course) {
+    function submitLeaveRequest() {
         const reason = document.getElementById('leaveReason').value;
         const comment = document.getElementById('leaveComment').value;
         try {
-            let course;
-            if (document.getElementById('leaveCourse').value != '') {
-                course = JSON.parse(document.getElementById('leaveCourse').value);
-            }
             let body = {
                 code: subid,
                 name: teacher_name,
                 reason,
-                comment
+                comment,
+                date: current_date,
+                courseChecks
             };
-            if (course) {
-                body.courseId = course.id;
-                body.start_dt = formatDateTime(course.start_dt);
-                body.end_dt = formatDateTime(course.end_dt);
-            } else {
-                body.courseId = null;
-                const selectedDate = document.getElementById('selectedDate');
-                body.start_dt = formatDate(selectedDate.value) + ' 00:00';
-                body.end_dt = formatDate(selectedDate.value) + ' 23:59';
-            }
+            
             fetch(url + '/leave/send', {
                 method: 'POST',
                 headers: {
@@ -1394,17 +1647,16 @@ overflow-y: auto; */
                 .then(data => {
                     if (data.code == 0) {
                         fetchData();
-                        // alert('Leave request submitted successfully!');
+                        showMessage('Leave request submitted successfully!','success');
                     } else {
-                        alert(data.msg);
+                        showMessage('Leave request submitted failed!', 'error');
                     }
                 })
                 .catch(error => {
-                    alert('Leave request submitted error!');
-                    console.log('Error:', error)
+                    showMessage('Leave request submitted error!', 'error');
                 });
         } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
+            showMessage('server error', 'error');
         }
         closeLeaveModal();
     }
@@ -1432,6 +1684,9 @@ overflow-y: auto; */
         current_eventId = "";
         document.getElementById('courseDiv').style.display = 'block';
         document.getElementById('courseDetails').style.display = 'none';
+
+        document.getElementById('static_date').style.display = 'none';
+        document.getElementById('course_date').style.removeProperty('display');
     }
 
     // 课时统计
@@ -1440,7 +1695,7 @@ overflow-y: auto; */
         let eDate = new Date(document.getElementById('endDate').value);
 
         if (isNaN(sDate) || isNaN(eDate) || sDate > eDate) {
-            alert('Please enter valid start and end dates');
+            showMessage('Please enter valid start and end dates', 'warning');
             return;
         }
         sDate = document.getElementById('startDate').value;
@@ -1448,7 +1703,7 @@ overflow-y: auto; */
 
         // get the total duration of all courses
         try {
-            document.getElementById('totalDuration').textContent =`Total Duration: 0.0 hours`;
+            document.getElementById('totalDuration').textContent = `Total Duration: 0.0 hours`;
             const TotalList = document.getElementById('TotalList');
             TotalList.innerHTML = '';
 
@@ -1462,10 +1717,10 @@ overflow-y: auto; */
 
             const data = await response.json();
             if (data.code !== 0) {
-                alert('查询过程中发生错误');
+                showMessage('server error', 'error');
                 return;
             }
-            
+
             const teacherDurations = data.data.find(item => item.type === 'teacher');
             if (teacherDurations) {
                 let totalDuration = teacherDurations.duration;
@@ -1487,7 +1742,7 @@ overflow-y: auto; */
             }
         } catch (error) {
             console.error('Error fetching data:', error);
-            alert('Error fetching data');
+            showMessage('Error fetching data', 'error');
         }
     }
 
@@ -1512,7 +1767,7 @@ overflow-y: auto; */
         const result = await response.json();
 
         if (result.code != 0) {
-            alert('Network response was not ok ' + response.statusText);
+            showMessage('server error', 'error');
         }
         courseData = result.data;
         current_course = courseData;
@@ -1523,8 +1778,8 @@ overflow-y: auto; */
         document.getElementById('courseType').textContent = courseData.class_category;
         document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
         document.getElementById('signedup').innerHTML = courseData.signed_up;
-        document.getElementById('coursePreview').textContent = courseData.preview;
-        document.getElementById('courseHomework').textContent = courseData.homework;
+        document.getElementById('coursetext_preview').textContent = courseData.preview;
+        document.getElementById('coursetext_homework').textContent = courseData.homework;
 
         document.getElementById('uploadedFiles_preview').innerHTML = '';
         document.getElementById('uploadedFiles_homework').innerHTML = '';
@@ -1569,7 +1824,7 @@ overflow-y: auto; */
                     <div style="width: 4px; height: 24px; background-color: #2F51FF; "></div>
                         <span style="padding: 0 3px; color: #2F51FF; font-weight: bold">Student evaluation</span>
                     </div>`;
-        data.forEach((student,i) => {
+        data.forEach((student, i) => {
             const scode = student.code;
             if (scode == '' || student.name == '') return;
             const studentItem = document.createElement('div');
@@ -1608,21 +1863,21 @@ overflow-y: auto; */
             if (student.value2 == '1') {
                 studentInfo.innerHTML += `<div class="new-badge-stu">NEW</div>`;
             }
-            if(i==0){
+            if (i == 0) {
                 studentInfo.innerHTML += `
                 <span >${replaceNumberToNull(student.name)}</span>
                 <i class="fas fa-angle-right rotated" id="arrow_${scode}"></i>
             `;
-            }else{
+            } else {
                 studentInfo.innerHTML += `
                 <span >${replaceNumberToNull(student.name)}</span>
                 <i class="fas fa-angle-right" id="arrow_${scode}"></i>
             `;
             }
             const studentDetails = document.createElement('div');
-            if(i==0){
+            if (i == 0) {
                 studentDetails.classList.add('details');
-            }else{
+            } else {
                 studentDetails.classList.add('details', 'hidden');
             }
             studentDetails.id = `details_${scode}`;
@@ -1745,9 +2000,9 @@ overflow-y: auto; */
 
             studentList.appendChild(studentItem);
         });
-         // 页面加载完毕后设置radio选中状态
-         data.forEach(stu => {
-            document.getElementById('select_'+stu.code).value = stu.state;
+        // 页面加载完毕后设置radio选中状态
+        data.forEach(stu => {
+            document.getElementById('select_' + stu.code).value = stu.state;
         });
     }
 
@@ -1760,16 +2015,16 @@ overflow-y: auto; */
         }
         return filename;
     }
-    function checkfile(){
-        document.getElementById('fileUpload_preview').click();
+    function checkfile() {
+        document.getElementById('fileUpload').click();
     }
     function uploadFile() {
         const files = document.getElementById('fileUpload').files;
-        const uploadedFilesContainer = document.getElementById('uploadedFiles_'+filetype_check);
+        const uploadedFilesContainer = document.getElementById('uploadedFiles_' + filetype_check);
         const existingFiles = uploadedFilesContainer.children.length;
 
         if (existingFiles + files.length > 2) {
-            alert('You can upload up to two attachments only.');
+            showMessage('You can upload up to two attachments only.', 'warning');
             return;
         }
         for (let i = 0; i < files.length; i++) {
@@ -1788,7 +2043,7 @@ overflow-y: auto; */
                 .then(response => response.json()) // 假设服务器返回JSON
                 .then(result => {
                     if (result.code !== 0) {
-                        alert('Failed to upload file.');
+                        showMessage('Failed to upload file.', 'error');
                         return;
                     }
                     // 显示已上传文件
@@ -1802,7 +2057,7 @@ overflow-y: auto; */
                     uploadedFilesContainer.appendChild(fileElement);
                 })
                 .catch(error => {
-                    alert('Failed to upload file.');
+                    showMessage('Failed to upload file.', 'error');
                     console.error('Error:', error);
                 });
         }
@@ -1824,17 +2079,18 @@ overflow-y: auto; */
                     const fileElement = document.getElementById(fileId);
                     fileElement.parentNode.removeChild(fileElement);
                 } else {
-                    alert('Failed to delete file.');
+                    showMessage('Failed to delete file.', 'error');
                 }
             })
             .catch(error => {
-                alert('Failed to delete file.');
+                showMessage('Failed to delete file.', 'error');
                 console.error('Error:', error);
             });
     }
 
     async function fetchData() {
         try {
+            document.getElementById('selectAll').checked = false;
             const selectedDate = document.getElementById('selectedDate');
             current_date = selectedDate.value;
             const response = await fetch(url + '/course/GetData', {
@@ -1847,7 +2103,7 @@ overflow-y: auto; */
             const result = await response.json();
 
             if (result.code != 0) {
-                alert('Network response was not ok ' + response.statusText);
+                showMessage('server error', 'error');
             }
             const courseList = document.getElementById('courseList');
             courseList.innerHTML = '';
@@ -1875,20 +2131,30 @@ overflow-y: auto; */
                 } else {
                     courseItem.innerHTML += `<div class="course-icon">💻</div>`;
                 }
+                const leaveCheckCss = isLeaveCheck ? 'leaveHide' : '';
                 courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')">${course.title}</h4>
                    
-                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)} <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave"></i></p>
+                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                         <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave">
+                            </i>
+                            </p>
                     <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}<label style="background-color: #E0F3FF;color:#647BF3"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
-                        <label style="background-color: #FFEEE0;color:#FCBEA4"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Refuse</label></p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                        <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Refuse</label></p>
                 </div>`;
                 if (course.value2 == '1') {
                     courseItem.innerHTML += `<div class="new-badge">NEW</div>`;
                 }
-                courseItem.innerHTML += `<div class="course-arrow" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
-                // courseItem.onclick = () => showDetails(course.id);
+                courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
+
+                const isleaveCheckCss2 = isLeaveCheck ? 'leaveShow' : 'leaveHide';
+                if(course.isleave){
+                    courseItem.innerHTML += `<input type="checkbox" checked disabled class="courseCheckBox ${isleaveCheckCss2}" id="leave_${course.id}" value="${course.id}">`;
+                }else{
+                    courseItem.innerHTML += `<input type="checkbox" class="courseCheckBox ${isleaveCheckCss2}" id="leave_${course.id}" value="${course.id}">`;
+                }
                 courseList.appendChild(courseItem);
             });
 
@@ -1911,7 +2177,7 @@ overflow-y: auto; */
         const result = await response.json();
 
         if (result.code != 0) {
-            alert('Network response was not ok ' + response.statusText);
+            showMessage('Failed to fetch new messages', 'error');
             return;
         }
         messages = [];
@@ -2010,8 +2276,8 @@ overflow-y: auto; */
             studentInfos.push({ code, read, write, level, evaluate });
         }
 
-        const preview = document.getElementById('coursePreview').value;
-        const homework = document.getElementById('courseHomework').value;
+        const preview = document.getElementById('coursetext_preview').value;
+        const homework = document.getElementById('coursetext_homework').value;
         let previewfiles = '';
         const previewFiles = Array.from(document.querySelectorAll('#uploadedFiles_preview .uploaded-file'));
         previewFiles.forEach(file => {
@@ -2036,29 +2302,28 @@ overflow-y: auto; */
         const result = await response.json();
 
         if (result.code != 0) {
-            alert('Feedback submitted faild');
+            showMessage('Feedback submitted faild', 'error');
         } else {
-            alert('Feedback submitted successfully');
+            showMessage('Feedback submitted successfully', 'success');
         }
     }
 
     function confirmHandleStatusChange(code, name, state) {
-
         let msg = "Are you sure you reported the student as late? The system will immediately send a text message reminder to parents!?";
         if (state == 9) {
             msg = "Are you sure to report a student's absence from class? The system will immediately send a text message reminder to parents!?";
-        }else if(state == 0){
+        } else if (state == 0) {
             msg = "Are you sure to report a student's normal? ";
         }
-        const confirmation = confirm(msg);
-        if (confirmation) {
-            handleStatusChange(code, name, state);
-        } else {
-            // 如果用户取消确认，则恢复原来的选中状态
-            const originalValue = current_course.student.find(st => st.code == code).state;
-            // document.querySelector(`input[name="attendance_${code}"][value="${originalValue}"]`).checked = true;
-            document.getElementById('select_'+code).value = originalValue;
-        }
+        showConfirm(msg, function(confirmation){
+            if (confirmation) {
+                handleStatusChange(code, name, state);
+            } else {
+                // 如果用户取消确认，则恢复原来的选中状态
+                const originalValue = current_course.student.find(st => st.code == code).state;
+                document.getElementById('select_' + code).value = originalValue;
+            }
+        });
     }
 
     // Example function to handle status change
@@ -2074,12 +2339,12 @@ overflow-y: auto; */
         const result = await response.json();
 
         if (result.code != 0) {
-            alert(`Failed to reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+            showMessage(`Failed to reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`, 'error');
             const originalValue = current_course.student.find(st => st.code == code).state;
-            document.getElementById('select_'+code).value = originalValue;
+            document.getElementById('select_' + code).value = originalValue;
         } else {
             current_course.student.find(st => st.code == code).state = state;
-            // alert(`Successfully reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`);
+            showMessage(`Successfully reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`, 'success');
         }
     }
 
@@ -2088,14 +2353,15 @@ overflow-y: auto; */
         if (value == 9) {
             msg = "Are you sure you don't show up for the class? Clicking Confirm will clear the student and notify their parents of the cancellation of the lesson via SMS.";
         }
-        const confirmation = confirm(msg);
-        if (confirmation) {
-            handleAttendanceChange(courseId, value);
-        } else {
-            // 如果用户取消确认，则恢复原来的选中状态
-            const originalValue = today_course.find(course => course.id == courseId).attend;
-            document.querySelector(`input[name="attendance_${courseId}"][value="${originalValue}"]`).checked = true;
-        }
+        const confirmation = showConfirm(msg, function(confirmation){
+            if (confirmation) {
+                handleAttendanceChange(courseId, value);
+            } else {
+                // 如果用户取消确认，则恢复原来的选中状态
+                const originalValue = today_course.find(course => course.id == courseId).attend;
+                document.querySelector(`input[name="attendance_${courseId}"][value="${originalValue}"]`).checked = true;
+            }
+        });
     }
 
     async function handleAttendanceChange(courseId, attend) {
@@ -2109,7 +2375,7 @@ overflow-y: auto; */
         const result = await response.json();
 
         if (result.code != 0) {
-            alert(`Failed to report leave request!`);
+            showMessage(`Failed to report leave request!`, 'error');
             // 如果更新teamup失败，则恢复原来的选中状态
             const originalValue = today_course.find(course => course.id == courseId).attend;
             document.querySelector(`input[name="attendance_${courseId}"][value="${originalValue}"]`).checked = true;
@@ -2123,7 +2389,7 @@ overflow-y: auto; */
             }
 
             fetchData();
-            //alert(`Successfully reported leave request!`);
+            showMessage(`Successfully reported leave request!`, 'success');
         }
     }
 
