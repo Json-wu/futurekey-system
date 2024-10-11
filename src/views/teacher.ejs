@@ -10,6 +10,8 @@
 </head>
 
 <body>
+    <!-- 遮罩层 -->
+    <div class="modal-overlay" id="modalOverlay"></div>
     <div class="global-message" id="globalMessage"></div>
     <div class="custom-confirm" id="customConfirm">
         <div class="message" id="confirmMessage"></div>
@@ -877,7 +879,6 @@
         border-top: 1px solid #ddd;
         display: flex;
         justify-content: space-between;
-        padding-top: 7px;
     }
 
     #cancelBtn {
@@ -1402,11 +1403,32 @@ overflow-y: auto; */
         .button-group {
             width: 85%;
         }
+
+        .selectAll {
+            width: 84% !important;
+            left:50%;
+        }
+
+        .custom-confirm {
+            width: 75% !important;
+        }
     }
 
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none; /* 默认隐藏 */
+    }
+    
     .custom-confirm {
         line-height: 1.6;
         position: fixed;
+        width: 55%;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -1527,17 +1549,21 @@ overflow-y: auto; */
         const confirmMessage = document.getElementById('confirmMessage');
         const confirmYes = document.getElementById('confirmYes');
         const confirmNo = document.getElementById('confirmNo');
+        const overlay = document.getElementById('modalOverlay');
 
         confirmMessage.textContent = message;
         confirmElement.style.display = 'block';
+        overlay.style.display = 'block';
 
         confirmYes.onclick = () => {
             confirmElement.style.display = 'none';
+            overlay.style.display = 'none';
             callback(true);
         };
 
         confirmNo.onclick = () => {
             confirmElement.style.display = 'none';
+            overlay.style.display = 'none';
             callback(false);
         };
     }
