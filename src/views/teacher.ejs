@@ -68,7 +68,7 @@
             <div class="course-list" id="courseList">
             </div>
             <!-- 全选按钮栏-->
-            <div class="selectAll">
+            <div class="selectAll2" id ="ss">
                 <label><input type="checkbox" class="courseCheckBox2" id="selectAll" onclick="selectAll()">Select All</label>
             </div>
 
@@ -273,13 +273,33 @@
     }
 
     .selectAll {
+        width: 68% !important;
+        margin-bottom: 10px;
+        height: 40px;
+        /* background-color: #f2f9f8; */
+        background: linear-gradient(275.55deg, rgba(247, 252, 251, 0.08) -58%, rgba(47, 81, 255, 0.12) 138.57%);
+
+        padding: 10px;
+        position: fixed;
+        bottom: 96px;
+        left: 49%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        border-top: 1px solid #ddd;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-radius: 8px;
+    }
+
+    .selectAll2 {
         display: none;
-        width: 100%;
+        /* width: 100%;
         margin-bottom: 10px;
         height: 40px;
         background-color: #f2f9f8;
         padding: 10px;
-        justify-content: center;
+        justify-content: center; */
     }
     .selectAll label {
         justify-content: center;
@@ -301,7 +321,7 @@
 
     .refuse {
         background-color: #FFEEE0;
-        color:#FCBEA4";
+        color:#FCBEA4;
         border-radius: 5px;
     }
 
@@ -645,7 +665,7 @@
 
     .course-list {
         flex: 1;
-        border-bottom: 1px solid #ddd;
+        padding-bottom: 85px;
     }
 
     .course-item {
@@ -709,11 +729,16 @@
     }
 
     .button-group {
-        flex: 1;
-        border-top: 1px solid #ddd;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
+        gap: 10px;
         justify-content: space-between;
         padding-bottom: 20px;
+        width: 70%; /* 设置宽度为100% */
+        max-width: 800px; /* 设置最大宽度与container一致 */
     }
 
     .cancle-button {
@@ -947,7 +972,7 @@
     }
 
     .table-container2 {
-        margin-bottom: 20px;
+        margin-bottom: 85px;
         min-height: 200px;
         overflow-x: hidden;
     }
@@ -1374,6 +1399,9 @@ overflow-y: auto; */
         .date-buttons button {
             height: 40px;
         }
+        .button-group {
+            width: 85%;
+        }
     }
 
     .custom-confirm {
@@ -1409,6 +1437,10 @@ overflow-y: auto; */
     .custom-confirm .buttons .cancel {
         background-color: #f44336; /* 红色背景 */
         color: white;
+    }
+
+    .clist {
+        padding-bottom: 145px;
     }
 </style>
 <script>
@@ -1542,10 +1574,13 @@ overflow-y: auto; */
     function showLeaveCheck() {
         isLeaveCheck = true;
         
-        document.querySelector('.selectAll').style.display = 'block';
+        // document.querySelector('.selectAll').style.display = 'block';
+        document.getElementById('ss').classList.remove('selectAll2');
+        document.getElementById('ss').classList.add('selectAll');
         document.getElementById('course_bottom').style.display = 'none';
         document.getElementById('courseTitle').innerText = 'Course Selection';
         document.getElementById('course_Leave').style.removeProperty('display');
+        document.getElementById('courseList').classList.add('clist');
 
         fetchData();
     }
@@ -1553,7 +1588,9 @@ overflow-y: auto; */
     function hideLeaveCheck() {
         courseChecks = [];
         isLeaveCheck = false;
-        document.querySelector('.selectAll').style.display = 'none';
+        document.getElementById('ss').classList.add('selectAll2');
+        document.getElementById('ss').classList.remove('selectAll');
+        document.getElementById('courseList').classList.remove('clist');
         document.getElementById('course_bottom').style.removeProperty('display');
         document.getElementById('courseTitle').innerText = 'Course List';
         document.getElementById('course_Leave').style.display = 'none';
@@ -2125,7 +2162,9 @@ overflow-y: auto; */
                     courseItem.classList.add('course-item-absent');
                 }
                 if (index % 3 == 0) {
-                    courseItem.innerHTML += `<div class="course-icon">🎓</div>`;
+                    // courseItem.innerHTML += `<div class="course-icon">🎓</div>`;
+                    courseItem.innerHTML += `<div class="course-icon"><i class="fas fa-pencil-alt write-icon" title="写作"></i>
+               </div>`;
                 } else if (index % 3 == 1) {
                     courseItem.innerHTML += `<div class="course-icon">🎨</div>`;
                 } else {
