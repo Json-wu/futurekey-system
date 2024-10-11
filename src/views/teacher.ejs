@@ -2187,15 +2187,16 @@ overflow-y: auto; */
                 if (course.attend == 9) {
                     courseItem.classList.add('course-item-absent');
                 }
-                if (index % 3 == 0) {
+                if (course.class_category=='writing') {
                     // courseItem.innerHTML += `<div class="course-icon">🎓</div>`;
-                    courseItem.innerHTML += `<div class="course-icon"><i class="fas fa-pencil-alt write-icon" title="写作"></i>
+                    courseItem.innerHTML += `<div class="course-icon"><i class="fas fa-pencil-alt write-icon" title="writting"></i>
                </div>`;
-                } else if (index % 3 == 1) {
-                    courseItem.innerHTML += `<div class="course-icon">🎨</div>`;
                 } else {
-                    courseItem.innerHTML += `<div class="course-icon">💻</div>`;
+                    courseItem.innerHTML += `<div class="course-icon">🎨</div>`;
                 }
+                //  else {
+                //     courseItem.innerHTML += `<div class="course-icon">💻</div>`;
+                // }
                 const leaveCheckCss = isLeaveCheck ? 'leaveHide' : '';
                 courseItem.innerHTML +=
                     `<div class="course-info">
