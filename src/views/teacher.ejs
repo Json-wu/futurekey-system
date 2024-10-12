@@ -228,7 +228,7 @@
 <style>
      .global-message {
         position: fixed;
-        top: 0;
+        top: 3%;
         left: 50%;
         transform: translateX(-50%);
         padding: 15px;
@@ -1912,7 +1912,6 @@ overflow-y: auto; */
                                  <option value="0">&#9989; Normal</option>
                                 <option value="1">&#128337; Late</option>
                                 <option value="9">&#10060; Absence</option>
-                               
                             </select>
                         </div>
                     </div>
@@ -2198,10 +2197,11 @@ overflow-y: auto; */
                 //     courseItem.innerHTML += `<div class="course-icon">💻</div>`;
                 // }
                 const leaveCheckCss = isLeaveCheck ? 'leaveHide' : '';
-                courseItem.innerHTML +=
+                
+                if (course.value2 == '1') {
+                    courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')">${course.title}</h4>
-                   
                     <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                          <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave">
                             </i>
@@ -2209,9 +2209,19 @@ overflow-y: auto; */
                     <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
                     <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
                         <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Refuse</label></p>
-                </div>`;
-                if (course.value2 == '1') {
-                    courseItem.innerHTML += `<div class="new-badge">NEW</div>`;
+                    </div>
+                    <div class="new-badge">NEW</div>`;
+                }else{
+                    courseItem.innerHTML +=
+                    `<div class="course-info">
+                    <h4 onclick="showDetails('${course.id}')">${course.title}</h4>
+                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                         <i class="fas fa-user-slash leave-icon ${course.isleave ? 'show' : 'hide'}" title="The teacher has requested leave">
+                            </i>
+                            </p>
+                    <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}</p>
+                    </div>`;
                 }
                 courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
 
