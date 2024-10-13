@@ -2360,6 +2360,11 @@ overflow-y: auto; */
 
     // 显示或隐藏消息弹出框
     function toggleNotificationPopup() {
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        if(messages.length == 0){
+            showMessage('No new messages', 'info');
+            return;
+        }
         const popup = document.getElementById('notification-popup');
         if (popup.style.display === 'none' || popup.style.display === '') {
             loadNotifications();
