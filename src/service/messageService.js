@@ -28,9 +28,9 @@ async function update(id){
     return await new Promise((resolve, reject) => {
         db.run(`update message_info set isread=1 where id=${id}`, function(err) {
             if (err) {
-                return resolve(null);
+                return resolve(false);
             }
-            resolve(this.lastID);
+            resolve(true);
         });
     });
 }

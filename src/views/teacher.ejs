@@ -2337,6 +2337,7 @@ overflow-y: auto; */
         messages = [];
         result.data.forEach(item => {
             const newMessage = {
+                id: item.id,
                 text: item.msg,
                 url: item.url,
                 time: item.create_date
@@ -2390,15 +2391,28 @@ overflow-y: auto; */
         notificationList.innerHTML = '';
         messages.forEach(message => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<a onclick="readMsg('${message.url}')" style="cursor: pointer;">${message.text}</a>`;// &nbsp;&nbsp;<small>${message.time}</small>
+            listItem.innerHTML = `<a onclick="readMsg('${message.url}', '${message.id}')" style="cursor: pointer;">${message.text}</a>`;// &nbsp;&nbsp;<small>${message.time}</small>
             notificationList.appendChild(listItem);
         });
     }
 
-    function readMsg(url){
+    function readMsg(date, id){
+        if(date=='')
+            return;
+        let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        messages = messages.filter(message => message.id != id);
+        localStorage.setItem('messages', JSON.stringify(messages));
+        loadNotifications();
+        if(messages.length == 0){
+            document.getElementById('notification-popup').style.display = 'none';
+        }
         const selectedDate = document.getElementById('selectedDate');
-        selectedDate.value = url;
+        selectedDate.value = date;
         fetchData();
+
+        fetch(url + '/message/read/' + id, {
+            method: 'GET'
+        });
     }
 
     function toggleDetails(scode) {
