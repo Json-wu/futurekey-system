@@ -221,9 +221,9 @@ async function SignStudentStatus(id, code, state) {
 
 async function SaveInfo(body){
     try {
-        const { id, students, preview, homework, previewfiles, homeworkfiles } = body;
+        const { id, students, preview, homework, previewfiles, homeworkfiles, unit, week, day } = body;
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set preview='${preview}', homework='${homework}',value4='${previewfiles}', value5='${homeworkfiles}' where id ='${id}'`, (err, data) => {
+            db.run(`update courses set preview='${preview}', homework='${homework}',value4='${previewfiles}', value5='${homeworkfiles}', unit='${unit}', week='${week}', day='${day}' where id ='${id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
@@ -542,10 +542,10 @@ async function InitCourse() {
 
 
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
-        // let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        // let date_start = '2024-06-01';
-        let date_end ='2024-10-30';
-        let date_start ='2024-10-01';
+        let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
+        let date_start = '2024-06-01';
+        // let date_end ='2024-10-30';
+        // let date_start ='2024-10-01';
         let data = await fetchTeamUpCalendar(date_start, date_end);
         // let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);

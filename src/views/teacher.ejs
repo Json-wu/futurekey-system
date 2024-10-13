@@ -143,6 +143,41 @@
                     <label>Class Category:</label>
                     <span id="courseType"></span>
                 </div>
+                <div class="input-group_detail" id = "div_pro" style="display: none;">
+                    <label>Class Progress:</label>
+                    <span>Unit_</span>
+                    <select id="unit">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                    </select>
+                    <span>Week_</span>
+                    <select id="week">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <span>Day_</span>
+                    <select id="day">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
                 <div class="input-group_detail">
                     <label>Regular Students:</label>
                     <span id="who"></span>
@@ -600,6 +635,27 @@
         color: #2D2D2D;
         margin-right: 10px;
         font-weight: bold;
+    }
+
+    #div_pro span {
+        margin-left: 3px;
+        display: inline;
+        font-size: 12px;
+        color: #2D2D2D;
+        margin-right: 0px !important;
+    }
+    #div_pro select {
+        width: 20%;
+        padding: 5px;
+        margin-top: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    #div_pro label {
+        display: inline;
+        font-size: 12px;
+        color: #6b6969;
+        margin-right: 10px;
     }
 
     .input-group_detail2 {
@@ -1359,12 +1415,6 @@ overflow-y: auto; */
         background-color: #f5a623;
     }
 
-    select {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-
 
     /* 媒体查询，用于调整PC端显示样式 */
     @media (min-width: 768px) {
@@ -1845,6 +1895,12 @@ overflow-y: auto; */
         document.getElementById('courseTime').textContent = formatDateTime(courseData.start_dt) + ' - ' + formatTime(courseData.end_dt);
         document.getElementById('courseLevel').textContent = courseData.class_level;
         document.getElementById('courseType').textContent = courseData.class_category;
+        if(courseData.class_category=='wonders'){
+            document.getElementById('div_pro').style.display = 'block';
+            document.getElementById('unit').value = courseData.unit;
+            document.getElementById('week').value = courseData.week;
+            document.getElementById('day').value = courseData.day;
+        }
         document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
         document.getElementById('signedup').innerHTML = courseData.signed_up ? replaceCommas(courseData.signed_up) : '';
         document.getElementById('coursetext_preview').textContent = courseData.preview;
@@ -2384,12 +2440,16 @@ overflow-y: auto; */
             homeworkfiles += fileName + '/';
         });
 
+        let unit = document.getElementById('unit').value;
+        let week = document.getElementById('week').value;
+        let day = document.getElementById('day').value;
+
         const response = await fetch(url + '/course/SaveInfo', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ id: current_eventId, students: studentInfos, preview, homework, previewfiles, homeworkfiles })
+            body: JSON.stringify({ id: current_eventId, students: studentInfos, preview, homework, previewfiles, homeworkfiles, unit, week, day })
         });
         const result = await response.json();
 

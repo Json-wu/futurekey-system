@@ -7,10 +7,10 @@ const db = new sqlite3.Database('logs.db');
  */
 // db.run("DROP TABLE IF EXISTS class_his;");
 // console.log('已清空class_his');
-db.run("DELETE FROM courses WHERE 1=1;");
+db.run("DROP TABLE IF EXISTS courses;");
 console.log('已清空courses');
-db.run("DELETE FROM student_detail WHERE 1=1;");
+db.run("DROP TABLE IF EXISTS student_detail;");
 console.log('已清空student_detail');
-db.run("DELETE FROM leave WHERE 1=1;");
+db.run("DROP TABLE IF EXISTS leave;");
 console.log('已清空leave');
 
