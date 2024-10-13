@@ -64,6 +64,7 @@ async function InitData(s_date, e_date){
         while (currentDate <= endDate) {
             let date = currentDate.toISOString().split('T')[0];
             console.log(date);
+            await new Promise(resolve => setTimeout(resolve, 5000));
             DoRunTotal(date);
             currentDate.setDate(currentDate.getDate() + 1);
         }
