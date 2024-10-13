@@ -76,6 +76,21 @@ function formatDate(date, timezoneSet) {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+function formatDateE(date, timezoneSet) {
+    if (date == undefined) {
+        date = new Date();
+    } else {
+        date = new Date(date);
+    }
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timezoneSet != timeZone) {
+        date = new Date(date.toLocaleString('en-US', { timeZone: timezoneSet }));
+    }
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${month}/${day}/${year}`;
+}
 function formatDateTime(date, timezoneSet) {
     if (date == undefined) {
         date = new Date();
@@ -114,4 +129,4 @@ function ejsHtml(fpath, data){
     return ejs.render(html_source, data);
 }
 
-module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign, getSubEventId,replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml };
+module.exports = { getDateNow, getDateTimeNow, getDatetimeAddMin, sign, getSubEventId,replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml, formatDateE };

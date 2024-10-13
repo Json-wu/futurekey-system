@@ -10,8 +10,7 @@ const urls={
 
 async function InsertData(body) {
     try {
-        const { code, name, msg, type, create_date } = body;
-        let url = urls[type];
+        const { code, name, msg, type, url, create_date } = body;
         return await new Promise((resolve, reject) => {
             db.run("INSERT INTO message_info (code, name, msg, url, isread, create_date) VALUES (?, ?, ?, ?, ?, ?)", [code, name, msg, url, 0, create_date], function(err) {
                 if (err) {

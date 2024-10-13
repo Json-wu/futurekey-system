@@ -11,7 +11,7 @@ const messageService = require('../service/messageService');
 const teacherData = require('../config/teacher.json');
 const { StuInsertData } = require('./studentDetailService')
 const studentDetailService = require('../service/studentDetailService');
-const { replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml } = require('../libs/common');
+const { replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml, formatDateE } = require('../libs/common');
 const { getCustomerDetail } = require('../service/xbbService');
 const { SendSms_parent } = require('../service/smsService');
 
@@ -469,10 +469,9 @@ async function CheckCourse(sdt,edt) {
                 }
                 // 新课程提醒
                 if(ischange){
-                    let msg = `New course reminder for ${item.title}`;
-                    console.log(msg+'::'+name+';;code'+code);
-                    const cdt = moment().format('YYYY-MM-DD HH:mm:ss')
-                    messageService.InsertData({code, name, msg, type: 'NewClass', id, cdt});
+                    let msg = `${item.is_new=='1'? 'New' : 'Modify'} Class On ${formatDateE(item.start_dt, item.tz)}`;
+                    const create_date = moment().format('YYYY-MM-DD HH:mm:ss')
+                    messageService.InsertData({code, name, msg, type: item.is_new, url: formatDate(item.start_dt, item.tz), create_date});
                 }
             }
         }

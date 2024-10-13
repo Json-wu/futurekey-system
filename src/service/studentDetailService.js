@@ -75,16 +75,16 @@ async function StuInsertData(course_id, subcalendar_id, users){
             
             if (usercode != null) {
                 usercode = usercode[0];
-              userInfo = await getCustomerDetail_check(usercode, 1);
+              //userInfo = await getCustomerDetail_check(usercode, 1);
             } else {
-              userInfo = await getCustomerDetail_check(username);
+              //userInfo = await getCustomerDetail_check(username);
             }
-            if (userInfo && userInfo.code==0) {
-                usercode = userInfo.child.serialNo;
-                parent_name = userInfo.monther.text_2;
-                parent_code = userInfo.monther.serialNo;
-            }
-            stmt.run(course_id, subcalendar_id, username, usercode, parent_name, parent_code, '0', '0', '0', '0', '', '', '','1');
+            // if (userInfo && userInfo.code==0) {
+            //     usercode = userInfo.child.serialNo;
+            //     parent_name = userInfo.monther.text_2;
+            //     parent_code = userInfo.monther.serialNo;
+            // }
+            stmt.run(course_id, subcalendar_id, username, usercode, '', '', '0', '0', '0', '0', '', '', '','1');
         }
         stmt.finalize();
     } catch (error) {

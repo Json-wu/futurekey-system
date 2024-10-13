@@ -26,9 +26,9 @@
         <!-- Top Area -->
         <div class="header">
             <div class="welcome-message">Welcome, Teacher <%=teacher_name %>！</div>
-            <div class="notification-icon" onclick="toggleNotificationPopup()" style="display: none;">
+            <div class="notification-icon" onclick="toggleNotificationPopup()">
                 <i class="fas fa-bell"></i>
-                <span class="badge" id="notification-count">10</span>
+                <span class="badge" id="notification-count" style="display: none;"></span>
             </div>
             <div class="notification-popup" id="notification-popup">
                 <ul id="notification-list"></ul>
@@ -1582,10 +1582,10 @@ overflow-y: auto; */
         const selectedDate = document.getElementById('selectedDate');
         selectedDate.value = current_date;
         fetchData();
-        //fetchNewMessages();
+        fetchNewMessages();
 
         // Poll for new messages every 30 seconds
-        //setInterval(fetchNewMessages, 30000);
+        setInterval(fetchNewMessages, 30000);
     });
 
     function showMessage(message, type = 'info') {
@@ -1932,7 +1932,7 @@ overflow-y: auto; */
             const fileItem = document.createElement('div');
             fileItem.classList.add('uploaded-file');
             fileItem.innerHTML = `
-            <span><a href="/download/${filename}" target="_blank">${subStrFilename(filename)}</a></span>
+            <span><a href="/classroom/download/${filename}" target="_blank">${subStrFilename(filename)}</a></span>
             <i class="fas fa-trash delete-icon" onclick="deleteFile('${filename}', '${containerId}')"></i>
         `;
             container.appendChild(fileItem);
@@ -2100,7 +2100,7 @@ overflow-y: auto; */
             if (student.homework && student.homework != "undefined") {
                 homewk = document.createElement('div');
                 homewk.classList.add('rating-item');
-                homewk.innerHTML = ` <span style="width:80px">Homework</span><a href="baidu.com"> <span><a href="/download/${student.homework}" target="_blank">${subStrFilename(student.homework)}</a></span></a>`;
+                homewk.innerHTML = ` <span style="width:80px">Homework</span><a href="/classroom/download/${student.homework}" target="_blank">${subStrFilename(student.homework)}</a></span></a>`;
             }
 
 
@@ -2371,7 +2371,12 @@ overflow-y: auto; */
 
     // 更新消息数
     function updateNotificationCount(count) {
-        document.getElementById('notification-count').innerText = count;
+        if(count>0){
+            document.getElementById('notification-count').style.display = 'inline';
+            document.getElementById('notification-count').innerText = count;
+        }else{
+            document.getElementById('notification-count').style.display = 'none';
+        }
     }
     // 加载消息记录
     function loadNotifications() {
@@ -2380,9 +2385,15 @@ overflow-y: auto; */
         notificationList.innerHTML = '';
         messages.forEach(message => {
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<a href="${message.url}">${message.text}</a> &nbsp;&nbsp;<small>${message.time}</small>`;
+            listItem.innerHTML = `<a onclick="readMsg('${message.url}')" style="cursor: pointer;">${message.text}</a>`;// &nbsp;&nbsp;<small>${message.time}</small>
             notificationList.appendChild(listItem);
         });
+    }
+
+    function readMsg(url){
+        const selectedDate = document.getElementById('selectedDate');
+        selectedDate.value = url;
+        fetchData();
     }
 
     function toggleDetails(scode) {
@@ -2615,7 +2626,7 @@ overflow-y: auto; */
         let resStr = str.split(/[,，]+/).map(x => {
             let code = x.match(/\d{8,10}/) || '';
             // 找到以L开头后面加1位数字的字符串
-            let code2 = x.match(/L\d{1}/) || '';
+            let code2 = x.match(/L\d{1,2}/) || '';
             if(code){
                 x= x.split(code)[0].trim()+" "+code2;
             }else{
@@ -2637,7 +2648,7 @@ overflow-y: auto; */
         let resStr = str.split(/[,，]+/).map(x => {
             let code = x.match(/\d{8,10}/) || '';
             // 找到以L开头后面加1位数字的字符串
-            let code2 = x.match(/L\d{1}/) || '';
+            let code2 = x.match(/L\d{1,2}/) || '';
             if(code){
                 x= x.split(code)[0].trim()+" "+code2;
             }else{
