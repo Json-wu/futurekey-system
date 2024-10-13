@@ -80,8 +80,24 @@ async function updateAnEvent(id, body){
       return null;
     }
     // class_level、is_trial_class、class_size、is_full/满员
-    ubody.who = body.who;
-    ubody.title = body.title;
+  // 判断body是否由who属性
+    if (body.hasOwnProperty('who')) {
+        ubody.who = body.who;
+    }
+   
+    if(body.hasOwnProperty('title')){
+      ubody.title = body.title;
+    }
+    if(body.hasOwnProperty('signed_up')){
+      let newSignedUp = [];
+      ubody.signups.map(item=>{
+        if(body.signed_up.indexOf(item.name) < 0){
+          newSignedUp.push(item);
+        }
+      });
+      ubody.signups = newSignedUp;
+      ubody.signup_count = newSignedUp.length;
+    }
     const url = `https://api.teamup.com/${calendarKeyOrId_modify}/events/${id}`;
     logMessage('url updateAnEvent:::'+url, 'info');
     const response = await axios.put(url, ubody, {

@@ -32,15 +32,17 @@ async function InsertData(info) {
         is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
         class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
 
+        let who = info.who.split(/[,，]+/).map(s => s.trim());
+        let signups = info.signups.map(x=>x.name);
+
         const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signed_up, is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
+        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, who.join(','), info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signups.join(','), is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
 
         stmt.finalize();
         
         let users = [];
-        let who = info.who.split(/[,，]+/).map(s => s.trim());
-        let signups = info.signups.map(x=>x.name);
+       
         users = who.concat(signups).filter(x=>x.trim().length>0);
         await StuInsertData(info.id, info.subcalendar_id, users);
         return true;
@@ -284,7 +286,7 @@ function sendMail(couData) {
         logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
-async function sendMailSignStatus(id, studentName, state) {
+async function sendMailSignStatus(id, sname, state) {
     try {
         let couData = await GetDataByid(id);
 
@@ -294,7 +296,7 @@ async function sendMailSignStatus(id, studentName, state) {
         couData.end_dt = formatTime(couData.end_dt, couData.tz);
         couData.email = emailConfig.receive;
 
-        studentName = replaceNumberToNull(studentName).replace(" ", ""); 
+        let studentName = replaceNumberToNull(sname).replace(" ", ""); 
 
         let msg = state == 1 ? `Student ${studentName}'s Late Reminder` : `Student ${studentName}'s Absent Reminder`;
 
@@ -304,6 +306,55 @@ async function sendMailSignStatus(id, studentName, state) {
         // 如果迟到或者缺课给家长发短信提醒
         if(smsConfig.sendToParent){
             sendSmsToParent(studentName, couData.start_dt, state, couData.tz);
+        }
+        // 学生缺课，更新课程表，更新teamup
+        if(state==9){
+            // 更新课程表
+            let upbody={};
+            couData = await GetDataByid(id);
+            if (couData){
+                let sql='update courses set';
+                 // 替换who中的中文英文逗号统一为英文逗号
+                couData.who = couData.who.replace(/[,，]+/g, ',');
+                couData.signed_up = couData.signed_up.replace(/[,，]+/g, ',');
+                if(couData.who.trim().length > 0 && couData.who.indexOf(sname) > -1){
+                    couData.who = couData.who.replace(sname, '').replace(',,', ',').replace(/,$/, '').replace(/^,/, '');
+                    sql+=` who='${couData.who}',`;
+                    upbody.who = couData.who;
+                }
+                if(couData.signed_up.trim().length > 0 && couData.signed_up.indexOf(sname) > -1){
+                    couData.signed_up = couData.signed_up.replace(sname, '').replace(',,', ',').replace(/,$/, '').replace(/^,/, '');
+                    sql+=` signed_up='${couData.signed_up}',`;
+                    upbody.signed_up = sname;
+                }
+
+                sql = sql.substring(0, sql.length - 1);
+               
+                if(sql!='update courses set'){
+                    sql+= ` where id ='${id}'`;
+                    let result = await new Promise((resolve, reject) => {
+                        db.run(`update courses set who='${couData.who}', signed_up='${couData.signed_up}' where id ='${id}'`, (err, data) => {
+                            if (err) {
+                                resolve(false);
+                            }
+                            resolve(true);
+                        });
+                    });
+                    // 更新teamup
+                    let upData = await updateAnEvent(id, upbody);
+                    if(upData && upData.id != id){
+                        let sql = `update courses set id = '${upData.id}'  where id ='${id}'`;
+                        let result = await new Promise((resolve, reject) => {
+                            db.run(sql, (err, data) => {
+                                if (err) {
+                                    resolve(false);
+                                }
+                                resolve(true);
+                            });
+                        });
+                    }
+                }
+            }
         }
 
         logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
@@ -367,9 +418,17 @@ async function sendSmsToParent(studentName, time, state, tz) {
  */
 function CheckCourseInfo(oldInfo, newInfo) {
     let new_singneds = newInfo.signups.map(x=>x.name).join(',');
-    if (oldInfo.who != newInfo.who || oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt || oldInfo.signed_up != new_singneds) {
+    if((oldInfo.who.trim().length == 0 && newInfo.who.trim().length > 0) || (oldInfo.signed_up.trim().length == 0 && new_singneds.trim().length > 0)){
+        newInfo.is_new = '1';
         return true;
     }
+    if(oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt || oldInfo.class_category != newInfo.class_category || oldInfo.class_level != newInfo.class_level){
+        newInfo.is_new = '2';
+        return true;
+    }
+    // if (oldInfo.who != newInfo.who || oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt || oldInfo.signed_up != new_singneds) {
+    //     return true;
+    // }
     return false;
 }
 
@@ -391,6 +450,9 @@ async function CheckCourse(sdt,edt) {
                 let oldInfo = list.find(x => x.id == id);
                 let code = item.subcalendar_id;
                 let name = teacherData[item.subcalendar_id] ? teacherData[item.subcalendar_id].name : 'no teacher name';
+
+                item.class_level = item.custom.special_requirement ? item.custom.special_requirement.join(',') : '-';
+                item.class_category = item.custom.class_category ? item.custom.class_category.join(',') : '-';
 
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
@@ -424,7 +486,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
         let new_singneds = newInfo.signups.map(x=>x.name).join(',');
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', value2='1' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
@@ -480,8 +542,10 @@ async function InitCourse() {
 
 
         let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
-        let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
-        let date_start = '2024-06-01';
+        // let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
+        // let date_start = '2024-06-01';
+        let date_end ='2024-10-30';
+        let date_start ='2024-10-01';
         let data = await fetchTeamUpCalendar(date_start, date_end);
         // let data = await fetchTeamUpCalendar('2024-10-04', '2024-10-04');
         data = data.filter(x => (x.who && x.who.length > 0) || x.signup_count>0);
@@ -507,8 +571,9 @@ async function InitCourse() {
                 } else {
                     teacherName = teacherInfo.name;
                 }
+
                 is_full = info.signup_count == info.signup_limit ? '1' : '0';
-                class_level = info.custom.class_level ? info.custom.class_level.join(',') : '-';
+                class_level = info.custom.special_requirement ? info.custom.special_requirement.join(',') : '-';
                 class_size = info.custom.class_size ? info.custom.class_size.join(',') : '-';
                 is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
                 class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';

@@ -218,7 +218,7 @@ const upload = multer({ storage: storage });
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 处理文件上传
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/classroom/upload', upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send('No file uploaded.');
@@ -232,7 +232,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 });
 
 // 文件下载
-app.get('/download/:filename', (req, res) => {
+app.get('/classroom/download/:filename', (req, res) => {
   const filename = req.params.filename;
   const decodedFilename = decodeURIComponent(filename); // 解码文件名
   const filePath = path.join(__dirname, '../uploads', filename);
@@ -251,7 +251,7 @@ app.get('/download/:filename', (req, res) => {
   }
 });
 // 文件删除
-app.post('/delete', (req, res) => {
+app.post('/classroom/delete', (req, res) => {
   const filename = req.body.filename;
   const filePath = path.join(__dirname, '../uploads', filename);
   // 检查文件是否存在

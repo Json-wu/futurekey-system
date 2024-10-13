@@ -35,7 +35,7 @@
   },
   "timerSet_total":{
     "enable": true,
-    "hour": 0,
+    "hour": 17,
     "minute": 5
   },
   "timerSet_newclass":{

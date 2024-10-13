@@ -4,36 +4,42 @@ const { logMessage } = require('../libs/logger');
 const { getCustomerDetail_check } = require('./xbbService');
 
 async function update(id,info){
-    let sql =`update student_detail set `;
-    if(info.hasOwnProperty('state')){
-        sql+=`state='${info.state}',`;
+    let sql ='';
+    if(info.state==9){
+        sql = `delete from student_detail where id = '${info.code}';`;
+    }else {
+        sql =`update student_detail set `;
+        if(info.hasOwnProperty('state')){
+            sql+=`state='${info.state}',`;
+        }
+        if(info.hasOwnProperty('read')){
+            sql+=`read='${info.read}',`;
+        }
+        if(info.hasOwnProperty('write')){
+            sql+=`write='${info.write}',`;
+        }
+        if(info.hasOwnProperty('level')){
+            sql+=`level='${info.level}',`;
+        }
+        if(info.hasOwnProperty('evaluate')){
+            sql+=`evaluate='${info.evaluate}',`;
+        }
+        if(info.hasOwnProperty('remarks')){
+            sql+=`remarks='${info.remarks}',`;
+        }
+        if(info.hasOwnProperty('homework')){
+            sql+=`homework='${info.homework}',`;
+        }
+        sql = sql.substring(0, sql.length - 1);
+        sql+=` where id = '${info.code}';`;
     }
-    if(info.hasOwnProperty('read')){
-        sql+=`read='${info.read}',`;
-    }
-    if(info.hasOwnProperty('write')){
-        sql+=`write='${info.write}',`;
-    }
-    if(info.hasOwnProperty('level')){
-        sql+=`level='${info.level}',`;
-    }
-    if(info.hasOwnProperty('evaluate')){
-        sql+=`evaluate='${info.evaluate}',`;
-    }
-    if(info.hasOwnProperty('remarks')){
-        sql+=`remarks='${info.remarks}',`;
-    }
-    if(info.hasOwnProperty('homework')){
-        sql+=`homework='${info.homework}',`;
-    }
-    sql = sql.substring(0, sql.length - 1);
-    sql+=` where id = '${info.code}';`;
+    
     return await new Promise((resolve, reject) => {
         db.run(sql, function(err) {
             if (err) {
                 return resolve(null);
             }
-            resolve(this.lastID);
+            resolve(true);
         });
     });
 }

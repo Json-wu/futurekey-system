@@ -88,16 +88,16 @@ router.post('/SignStudentStatus', async (req, res) => {
     try {
         const result = await courseService.SignStudentStatus(id, code, state);
         if (result) {
-            if(setSendMail != null){
-                clearTimeout(setSendMail);
-            }
+            // if(setSendMail != null){
+            //     clearTimeout(setSendMail);
+            // }
             if(state == 9 || state == 1){
-                setSendMail = setTimeout(() => {
-                    console.log('5 seconds have passed!');
+                // setSendMail = setTimeout(() => {
+                //     console.log('5 seconds have passed!');
                     // 可以在这里执行其他操作，例如发送响应或处理其他任务
-                    courseService.sendMailSignStatus(id, name, state);
-                    clearTimeout(setSendMail);
-                }, 5000);
+                   await courseService.sendMailSignStatus(id, name, state);
+                //     clearTimeout(setSendMail);
+                // }, 5000);
             }
             res.status(200).json({ code: 0, msg: 'ok' });
         } else {
