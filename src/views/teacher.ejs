@@ -1567,7 +1567,13 @@ overflow-y: auto; */
     document.addEventListener('DOMContentLoaded', () => {
         // const timeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
         //timezoneSet = tzSet[timeZone];
-        window.localStorage.setItem('timezone', timezoneSet);
+        if(window.localStorage.getItem('timezone')){
+            timezoneSet = window.localStorage.getItem('timezone');
+        }else{
+            timezoneSet = 'America/New_York';
+            window.localStorage.setItem('timezone', timezoneSet);
+        }
+        
         document.getElementById('timezoneSelect').value = timezoneSet;
         // document.getElementById('timezone').innerText = 'timezone： ' + timeZone;
 
