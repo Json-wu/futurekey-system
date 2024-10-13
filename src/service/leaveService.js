@@ -3,6 +3,14 @@ const db = require('../libs/db');
 const moment = require('moment');
 const { logMessage } = require('../libs/logger');
 const courseService = require('./courseService');
+const {sendToAdmin} = require('./emailService');
+const { sendBotMsg } = require('./botService');
+const config = require('../config/config');
+const { sendSmsToParent } = require('./courseService');
+const { formatDateTime, formatTime } = require('../libs/common');
+
+const emailConfig = config.email;
+const smsConfig = config.sms;
 
 async function InsertData(body) {
     try {
@@ -11,12 +19,12 @@ async function InsertData(body) {
         let isok = true;
         for (let index = 0; index < courseChecks.length; index++) {
             const courseId = courseChecks[index];
-            let leave = await getLeaveByid(courseId, date);
+            let courseData = await courseService.GetDataByid(courseId);
+            let leave = await getLeaveByid(courseId, courseData.start_dt, courseData.end_dt);
             if(leave != null){
                 continue;
             }
             // 创建请假记录
-            let courseData = await courseService.GetDataByid(courseId);
             let id = await createData({
                 code,
                 name,
@@ -31,6 +39,23 @@ async function InsertData(body) {
             if(id == null){
                 logMessage(`InsertData-leave error，${courseData.title}`, 'error');
                 isok = false;
+            }else{
+                // 老师请假之后，发送邮件给管理员,给微信机器人发消息，发送短信给家长
+                sendToAdmin('About teacher’s request for leave',`Teacher ${courseData.teacher} has requested for leave from the course "${courseData.title}" on ${courseData.date}`);
+                sendBotMsg('markdown',`Teacher <font color=\"warning\">${courseData.teacher}</font> has requested for leave from the course <font color=\"info\">${courseData.title}</font>。\n>course time：<font color=\"comment\">${formatDateTime(courseData.start_dt, courseData.tz)} ~ ${formatTime(courseData.end_dt, courseData.tz)}</font>\n>who：<font color=\"comment\">${courseData.who}</font>\n>signed up：<font color=\"comment\">${courseData.signed_up}</font>`,['@all']);
+                 // 课程取消给家长发短信通知
+                 if(smsConfig.sendToParent){
+                    let whos = courseData.who.split(/[,，]+/);
+                    let signs = courseData.signed_up.split(',');
+                    let stus = whos.concat(signs).filter(x=>x.trim().length>0);
+                    for (let index = 0; index < stus.length; index++) {
+                        const studentName = stus[index];
+                        if(studentName.trim().length == 0){
+                            continue;
+                        }
+                        sendSmsToParent(studentName, courseData.start_dt, '99', courseData.tz);
+                    }
+                }
             }
         }
         return isok;

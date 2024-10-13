@@ -34,10 +34,15 @@ async function InsertData(info) {
 
         const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signup_count, is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
+        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signed_up, is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
 
         stmt.finalize();
-        await StuInsertData(info.id, info.subcalendar_id, info.who);
+        
+        let users = [];
+        let who = info.who.split(/[,，]+/).map(s => s.trim());
+        let signups = info.signups.map(x=>x.name);
+        users = who.concat(signups).filter(x=>x.trim().length>0);
+        await StuInsertData(info.id, info.subcalendar_id, users);
         return true;
     } catch (error) {
         logMessage(`InsertData-course error，${error.message}`, 'error');
@@ -84,7 +89,7 @@ async function EditData(id, attend) {
                 sendMail(couData);
 
             // edit teamup
-            let upTitle = couData.title+"[decline]";
+            let upTitle = couData.title+"[declined]";
             let upData = await updateAnEvent(id, {who: '', title: upTitle });
             if(upData){
                 logMessage(`edit teamup success`, 'info');
@@ -100,31 +105,28 @@ async function EditData(id, attend) {
                 
                 // 课程取消给家长发短信通知
                 if(smsConfig.sendToParent){
-                    let stus = couData.who.split(/[,，]+/);
+                    let whos = couData.who.split(/[,，]+/);
+                    let signs = couData.signed_up.split(',');
+                    let stus = whos.concat(signs).filter(x=>x.trim().length>0);
                     for (let index = 0; index < stus.length; index++) {
                         const studentName = stus[index];
                         if(studentName.trim().length == 0){
                             continue;
                         }
                         sendSmsToParent(studentName, couData.start_dt, '99', couData.tz);
-                        
-                        let usercode = studentName.match(/\d{8,10}/);
-                        let ucode='';
-                        if (usercode != null) {
-                            ucode=usercode[0];
-                        }
-                        let uname = studentName.replace(ucode, '').trim();
-                        await new Promise((resolve, reject) => {
-                            let sql2 = `delete from student_detail where course_id = '${couData.id}' and (name='${uname}' or code='${ucode}')`;
-                            db.run(sql2, function(err) {
-                                if (err) {
-                                    return resolve(null);
-                                }
-                                resolve(this.lastID);
-                            });
-                        });
                     }
                 }
+
+                // 删除学生信息
+                await new Promise((resolve, reject) => {
+                    let sql2 = `delete from student_detail where course_id = '${couData.id}';`;
+                    db.run(sql2, function(err) {
+                        if (err) {
+                            return resolve(false);
+                        }
+                        resolve(true);
+                    });
+                });
                 return result;
             }else{
                 logMessage(`edit teamup failed`, 'error');
@@ -219,7 +221,7 @@ async function SaveInfo(body){
     try {
         const { id, students, preview, homework, previewfiles, homeworkfiles } = body;
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set preview='${preview}', homework='${homework}',value1='${previewfiles}', value2='${homeworkfiles}' where id ='${id}'`, (err, data) => {
+            db.run(`update courses set preview='${preview}', homework='${homework}',value4='${previewfiles}', value5='${homeworkfiles}' where id ='${id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
@@ -229,7 +231,7 @@ async function SaveInfo(body){
 
         students.forEach(async student => {
             let resdata = await new Promise((resolve, reject) => {
-                db.run(`update student_detail set read=${student.read}, write=${student.write}, level=${student.level}, evaluate='${student.evaluate}', remarks='${student.remarks}', homework='${student.homework}' where course_id ='${id}' and code='${student.code}'`, (err, data) => {
+                db.run(`update student_detail set read=${student.read}, write=${student.write}, level=${student.level}, evaluate='${student.evaluate}', remarks='${student.remarks}', homework='${student.homework}' where course_id ='${id}' and id='${student.code}'`, (err, data) => {
                     if (err) {
                         resolve(false);
                     }
@@ -364,7 +366,8 @@ async function sendSmsToParent(studentName, time, state, tz) {
  * 校验课程信息，who/time变更后 需要提醒
  */
 function CheckCourseInfo(oldInfo, newInfo) {
-    if (oldInfo.who != newInfo.who || oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt) {
+    let new_singneds = newInfo.signups.map(x=>x.name).join(',');
+    if (oldInfo.who != newInfo.who || oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt || oldInfo.signed_up != new_singneds) {
         return true;
     }
     return false;
@@ -395,7 +398,7 @@ async function CheckCourse(sdt,edt) {
                         UpdateCourseInfo(oldInfo, item);
                     }
                 }else{
-                    if(item.who.trim().length > 0){
+                    if(item.who.trim().length > 0 || item.signups.length>0){
                         ischange = true;
                         item.teacherName = name;
                         item.is_new = '1';
@@ -419,8 +422,9 @@ async function CheckCourse(sdt,edt) {
 
 async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
+        let new_singneds = newInfo.signups.map(x=>x.name).join(',');
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', value2='1' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', value2='1' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
@@ -428,9 +432,15 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
             });
         });
         if(result){
-            if(oldInfo.who != newInfo.who){
-                let oldStudents = oldInfo.who.split(/[,，]+/).map(s => s.trim());
-                let newStudents = newInfo.who.split(/[,，]+/).map(s => s.trim());
+            if(oldInfo.who != newInfo.who || oldInfo.signed_up != new_singneds){
+                let who_old = oldInfo.who.split(/[,，]+/).map(s => s.trim());
+                let signups_old = oldInfo.signed_up.split(',').map(x=>x.name);
+                let oldStudents = who_old.concat(signups_old).filter(x=>x.trim().length>0);
+
+                let who_new = newInfo.who.split(/[,，]+/).map(s => s.trim());
+                let signups_new = newInfo.signups.map(x=>x.name);
+                let newStudents = who_new.concat(signups_new).filter(x=>x.trim().length>0);
+
                 let removedStudents = oldStudents.filter(student => !newStudents.includes(student));
                 console.log('Removed students:', removedStudents);
                 removedStudents.forEach(async student => {
@@ -439,7 +449,6 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
                     if (usercode != null) {
                         ucode=usercode[0];
                     }
-                    let uname = student.replace(ucode, '').trim();
                     await new Promise((resolve, reject) => {
                         db.run(`delete student_detail where course_id = '${oldInfo.id}' and (name='${uname}' or code='${ucode}')`, function(err) {
                             if (err) {
@@ -455,7 +464,6 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
                 await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents.join(','));
             }
         }
-       
     } catch (error) {
         logMessage(`UpdateCourseInfo error:${error.message}`, 'error');
     }
@@ -482,12 +490,14 @@ async function InitCourse() {
 
             const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who, start_dt, end_dt, date, tz, class_level, class_size, signed_up, is_trial_class,class_category, is_full, attend, status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-            const stmt_detail = db.prepare("INSERT INTO student_detail (course_id, subcalendar_id, name, code, state, parent_name, parent_code, read, write, level, evaluate, remarks, homework) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            const stmt_detail = db.prepare("INSERT INTO student_detail (course_id, subcalendar_id, name, code, state, parent_name, parent_code, read, write, level, evaluate, remarks, homework, value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             let class_level = '';
             let class_size = '';
             let is_trial_class = '';
             let class_category = '';
             let is_full = '0';
+            let signed_up ='';
+
             data.forEach(info => {
                 let teacherInfo = teacherData[info.subcalendar_id];
                 let teacherName = '';
@@ -502,8 +512,9 @@ async function InitCourse() {
                 class_size = info.custom.class_size ? info.custom.class_size.join(',') : '-';
                 is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
                 class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
+                signed_up = info.signups.map(x=>x.name).join(',');
 
-                stmt.run(info.id, info.subcalendar_id, info.title, teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, info.signups.map(x=>x.name).join(','), is_trial_class, class_category, is_full, '1', '1');
+                stmt.run(info.id, info.subcalendar_id, info.title, teacherName, info.who, info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signed_up, is_trial_class, class_category, is_full, '1', '1');
 
                 info.who.split(/[,，]+/).forEach(student => {
                     if(student.trim().length >0){
@@ -512,7 +523,17 @@ async function InitCourse() {
                         if (usercode != null) {
                             ucode=usercode[0];
                         }
-                        stmt_detail.run(info.id, info.subcalendar_id, student, ucode, '0', '', '', 0, 0, 0, '', '', '');
+                        stmt_detail.run(info.id, info.subcalendar_id, student, ucode, '0', '', '', 0, 0, 0, '', '', '','0');
+                    }
+                })
+                signed_up.split(',').forEach(student => {
+                    if(student.trim().length >0){
+                        let usercode = student.trim().match(/\d{8,10}/);
+                        let ucode='';
+                        if (usercode != null) {
+                            ucode=usercode[0];
+                        }
+                        stmt_detail.run(info.id, info.subcalendar_id, student, ucode, '0', '', '', 0, 0, 0, '', '', '','1');
                     }
                 })
             })
@@ -527,4 +548,4 @@ async function InitCourse() {
     }
 }
 
-module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse, GetDataByid, SaveInfo };
+module.exports = { InsertData, GetData, EditData, EditStuData, SignStudentStatus, sendMailSignStatus, CheckCourse, InitCourse, GetDataByid, SaveInfo, sendSmsToParent };

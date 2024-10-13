@@ -248,14 +248,14 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         if (isnoPhone && isnoEmail) {
           noPhoneList.push(item);
           ownerList.push(owerId);
-          sendBotMsg(`您的学员【${item}】的客户联系电话和邮箱缺失，请及时补充。@${owerId}`, []);
+          sendBotMsg('text',`您的学员【${item}】的客户联系电话和邮箱缺失，请及时补充。@${owerId}`, []);
           // sendBotMsg(`您的学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList[index],'@all']);
           owerId=null;
         }
       } else {
         noPhoneList.push(item);
         ownerList.push(owerId);
-        sendBotMsg(`未找到学员【${item}】相关信息，请相关人员检查学员姓名是否正确。[课程标题：${title}          课程时间：${time} ${tz}]`, ['@all']);
+        sendBotMsg('text',`未找到学员【${item}】相关信息，请相关人员检查学员姓名是否正确。[课程标题：${title}          课程时间：${time} ${tz}]`, ['@all']);
       }
     }
     if (noPhoneList.length > 0) {

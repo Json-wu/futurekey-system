@@ -27,7 +27,7 @@ async function update(id,info){
         sql+=`homework='${info.homework}',`;
     }
     sql = sql.substring(0, sql.length - 1);
-    sql+=` where course_id='${id}' and code = '${info.code}';`;
+    sql+=` where id = '${info.code}';`;
     return await new Promise((resolve, reject) => {
         db.run(sql, function(err) {
             if (err) {
@@ -54,31 +54,31 @@ async function GetDataAll(course_id) {
     }
 }
 
-async function StuInsertData(course_id, subcalendar_id, who){
+async function StuInsertData(course_id, subcalendar_id, users){
     try {
         const stmt = db.prepare("INSERT INTO student_detail (course_id, subcalendar_id, name, code, parent_name, parent_code, state, read, write, level, evaluate, remarks, homework, value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-        let users = who.split(/[,，]+/);
         for (let index = 0; index < users.length; index++) {
-            const item = users[index] ? users[index].trim() : '';
-            if (item == '')
+            let username = users[index] ? users[index].trim() : '';
+            if (username == '')
               continue;
            
-            let usercode = item.match(/\d{8,10}/);
+            let usercode = username.match(/\d{8,10}/);
             let userInfo = null;
             let parent_name = '';
             let parent_code = '';
             
             if (usercode != null) {
-              userInfo = await getCustomerDetail_check(usercode[0], 1);
+                usercode = usercode[0];
+              userInfo = await getCustomerDetail_check(usercode, 1);
             } else {
-              userInfo = await getCustomerDetail_check(item);
+              userInfo = await getCustomerDetail_check(username);
             }
             if (userInfo && userInfo.code==0) {
                 usercode = userInfo.child.serialNo;
                 parent_name = userInfo.monther.text_2;
                 parent_code = userInfo.monther.serialNo;
             }
-            stmt.run(course_id, subcalendar_id, item, usercode, parent_name, parent_code, '0', '0', '0', '0', '', '', '','1');
+            stmt.run(course_id, subcalendar_id, username, usercode, parent_name, parent_code, '0', '0', '0', '0', '', '', '','1');
         }
         stmt.finalize();
     } catch (error) {

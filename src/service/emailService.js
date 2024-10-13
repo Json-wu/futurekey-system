@@ -87,6 +87,17 @@ function InsertData(fromMail, toMail, title, html, status) {
     return false;
   }
 }
+
+function sendToAdmin(title, content) {
+  try {
+    const adminEmail = emailConfig.receive;
+    if (adminEmail) {
+      sendEmail(adminEmail, title, content, content);
+    }
+  } catch (error) {
+    logMessage(`sendToAdmin error，${error.message}`, 'error');
+  }
+}
 // var fpath = path.join(__dirname, `../public/email.html`);
 // var htmlss = fs.readFileSync(fpath, 'utf-8');
 // var dt = moment(new Date('2024-08-24 14:55:09')).format('YYYY-MM-DD');
@@ -94,4 +105,4 @@ function InsertData(fromMail, toMail, title, html, status) {
 // sendEmail('1056836206@qq.com', '测试邮件', '邮件内容的文本部分', html);
 // sendEmail('yongqiangwu1@163.com','test Email','',`课程标题：faith with  Joe G1     课程时间：2024-08-06 16:00<br>To unsubscribe, please click <a href="http://localhost:3000/classroom/subscribe/13326779">here</a>`);
 
-module.exports = { sendEmail };
+module.exports = { sendEmail, sendToAdmin };

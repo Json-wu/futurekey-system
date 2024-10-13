@@ -271,7 +271,7 @@ const verifyCode = (phoneNumber, code) => {
 // sendSms_val('6503089650');
 // autoSendSms('1650308aa | .,+a9650', 2, 'Katherine', '2024-09-03 09:30');
 // autoSendSms('13052515651', 1,'Joke', '2024-10-03 16:00', 'Asia/Shanghai');
-// SendSms_parent('13052515651', {user: 'Joke', time: '2024-10-02 19:00', type: '缺课'});
+// SendSms_parent('13052515651', {user: 'Joke', time: '2024-10-02 19:00', type: '取消',tz: 'Asia/Shanghai'});
 // SendSms_parent('8613693273017', {user: 'Joke', time: '2024-10-03 19:00', type: '迟到'});
 
 

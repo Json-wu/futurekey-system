@@ -38,7 +38,7 @@
         <div class="date-buttons" id="static_date" style="display: none;">
             <input type="date" id="startDate" class="date-input">~
             <input style="margin-left: 10px;" type="date" id="endDate" class="date-input">
-            <button onclick="calculateStatistics()">statistics</button>
+            <button onclick="calculateStatistics()">Statistics</button>
         </div>
         <!-- 日期选择和前一天、后一天按钮 -->
         <div class="date-buttons" id="course_date">
@@ -81,15 +81,15 @@
 
             <!-- 底部按钮 -->
             <div class="button-group" id="course_bottom">
-                <button class="stats-button" onclick="showStatistics()">Lesson time statistics</button>
-                <button class="leave-button" onclick="showLeaveCheck()">Leave of absence</button>
+                <button class="stats-button" onclick="showStatistics()">Class Statistics</button>
+                <button class="leave-button" onclick="showLeaveCheck()">Request Leave</button>
             </div>
         </div>
         <!-- Course Consumption Statistics -->
         <div id="Statistics" style="display: none;" class="courseDiv">
             <div style="display: flex; align-items: center; margin: 20px 0;">
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
-                <span style="padding: 0 10px; color: #FFFFFF;">My Statistics</span>
+                <span style="padding: 0 10px; color: #FFFFFF;">My Class Statistics</span>
                 <hr style="flex-grow: 1; border: none; border-top: 1px solid #f7f9fc;">
             </div>
             <!-- 课消统计 -->
@@ -100,9 +100,9 @@
                         <thead>
                             <tr>
                                 <th class="head-th">Course Name</th>
-                                <th class="head-th">Course Start Time</th>
-                                <th class="head-th">Course End Time</th>
-                                <th class="head-th">Course Duration (hours)</th>
+                                <th class="head-th">Start Time</th>
+                                <th class="head-th">End Time</th>
+                                <th class="head-th">Duration (hours)</th>
                             </tr>
                         </thead>
                         <tbody id="TotalList">
@@ -151,11 +151,18 @@
                     <span id="signedup"></span>
                 </div>
 
+                <div id="studentAttendance" class="studentList">
+                    <!-- 学生考勤将动态插入到这里 -->
+                </div>
+                <div id="studentList" class="studentList">
+                    <!-- 学生评价将动态插入到这里 -->
+                </div>
+
                 <div class="div_container">
                     <!-- Tabs -->
                     <div class="tabs">
-                        <div class="tab active" id="preClassTab">Pre-class homework</div>
-                        <div class="tab" id="afterClassTab">Homework after class</div>
+                        <div class="tab active" id="preClassTab">Lesson Planning</div>
+                        <div class="tab" id="afterClassTab">Class Report & Homework</div>
                     </div>
 
                     <!-- Tab content -->
@@ -178,12 +185,7 @@
                         <div class="uploaded-files" id="uploadedFiles_homework" style="display: none;"></div>
                     </div>
                 </div>
-                <div id="studentAttendance" class="studentList">
-                    <!-- 学生考勤将动态插入到这里 -->
-                </div>
-                <div id="studentList" class="studentList">
-                    <!-- 学生评价将动态插入到这里 -->
-                </div>
+              
             </div>
             <!-- 底部按钮 -->
             <div class="button-group">
@@ -196,8 +198,8 @@
     <div id="leaveModal" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close-btn" onclick="closeLeaveModal()">&times;</span>
-            <h2>Leave Reason</h2>
-            <p>You are applying for leave, please confirm your leave time and reason:</p>
+            <h2>Leave Info</h2>
+            <p>You are applying for leave, please confirm your leave time and reason.</p>
             <div class="row-group">
                 <label>Leave Time：</label>
                 <span id="leave_time"></span>
@@ -277,9 +279,7 @@
     .selectAll {
         margin-bottom: 10px;
         height: 40px;
-        /* background-color: #f2f9f8; */
-        background: linear-gradient(275.55deg, rgba(247, 252, 251, 0.08) -58%, rgba(47, 81, 255, 0.12) 138.57%);
-
+        background-color: #bac3f6;
         padding: 10px;
         position: fixed;
         bottom: 96px;
@@ -744,7 +744,7 @@
 
     .cancle-button {
         color: #2F51FF;
-        background-color: white;
+        background-color: #f2efef;
         text-align: center;
         padding: 12px;
         font-size: 16px;
@@ -755,13 +755,14 @@
         width: 48%;
         height: 55px;
     }
-    .cancle-button:hover {
-        background-color: #f0f0f0;
+    .cancle-button:hover,
+    .cancle-button1:hover {
+        background-color: #949191;
     }
 
     .cancle-button1 {
         color: #2F51FF;
-        background-color: white;
+        background-color: #f2efef;
         text-align: center;
         padding: 12px;
         font-size: 14px;
@@ -771,9 +772,6 @@
         cursor: pointer;
         width: 48%;
         height: 55px;
-    }
-    .cancle-button1:hover {
-        background-color: #f0f0f0;
     }
 
     .stats-button,
@@ -1691,6 +1689,10 @@ overflow-y: auto; */
     function submitLeaveRequest() {
         const reason = document.getElementById('leaveReason').value;
         const comment = document.getElementById('leaveComment').value;
+        if(reason=='other' && comment==''){
+            showMessage('Please enter the reason for leave', 'warning');
+            return;
+        }
         try {
             let body = {
                 code: subid,
@@ -1841,18 +1843,18 @@ overflow-y: auto; */
         document.getElementById('courseLevel').textContent = courseData.class_level;
         document.getElementById('courseType').textContent = courseData.class_category;
         document.getElementById('who').textContent = courseData.who ? replaceCommas(courseData.who) : '';
-        document.getElementById('signedup').innerHTML = courseData.signed_up;
+        document.getElementById('signedup').innerHTML = courseData.signed_up ? replaceCommas(courseData.signed_up) : '';
         document.getElementById('coursetext_preview').textContent = courseData.preview;
         document.getElementById('coursetext_homework').textContent = courseData.homework;
 
         document.getElementById('uploadedFiles_preview').innerHTML = '';
         document.getElementById('uploadedFiles_homework').innerHTML = '';
         // 加载已上传的文件
-        if (courseData.value1) {
-            loadUploadedFiles(courseData.value1.split('/'), 'uploadedFiles_preview');
+        if (courseData.value4) {
+            loadUploadedFiles(courseData.value4.split('/'), 'uploadedFiles_preview');
         }
-        if (courseData.value2) {
-            loadUploadedFiles(courseData.value2.split('/'), 'uploadedFiles_homework');
+        if (courseData.value5) {
+            loadUploadedFiles(courseData.value5.split('/'), 'uploadedFiles_homework');
         }
 
         displayData(courseData.student);
@@ -1889,7 +1891,7 @@ overflow-y: auto; */
                         <span style="padding: 0 3px; color: #2F51FF; font-weight: bold">Student evaluation</span>
                     </div>`;
         data.forEach((student, i) => {
-            const scode = student.code;
+            const scode = student.id;
             if (scode == '' || student.name == '') return;
             const studentItem = document.createElement('div');
             studentItem.classList.add('rating-container');
@@ -2065,7 +2067,7 @@ overflow-y: auto; */
         });
         // 页面加载完毕后设置radio选中状态
         data.forEach(stu => {
-            document.getElementById('select_' + stu.code).value = stu.state;
+            document.getElementById('select_' + stu.id).value = stu.state;
         });
     }
 
@@ -2094,6 +2096,11 @@ overflow-y: auto; */
             const file = files[i];
             const fileId = 'file-' + Date.now() + '-' + i;
 
+            // 校验文件大小不能超过10MB
+            if (file.size > 10 * 1024 * 1024) {
+                showMessage('File size should not exceed 10MB.', 'warning');
+                return;
+            }
             // 创建 FormData 对象
             const formData = new FormData();
             formData.append('file', file);
@@ -2208,8 +2215,8 @@ overflow-y: auto; */
                             </i>
                             </p>
                     <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
-                        <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Refuse</label></p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                        <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Decline</label></p>
                     </div>
                     <div class="new-badge">NEW</div>`;
                 }else{
@@ -2221,7 +2228,7 @@ overflow-y: auto; */
                             </i>
                             </p>
                     <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}</p>
                     </div>`;
                 }
                 courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
@@ -2397,7 +2404,7 @@ overflow-y: auto; */
                 handleStatusChange(code, name, state);
             } else {
                 // 如果用户取消确认，则恢复原来的选中状态
-                const originalValue = current_course.student.find(st => st.code == code).state;
+                const originalValue = current_course.student.find(st => st.id == code).state;
                 document.getElementById('select_' + code).value = originalValue;
             }
         });
@@ -2417,10 +2424,10 @@ overflow-y: auto; */
 
         if (result.code != 0) {
             showMessage(`Failed to reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`, 'error');
-            const originalValue = current_course.student.find(st => st.code == code).state;
+            const originalValue = current_course.student.find(st => st.id == code).state;
             document.getElementById('select_' + code).value = originalValue;
         } else {
-            current_course.student.find(st => st.code == code).state = state;
+            current_course.student.find(st => st.id == code).state = state;
             showMessage(`Successfully reported student ${replaceNumberToNull(name)}'s ${state == '1' ? 'lateness' : 'absence'} information!`, 'success');
         }
     }
@@ -2428,7 +2435,7 @@ overflow-y: auto; */
     function confirmAttendanceChange(courseId, value) {
         let msg = "Are you sure you will attend?";
         if (value == 9) {
-            msg = "Are you sure you don't show up for the class? Clicking Confirm will clear the student and notify their parents of the cancellation of the lesson via SMS.";
+            msg = "Are you sure you want to decline the new course? ";
         }
         const confirmation = showConfirm(msg, function(confirmation){
             if (confirmation) {
@@ -2521,8 +2528,11 @@ overflow-y: auto; */
 
     function replaceCommas(str) {
         console.log(str);
-        let resStr = str.split(/[,，]+/).map(x => x.replace(/\d+$/, '')).join('，')
-        //resStr = resStr.substring(0, resStr.length - 1);
+        let resStr = str.split(/[,，]+/).map(x => {
+            let code = x.match(/\d{8,10}/);
+            x = x.replace(code, '');
+            return x;
+        }).join(',');
         return resStr;
     }
 </script>
