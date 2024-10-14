@@ -18,6 +18,8 @@ router.get('/getdata', async (req, res) => {
     const { sDate, eDate } = req.query;
     const data = await GetTotalData(sDate, eDate);
     let resData = [];
+    let count1=0;
+    let count2=0;
     let teachers = _.groupBy(_.filter(data, (item)=>{return item.type=='teacher'}), 'teacher');
     let parents = _.groupBy(_.filter(data, (item)=>{return item.type=='parent'}), 'student');
     for (const key in teachers) {
@@ -25,6 +27,7 @@ router.get('/getdata', async (req, res) => {
             const teacher = teachers[key];
             let duration = _.reduce(teacher, (total, item) => total + Number(item.hours), 0);
             resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher });
+            count1 +=teacher.length;
         }
     }
     for (const key in parents) {
@@ -32,6 +35,7 @@ router.get('/getdata', async (req, res) => {
             const parent = parents[key];
             let duration = _.reduce(parent, (total, item) => total + Number(item.hours), 0);
             resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'parent', items: parent });
+            count2 +=parent.length;
         }
     }
     // 计算续费率
@@ -63,7 +67,7 @@ router.get('/getdata', async (req, res) => {
 
     // 找出student2Arr和student1Arr的交集
     let intersection = _.intersection(student2Arr, student1Arr);
-    resData.push({ name: 'per', msg: sMonth + '月份，学生续费率为：'+(intersection.length * 100/student1Arr.length).toFixed(1)+'%', type: 'per', students: intersection });
+    resData.push({ name: 'per', msg: sMonth + '月份，学生续费率为：'+(intersection.length * 100/student1Arr.length).toFixed(1)+'%', type: 'per', students: intersection, count1, count2 });
    
     res.json({ code: 0, msg: 'ok', data: resData });
 });
@@ -78,7 +82,7 @@ router.post('/getdatabysubid', async (req, res) => {
         if (Object.prototype.hasOwnProperty.call(teachers, key)) {
             const teacher = teachers[key];
             let duration = _.reduce(teacher, (total, item) => total + Number(item.hours), 0);
-            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher, count: teacher.length });
+            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher });
         }
     }
     // for (const key in parents) {

@@ -23,9 +23,9 @@
         </form>
         <h2>统计结果</h2>
         <div id="results">
-            <h3>老师总时长: <span id="teacherTotal"></span></h3>
+            <h3><span id="teacherTotal"></span></h3>
             <ul id="teacherDetails"></ul>
-            <h3>学生总时长: <span id="studentTotal"></span></h3>
+            <h3><span id="studentTotal"></span></h3>
             <ul id="studentDetails"></ul>
         </div>
         <div id="detailsModal" class="modal">
@@ -189,14 +189,14 @@
         const teacherTotal = teacherDurations.reduce((total, duration) => total + duration.duration, 0);
         const studentTotal = studentDurations.reduce((total, duration) => total + duration.duration, 0);
 
-        document.getElementById('teacherTotal').textContent = `${teacherTotal.toFixed(2)} hours`;
-        document.getElementById('studentTotal').textContent = `${studentTotal.toFixed(2)} hours${per ? '，' + per.msg : ''}`;
+        document.getElementById('teacherTotal').textContent = `老师总课次：${per? per.count1: 0} 次，总课时：${teacherTotal.toFixed(2)} hours`;
+        document.getElementById('studentTotal').textContent = `学生总课次：${per? per.count2: 0} 次，总课时：${studentTotal.toFixed(2)} hours${per ? '，' + per.msg : ''}`;
 
         const teacherDetailsElement = document.getElementById('teacherDetails');
         teacherDetailsElement.innerHTML = '';
         for (const { name, duration, items } of teacherDurations) {
             const li = document.createElement('li');
-            li.textContent = `${name}: ${duration} h`;
+            li.textContent = `${name}: ${items.length} 次 / ${duration} h`;
             li.onclick = () => showDetails(name, items);
             teacherDetailsElement.appendChild(li);
         }
@@ -204,7 +204,7 @@
         studentDetailsElement.innerHTML = '';
         for (const { name, duration, items } of studentDurations) {
             const li = document.createElement('li');
-            li.textContent = `${name}: ${duration} h`;
+            li.textContent = `${name}: ${items.length} 次 / ${duration} h`;
             li.onclick = () => showDetails(name, items);
             studentDetailsElement.appendChild(li);
         }
