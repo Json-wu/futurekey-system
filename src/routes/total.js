@@ -78,7 +78,7 @@ router.post('/getdatabysubid', async (req, res) => {
         if (Object.prototype.hasOwnProperty.call(teachers, key)) {
             const teacher = teachers[key];
             let duration = _.reduce(teacher, (total, item) => total + Number(item.hours), 0);
-            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher });
+            resData.push({ name: key, duration: Number(duration.toFixed(2)), type: 'teacher', items: teacher, count: teacher.length });
         }
     }
     // for (const key in parents) {

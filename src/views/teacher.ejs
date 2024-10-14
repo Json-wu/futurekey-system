@@ -1849,6 +1849,7 @@ overflow-y: auto; */
             const teacherDurations = data.data.find(item => item.type === 'teacher');
             if (teacherDurations) {
                 let totalDuration = teacherDurations.duration;
+                let totalLessons = teacherDurations.count;
                 // const options = { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
                 // const formatter = new Intl.DateTimeFormat('en-US', options);
 
@@ -1863,7 +1864,7 @@ overflow-y: auto; */
                     TotalList.appendChild(row);
                 });
 
-                document.getElementById('totalDuration').textContent = `Total Duration: ${totalDuration.toFixed(2)} hours`;
+                document.getElementById('totalDuration').textContent = `Total Lessons: ${totalLessons},  Total Duration: ${totalDuration.toFixed(2)} hours`;
             }
         } catch (error) {
             console.error('Error fetching data:', error);
