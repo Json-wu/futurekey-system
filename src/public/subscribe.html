@@ -130,6 +130,13 @@
         a:hover {
             text-decoration: underline;
         }
+        .hd1 {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .hd2 {
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 
@@ -140,11 +147,15 @@
         <form action="#" method="post" id="subscriptionForm">
             <div class="form-group">
                 <input type="checkbox" id="terms" name="terms" required>
-                <label for="terms"><a href="https://futurekey.com/private">Terms and Conditions</a> | <a href="https://futurekey.com/private">Privacy Policy</a> </label>
+                <label for="terms"><span class="hd1">Rean and agree </span><a href="https://futurekey.com/private">《Service terms》</a><span class="hd1"> and </span><a href="https://futurekey.com/private">《Privacy Policy》</a></label>
             </div>
             <div class="form-group">
                 <input type="checkbox" id="terms2" name="terms2" required>
-                <label for="terms2">I agree to receive text messages.</label>
+                <label for="terms2" class="hd1">I agree to receive text messages</label>
+            </div>
+            <div class="form-group">
+                <label for="terms3" class="hd2">Message and data rates may apply. Enter your phone number to receive one time passcode message to your phone from from[Company name]. Msg freq may vary Reply “HELP” for help, Reply “STOP” to cancel.
+                </label>
             </div>
             <div class="form-group">
                 <label for="phone">Phone Number:</label>
