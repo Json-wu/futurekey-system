@@ -95,7 +95,7 @@
             </div>
             <!-- 课消统计 -->
             <div id="total" class="course-list">
-                <p id="totalDuration">Total Duration: 0.00 hours</p>
+                <p id="totalDuration">Total Lessons: 0 times,  Total Duration: 0.00 hours</p>
                 <div class="table-container">
                     <table border="1">
                         <thead>
@@ -1829,7 +1829,7 @@ overflow-y: auto; */
 
         // get the total duration of all courses
         try {
-            document.getElementById('totalDuration').textContent = `Total Duration: 0.0 hours`;
+            document.getElementById('totalDuration').textContent = `Total Lessons: 0 times,  Total Duration: 0.0 hours`;
             const TotalList = document.getElementById('TotalList');
             TotalList.innerHTML = '';
 
@@ -1865,7 +1865,7 @@ overflow-y: auto; */
                     TotalList.appendChild(row);
                 });
 
-                document.getElementById('totalDuration').textContent = `Total Lessons: ${totalLessons},  Total Duration: ${totalDuration.toFixed(2)} hours`;
+                document.getElementById('totalDuration').textContent = `Total Lessons: ${totalLessons} times,  Total Duration: ${totalDuration.toFixed(2)} hours`;
             }
         } catch (error) {
             console.error('Error fetching data:', error);
