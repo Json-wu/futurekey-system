@@ -39,14 +39,26 @@ async function InsertData(body) {
     }
 }
 async function update(id){
-    return await new Promise((resolve, reject) => {
-        db.run(`update message_info set isread='1' where id=${id}`, function(err) {
+    let cdata = await new Promise((resolve, reject) => {
+        db.get(`select * from courses where value2='1' and subcalendar_id = (select code from message_info where id=${id}) and date = (select url from message_info where id=${id})`, (err, data) => {
             if (err) {
-                return resolve(false);
+                resolve(null);
             }
-            resolve(true);
-        });
+            resolve(data);
+        })
     });
+    if(!cdata){
+        return await new Promise((resolve, reject) => {
+            db.run(`update message_info set isread='1' where id=${id}`, function(err) {
+                if (err) {
+                    return resolve(false);
+                }
+                resolve(true);
+            });
+        });
+    }else{
+        return true;
+    }
 }
 async function count(code) {
     try {
@@ -66,7 +78,7 @@ async function count(code) {
 
 async function GetMsg(code) {
     try {
-        let sql = `SELECT * FROM message_info where code='${code}' and isread=0 order by create_date desc`;
+        let sql = `SELECT * FROM message_info where code='${code}' and isread=0 order by url desc`;
         return await new Promise((resolve, reject) => {
             db.all(sql, (err, rows) => {
                 if (err) {

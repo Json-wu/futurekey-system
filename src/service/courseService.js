@@ -37,7 +37,7 @@ async function InsertData(info) {
 
         const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, who.join(','), info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signups.join(','), is_trial_class, class_category, is_full, '1', '1', info.is_new||'0');
+        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, who.join(','), info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signups.join(','), is_trial_class, class_category, is_full, '0', '1', info.is_new||'0');
 
         stmt.finalize();
         
@@ -138,11 +138,24 @@ async function EditData(id, attend) {
             let result = await new Promise((resolve, reject) => {
                 db.run(`update courses set attend=${attend}, value2='0' where id ='${id}'`, (err, data) => {
                     if (err) {
-                        resolve(false);
+                        return resolve(false);
                     }
                     resolve(true);
                 });
             });
+            if(result){
+                let cdata = await new Promise((resolve, reject) => {
+                    db.get(`select * from courses where value2='1' and date=(SELECT date FROM courses where  id='${id}') and subcalendar_id =(select subcalendar_id FROM courses where  id='${id}')`, (err, data) => {
+                        if (err) {
+                            resolve(null);
+                        }
+                        resolve(data);
+                    })
+                });
+                if(!cdata){
+                    db.run(`update message_info set isread='1' where url =(SELECT date FROM courses where  id='${id}') and code =(select subcalendar_id FROM courses where  id='${id}')`);
+                }
+            }
             return result;
         }
     } catch (error) {
@@ -485,7 +498,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
         let new_singneds = newInfo.signups.map(x=>x.name).join(',');
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}', attend='0' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }

@@ -2605,8 +2605,9 @@ overflow-y: auto; */
                 document.getElementById("div_" + courseId).classList.add('course-item-absent');
             }
 
-            fetchData();
             showMessage(`Successfully reported leave request!`, 'success');
+            fetchData();
+            fetchNewMessages();
         }
     }
 

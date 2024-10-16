@@ -7,7 +7,10 @@ const path = require('path');
 router.get('',async (req, res) => {
     try {
         const items = await messageService.GetMsg(req.query.code);
-        res.status(200).json({ code: 0, msg: 'ok', data: items });
+        const uniqueItems = items.filter((item, index, self) =>
+            index === self.findIndex((t) => t.url === item.url)
+        );
+        res.status(200).json({ code: 0, msg: 'ok', data: uniqueItems });
     } catch (error) {
         res.status(500).json({ code: 1, msg: 'Failed to get.' });
     }

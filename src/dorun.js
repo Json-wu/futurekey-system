@@ -13,6 +13,9 @@ const db = new sqlite3.Database('logs.db');
 // console.log('已清空student_detail');
 // db.run("DROP TABLE IF EXISTS leave;");
 // console.log('已清空leave');
-db.run("DELETE from  message_info where url='';");
-console.log('已清空message_info');
+// db.run("DELETE from  message_info where url='';");
+// console.log('已清空message_info');
+
+db.run("update courses set attend='0' where value2='1';");
+console.log('已更新courses表');
 
