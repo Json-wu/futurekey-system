@@ -439,6 +439,10 @@ function CheckCourseInfo(oldInfo, newInfo) {
         newInfo.is_new = '2';
         return true;
     }
+    if(oldInfo.title!= newInfo.title){
+        newInfo.is_new = '0';
+        return true;
+    }
     // if (oldInfo.who != newInfo.who || oldInfo.start_dt != newInfo.start_dt || oldInfo.end_dt != newInfo.end_dt || oldInfo.signed_up != new_singneds) {
     //     return true;
     // }
@@ -470,6 +474,11 @@ async function CheckCourse(sdt,edt) {
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
                     if(ischange){
+                        item.attend='0';
+                        if(item.is_new=='0'){
+                            item.is_new = oldInfo.is_new;
+                            item.attend = oldInfo.attend;
+                        }
                         UpdateCourseInfo(oldInfo, item);
                     }
                 }else{
@@ -498,7 +507,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
         let new_singneds = newInfo.signups.map(x=>x.name).join(',');
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}', attend='0' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}',title='${newInfo.title}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}', attend='${newInfo.attend}' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
