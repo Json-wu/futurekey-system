@@ -558,7 +558,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
                 if(addedStudents.length>0){
                     await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents);
                 }else{
-                    console.log('课程没有学生！！！'+info.id);
+                    console.log('课程没有学生！！！'+newInfo.id);
                 }
             }
         }
