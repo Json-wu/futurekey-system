@@ -54,7 +54,6 @@ async function getCustomerDetail(userName, type){
     }
     return null;
   } catch (error) {
-    logMessage(`Error getCustomerDetail: ${error.message}`,'error');
     console.log(`Error getCustomerDetail: ${error.message}`);
     return null;
   }
@@ -123,7 +122,6 @@ async function getCustomerDetail_check(userName, type){
     }
     return null;
   } catch (error) {
-    logMessage(`Error getCustomerDetail: ${error.message}`,'error');
     console.log(`Error getCustomerDetail: ${error.message}`);
     return null;
   }
@@ -144,12 +142,11 @@ async function getCustomerInfo(dataId) {
     const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/customer/detail`,body, headers);
   
     if (!response.status==200) {
-      logMessage(`Error fetching getCustomerInfo: ${response.statusText}`,'error');
+      console.log(`Error fetching getCustomerInfo: ${response.statusText}`,'error');
       // throw new Error(`Error fetching customerDetail: ${response.statusText}`);
     }
     return response.data;
   } catch (error) {
-    logMessage(`Error getCustomerInfo: ${error.message}`,'error');
     console.log(`Error getCustomerInfo: ${error.message}`);
     return null;
   }
@@ -172,7 +169,7 @@ async function getPassList() {
   const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/form/list`,body, headers);
 
   if (!response.status==200) {
-    logMessage(`Error fetching customerDetail: ${response.statusText}`,'error');
+    console.log(`Error fetching customerDetail: ${response.statusText}`,'error');
     throw new Error(`Error fetching customerDetail: ${response.statusText}`);
   }
   return response.data;
@@ -219,13 +216,12 @@ async function getStudentData(userName, type) {
     const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/paas/list`,body, headers);
   
     if (!response.status==200) {
-      logMessage(`Error fetching customerDetail: ${response.statusText}`,'error');
+      console.log(`Error fetching customerDetail: ${response.statusText}`,'error');
       // throw new Error(`Error fetching customerDetail: ${response.statusText}`);
     }
     // console.log('getStudentData:'+JSON.stringify(response.data));
     return response.data;
   } catch (error) {
-    logMessage(`Error getStudentData: ${error.message}`,'error');
     console.log(`Error getStudentData: ${error.message}`);
     return null;
   }
@@ -246,13 +242,12 @@ async function getStudentDetail(dataId) {
     const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/paas/detail`,body, headers);
   
     if (!response.status==200) {
-      logMessage(`Error fetching customerDetail: ${response.statusText}`,'error');
+      console.log(`Error fetching customerDetail: ${response.statusText}`,'error');
       // throw new Error(`Error fetching customerDetail: ${response.statusText}`);
     }
     // console.log('getStudentDetail:'+JSON.stringify(response.data));
     return response.data;
   } catch (error) {
-    logMessage(`Error getStudentData: ${error.message}`,'error');
     console.log(`Error getStudentData: ${error.message}`);
     return null;
   }

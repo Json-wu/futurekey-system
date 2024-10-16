@@ -36,11 +36,11 @@ const sendSms = async (phoneNumber, templateParam) => {
     let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒${templateParam.user}同学参加${templateParam.time}课程。若有问题，请联系课程顾问。若请假，请忽略。`;
 
     if (!smsConfig.enable) {
-      logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
+      console.log('SMS send is not enable. content::' + SMSmsg, 'info');
       return false;
     }
     console.log(`begin send SMS ` + SMSmsg);
-    logMessage(`begin send SMS ` + SMSmsg, 'info');
+    console.log(`begin send SMS ` + SMSmsg, 'info');
     let msg = {
       PhoneNumbers: phoneNumber,
       SignName: smsConfig.signName,
@@ -50,28 +50,28 @@ const sendSms = async (phoneNumber, templateParam) => {
     const result = await client.sendSMS(msg);
     if(result.Code != 'OK'){
       InsertData(phoneNumber, SMSmsg, 'fail');
-      logMessage('SMS sent fail' + JSON.stringify(result), 'error');
+      console.log('SMS sent fail' + JSON.stringify(result), 'error');
       return false;
     }else{
       InsertData(phoneNumber, SMSmsg, 'success');
-      logMessage('SMS sent successfully，' + JSON.stringify(result), 'info');
+      console.log('SMS sent successfully，' + JSON.stringify(result), 'info');
       return true;
     }
   } catch (err) {
     console.log('Error sending SMS:' + err.message, 'error');
-    logMessage('SMS sent fail' + err.message, 'error');
+    console.log('SMS sent fail' + err.message, 'error');
     return false;
   }
 };
 const sendSms_USA = async (phoneNumber, message) => {
   try {
-    logMessage(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
+    console.log(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
       return;
     if (!smsConfig.enable) {
-      logMessage(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
+      console.log(`SMS_USA send is not enable.content::to:${phoneNumber}，msg：` + message, 'info');
       return;
     }
-    logMessage(`begin send SMS_USA to:${phoneNumber}，msg：`+message,'info');
+    console.log(`begin send SMS_USA to:${phoneNumber}，msg：`+message,'info');
     const params = {
       "To": phoneNumber,//接收短信号码。号码格式为：国际区号+号码
       "From": "18773124359",//发送方标识。支持SenderID的发送，只允许数字+字母，含有字母标识最长11位，纯数字标识支持15位,美国、加拿大需要填写10dlc注册后运营商提供的SenderID
@@ -88,16 +88,16 @@ const sendSms_USA = async (phoneNumber, message) => {
     console.log('SMS_USA sent result:', result);
     if(result.Code=='OK'){
       InsertData(phoneNumber, message, 'success');
-      logMessage(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
+      console.log(`SMS_USA sent successfully: to:${phoneNumber}，msg：` + message, 'info');
       return true;
     }else{
       InsertData(phoneNumber, message, 'failed');
-      logMessage(`SMS_USA sent fail: to:${phoneNumber}，msg：` + message, 'error');
+      console.log(`SMS_USA sent fail: to:${phoneNumber}，msg：` + message, 'error');
       return false;
     }
   } catch (err) {
     InsertData(phoneNumber, message, 'error');
-    logMessage('Error sending SMS_USA:' + err.message, 'error');
+    console.log('Error sending SMS_USA:' + err.message, 'error');
     return false;
   }
 };
@@ -120,7 +120,7 @@ const autoSendSms = async (phone, type, user, time, tz) => {
     
     console.log(`今天是: ${time}-${time_zone}`);
     const templateParam = { user, time };
-    logMessage(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time-time_zone}`, 'info');
+    console.log(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time-time_zone}`, 'info');
     // 1.中国内地 9. 港澳台
     if (type == 1) {
       return await sendSms(phoneNumber, {user,time: time+`(${time_zone})`});
@@ -131,7 +131,7 @@ const autoSendSms = async (phone, type, user, time, tz) => {
       return await sendSms_USA(phoneNumber, message);
     }
   } catch (error) {
-    logMessage('Error autoSendSms:' + error.message, 'error');
+    console.log('Error autoSendSms:' + error.message, 'error');
     return false;
   }
 }
@@ -153,7 +153,7 @@ const SendSms_teacher = async (phone, type, user, time) => {
       sendSms(phoneNumber, templateParam);
     }
   } catch (error) {
-    logMessage('Error autoSendSms:' + error.message, 'error');
+    console.log('Error autoSendSms:' + error.message, 'error');
     //console.error('Error autoSendSms:', error.message);
   }
 }
@@ -167,11 +167,11 @@ const SendSms_parent = async (phoneNumber, templateParam) => {
       templateParam.time = moment(new Date(templateParam.time)).format('ddddHH:mm')+`(${time_zone})`;
     let SMSmsg = `to：${phoneNumber}，msg：【科爱信】开心英语提醒您，${templateParam.user}在${templateParam.time}的课程已经${templateParam.type}。如果有问题请联系专属顾问，如果已请假，请忽略本消息。`;
     if (!smsConfig.sendToParent) {
-      logMessage('SMS send is not enable. content::' + SMSmsg, 'info');
+      console.log('SMS send is not enable. content::' + SMSmsg, 'info');
       return false;
     }
     console.log(`begin send SMS ` + SMSmsg);
-    logMessage(`begin send SMS ` + SMSmsg, 'info');
+    console.log(`begin send SMS ` + SMSmsg, 'info');
     let msg = {
       PhoneNumbers: phoneNumber,
       SignName: smsConfig.signName,
@@ -181,16 +181,16 @@ const SendSms_parent = async (phoneNumber, templateParam) => {
     const result = await client.sendSMS(msg);
     if(result.Code != 'OK'){
       InsertData(phoneNumber, SMSmsg, 'fail');
-      logMessage('SMS sent fail' + JSON.stringify(result), 'error');
+      console.log('SMS sent fail' + JSON.stringify(result), 'error');
       return false;
     }else{
       InsertData(phoneNumber, SMSmsg, 'success');
-      logMessage('SMS sent successfully，' + JSON.stringify(result), 'info');
+      console.log('SMS sent successfully，' + JSON.stringify(result), 'info');
       return true;
     }
   } catch (err) {
     console.log('Error sending SMS:' + err.message, 'error');
-    logMessage('SMS sent fail' + err.message, 'error');
+    console.log('SMS sent fail' + err.message, 'error');
     return false;
   }
 };
@@ -203,7 +203,7 @@ function InsertData(phone, msg, status) {
       stmt.finalize();
       return true;
   } catch (error) {
-      logMessage(`InsertData-sms error，${error.message}`, 'error');
+      console.log(`InsertData-sms error，${error.message}`, 'error');
       return false;
   }
 }
@@ -225,7 +225,7 @@ const generateVerificationCode = () => {
 const sendSms_val = async (phoneNumber) => {
   const verificationCode = generateVerificationCode();
   console.log('Verification code:', verificationCode);
-  logMessage('Verification code:' + verificationCode, 'info');
+  console.log('Verification code:' + verificationCode, 'info');
 
   let message = `Your verification code is <${verificationCode}>, please verify within 5 mins.`;
   
@@ -242,7 +242,7 @@ const sendSms_val = async (phoneNumber) => {
       return {success: true, message: 'SMS sent successfully'};
     }
   } catch (error) {
-    logMessage('Error autoSendSms:' + error.message, 'error');
+    console.log('Error autoSendSms:' + error.message, 'error');
     console.error('Error sending SMS:', error);
     return {success: false, message: 'SMS sent error'};;
   }
@@ -255,7 +255,7 @@ const sendSms_val = async (phoneNumber) => {
  * @returns {boolean} - 验证结果
  */
 const verifyCode = (phoneNumber, code) => {
-  logMessage(`verificationCodes:${JSON.stringify(verificationCodes)}`, 'info');
+  console.log(`verificationCodes:${JSON.stringify(verificationCodes)}`, 'info');
   const record = verificationCodes[phoneNumber];
   if (record && record.code === code && record.expiresAt > Date.now()) {
     delete verificationCodes[phoneNumber]; // 验证成功后删除验证码

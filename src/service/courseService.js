@@ -32,7 +32,7 @@ async function InsertData(info) {
         is_trial_class = info.custom.is_trial_class ? info.custom.is_trial_class.join(',') : '-';
         class_category = info.custom.class_category ? info.custom.class_category.join(',') : '-';
 
-        let who = info.who.split(/[,，]+/).map(s => s.trim());
+        let who = info.who.split(/[,，]+/).filter(x=>x).map(s => s.trim());
         let signups = info.signups.map(x=>x.name);
 
         const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -43,11 +43,15 @@ async function InsertData(info) {
         
         let users = [];
        
-        users = who.concat(signups).filter(x=>x.trim().length>0);
-        await StuInsertData(info.id, info.subcalendar_id, users);
+        users = who.concat(signups).filter(x=>x).filter(x=>x.trim().length>0);
+        if(users.length>0){
+            await StuInsertData(info.id, info.subcalendar_id, users);
+        }else{
+            console.log('课程没有学生！！！'+info.id);
+        }
         return true;
     } catch (error) {
-        logMessage(`InsertData-course error，${error.message}`, 'error');
+        console.log(`InsertData-course error，${error.message}`, 'error');
         return false;
     }
 }
@@ -62,7 +66,7 @@ async function GetData(date, subcalendar_id) {
             })
         });
     } catch (error) {
-        logMessage(`GetData error，${error.message}`, 'error');
+        console.log(`GetData error，${error.message}`, 'error');
         return null;
     }
 }
@@ -78,7 +82,8 @@ async function GetDataAll(sdate, edate) {
             })
         });
     } catch (error) {
-        logMessage(`GetDataAll error，${error.message}`, 'error');
+        console.log(`GetDataAll error，${error.message}`, 'error');
+        console.log(`GetDataAll error，${error.message}`, 'error');
         return [];
     }
 }
@@ -94,7 +99,7 @@ async function EditData(id, attend) {
             let upTitle = couData.title+"[declined]";
             let upData = await updateAnEvent(id, {who: '', title: upTitle });
             if(upData){
-                logMessage(`edit teamup success`, 'info');
+                console.log(`edit teamup success`, 'info');
                 let sql = `update courses set attend='${attend}', value2='0', id = '${upData.id}', who='', title="${upTitle}"  where id ='${id}'`;
                 let result = await new Promise((resolve, reject) => {
                     db.run(sql, (err, data) => {
@@ -131,7 +136,7 @@ async function EditData(id, attend) {
                 });
                 return result;
             }else{
-                logMessage(`edit teamup failed`, 'error');
+                console.log(`edit teamup failed`, 'error');
                 return false;
             }
         }else{
@@ -159,7 +164,7 @@ async function EditData(id, attend) {
             return result;
         }
     } catch (error) {
-        logMessage(`EditData error，${error.message}`, 'error');
+        console.log(`EditData error，${error.message}`, 'error');
         return false;
     }
 }
@@ -197,7 +202,7 @@ async function EditStuData(id, student, value1) {
 
                         // 发送邮件
                         sendEmail(emailConfig.receive, `课程反馈表-${couData.title}`, '', html);
-                        logMessage(`课程反馈表-${couData.title} ` + html, 'info');
+                        console.log(`课程反馈表-${couData.title} ` + html, 'info');
 
                         resolve(true);
                     });
@@ -209,7 +214,7 @@ async function EditStuData(id, student, value1) {
             return false;
         }
     } catch (error) {
-        logMessage(`EditStuData error，${error.message}`, 'error');
+        console.log(`EditStuData error，${error.message}`, 'error');
         return false;
     }
 }
@@ -227,7 +232,7 @@ async function SignStudentStatus(id, code, state) {
         } else
             return false;
     } catch (error) {
-        logMessage(`SignStudentStatus error，${error.message}`, 'error');
+        console.log(`SignStudentStatus error，${error.message}`, 'error');
         return false;
     }
 }
@@ -256,7 +261,7 @@ async function SaveInfo(body){
         });
         return result;
     } catch (error) {
-        logMessage(`SaveInfo error，${error.message}`, 'error');
+        console.log(`SaveInfo error，${error.message}`, 'error');
         return false;
     }
 }
@@ -277,7 +282,7 @@ async function GetDataByid(id) {
 }
 async function Clear() {
     db.serialize(() => {
-        db.run("Delete courses where 1=1;");
+        db.run("Delete from courses where 1=1;");
     });
 }
 
@@ -294,9 +299,9 @@ function sendMail(couData) {
 
         sendEmail(emailConfig.receive, msg, '', html);
 
-        logMessage(`${msg}. Participants: ${who} Course title: ${couData.title} Course time: ${start_dt}-${end_dt} ${couData.tz}`, 'info');
+        console.log(`${msg}. Participants: ${who} Course title: ${couData.title} Course time: ${start_dt}-${end_dt} ${couData.tz}`, 'info');
     } catch (error) {
-        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
+        console.log(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
 async function sendMailSignStatus(id, sname, state) {
@@ -370,9 +375,9 @@ async function sendMailSignStatus(id, sname, state) {
             }
         }
 
-        logMessage(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
+        console.log(`${msg}. Participants: ${couData.who} Course title: ${couData.title} Course time: ${couData.start_dt}-${couData.end_dt} ${couData.tz}`, 'info');
     } catch (error) {
-        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
+        console.log(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
 /**
@@ -422,7 +427,7 @@ async function sendSmsToParent(studentName, time, state, tz) {
           }
         }
     } catch (error) {
-        logMessage(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
+        console.log(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }
 }
 
@@ -439,7 +444,7 @@ function CheckCourseInfo(oldInfo, newInfo) {
         newInfo.is_new = '2';
         return true;
     }
-    if(oldInfo.title!= newInfo.title){
+    if(oldInfo.who.trim()!= newInfo.who.trim() || oldInfo.title!= newInfo.title){
         newInfo.is_new = '0';
         return true;
     }
@@ -471,13 +476,16 @@ async function CheckCourse(sdt,edt) {
                 item.class_level = item.custom.special_requirement ? item.custom.special_requirement.join(',') : '-';
                 item.class_category = item.custom.class_category ? item.custom.class_category.join(',') : '-';
 
+                // if(item.title=='ceshi1017' || item.title=='test123[declined]' || item.title=='new class'){
+                //     debugger;
+                // }
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
                     if(ischange){
                         item.attend='0';
                         if(item.is_new=='0'){
-                            item.is_new = oldInfo.is_new;
-                            item.attend = oldInfo.attend;
+                            item.is_new = oldInfo.is_new || '0';
+                            item.attend = oldInfo.attend || '0';
                         }
                         await UpdateCourseInfo(oldInfo, item);
                     }
@@ -500,7 +508,7 @@ async function CheckCourse(sdt,edt) {
         console.log('结束校验新课程！！！'+new Date());
         return true;
     } catch (error) {
-        logMessage(`CheckCourse error:${error.message}`, 'error');
+        console.log(`CheckCourse error:${error.message}`, 'error');
         return false;
     }
 }
@@ -518,39 +526,44 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
         });
         if(result){
             if(oldInfo.who != newInfo.who || oldInfo.signed_up != new_singneds){
-                let who_old = oldInfo.who.split(/[,，]+/).map(s => s.trim());
-                let signups_old = oldInfo.signed_up.split(',').map(x=>x.name);
-                let oldStudents = who_old.concat(signups_old).filter(x=>x.trim().length>0);
+                let who_old = oldInfo.who.split(/[,，]+/).filter(x=>x).map(s => s.trim());
+                let signups_old = oldInfo.signed_up.split(',').map(x=>x.name).filter(x=>x);
+                let oldStudents = who_old.concat(signups_old);
 
-                let who_new = newInfo.who.split(/[,，]+/).map(s => s.trim());
-                let signups_new = newInfo.signups.map(x=>x.name);
-                let newStudents = who_new.concat(signups_new).filter(x=>x.trim().length>0);
+                let who_new = newInfo.who.split(/[,，]+/).filter(x=>x).map(s => s.trim());
+                let signups_new = newInfo.signups.map(x=>x.name).filter(x=>x);
+                let newStudents = who_new.concat(signups_new);
 
                 let removedStudents = oldStudents.filter(student => !newStudents.includes(student));
                 console.log('Removed students:', removedStudents);
-                removedStudents.forEach(async student => {
+                removedStudents.forEach(student => {
                     let usercode = student.match(/\d{8,10}/);
                     let ucode='';
                     if (usercode != null) {
                         ucode=usercode[0];
                     }
-                    await new Promise((resolve, reject) => {
-                        db.run(`delete student_detail where course_id = '${oldInfo.id}' and (name='${uname}' or code='${ucode}')`, function(err) {
-                            if (err) {
-                                return resolve(null);
-                            }
-                            resolve(this.lastID);
-                        });
-                    });
+                    db.run(`delete from student_detail where course_id = '${oldInfo.id}' and (name='${student}' or code='${ucode}')`);
+                    // await new Promise((resolve, reject) => {
+                    //     db.run(`delete student_detail where course_id = '${oldInfo.id}' and (name='${student}' or code='${ucode}')`, function(err) {
+                    //         if (err) {
+                    //             return resolve(null);
+                    //         }
+                    //         resolve(this.lastID);
+                    //     });
+                    // });
                 });
                 let addedStudents = newStudents.filter(student => !oldStudents.includes(student));
                 console.log('Added students:', addedStudents);
                
-                await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents.join(','));
+                if(addedStudents.length>0){
+                    await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents);
+                }else{
+                    console.log('课程没有学生！！！'+info.id);
+                }
             }
         }
     } catch (error) {
-        logMessage(`UpdateCourseInfo error:${error.message}`, 'error');
+        console.log(`UpdateCourseInfo error:${error.message}`, 'error');
     }
 }
 /**
@@ -590,7 +603,7 @@ async function InitCourse() {
                 let teacherName = '';
                 if (teacherInfo == null) {
                     console.log('未找到老师信息' + info.subcalendar_id);
-                    logMessage(`InitCourse: Teacher information not found.[${info.subcalendar_id}]`, 'error');
+                    console.log(`InitCourse: Teacher information not found.[${info.subcalendar_id}]`, 'error');
                 } else {
                     teacherName = teacherInfo.name;
                 }

@@ -1972,7 +1972,7 @@ overflow-y: auto; */
                         <div class="student-info">
                             <div class="student-name">
                                 ${replaceNumberToNull(student.name)}<br>
-                                <span class="status">${student.code}</span>
+                                <span class="status">${student.code? student.code:''}</span>
                             </div>
                         </div>
                         <div class="attendance-status">

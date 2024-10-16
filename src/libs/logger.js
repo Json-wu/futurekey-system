@@ -8,9 +8,13 @@ const db = require('./db');
   * @param {string} level The log level.
   */
 function logMessage(message, level) {
-  const stmt = db.prepare("INSERT INTO logs (message, level) VALUES (?, ?)");
-  stmt.run(message, level);
-  stmt.finalize();
+  try {
+    const stmt = db.prepare("INSERT INTO logs (message, level) VALUES (?, ?)");
+    stmt.run(message, level);
+    stmt.finalize();
+  } catch (error) {
+    console.log(`save db error.`+error.stack);
+  }
 }
 
 module.exports = { logMessage };

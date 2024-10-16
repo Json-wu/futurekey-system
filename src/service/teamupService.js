@@ -18,7 +18,7 @@ const teamup = config.teamup;
 async function fetchTeamUpCalendar(sDate, eDate) {
   try {
     let url = `https://api.teamup.com/${calendarKeyOrId}/events?startDate=${sDate}&endDate=${eDate}`;
-    logMessage(`fetchTeamUpCalendar:url-${url}`, 'info');
+    //console.log(`fetchTeamUpCalendar:url-${url}`, 'info');
     const response = await axios.get(url, {
       headers: {
         'Teamup-Token': apiKey
@@ -26,21 +26,21 @@ async function fetchTeamUpCalendar(sDate, eDate) {
     });
 
     // try {
-    //   //logMessage(`fetchTeamUpCalendar:response:::${JSON.stringify(response.data)}`, 'info');
+    //   //console.log(`fetchTeamUpCalendar:response:::${JSON.stringify(response.data)}`, 'info');
     //   const stmt = db.prepare("INSERT INTO teamup_data (data) VALUES (?)");
     //   stmt.run(JSON.stringify(response.data)); stmt.finalize();
     // } catch (error) {
-    //   logMessage(`save db error.`+error.stack, 'error');
+    //   console.log(`save db error.`+error.stack, 'error');
     // }
     if (!response.status == 200) {
-      logMessage(`Error fetching calendar: ${response.statusText}`, 'error');
+      console.log(`Error fetching calendar: ${response.statusText}`, 'error');
       return null;
     }
-    logMessage('Successfully fetched TeamUp calendar data', 'info');
+    console.log('Successfully fetched TeamUp calendar data', 'info');
     return response.data.events;
 
   } catch (error) {
-    logMessage(`Failed to fetch TeamUp calendar data: ${error.stack}`, 'error');
+    console.log(`Failed to fetch TeamUp calendar data: ${error.stack}`, 'error');
     return null;
   }
 }
@@ -59,14 +59,14 @@ async function createAnEvent(body){
     });
 
     if (!response.status == 200) {
-      logMessage(`Failed createAnEvent: ${response.statusText}`, 'error');
+      console.log(`Failed createAnEvent: ${response.statusText}`, 'error');
       return null;
     }
-    logMessage('Successfully createAnEvent', 'info');
+    console.log('Successfully createAnEvent', 'info');
     return response.data.event;
 
   } catch (error) {
-    logMessage(`Error to createAnEvent: ${error.stack}`, 'error');
+    console.log(`Error to createAnEvent: ${error.stack}`, 'error');
     return null;
   }
 }
@@ -99,7 +99,7 @@ async function updateAnEvent(id, body){
       ubody.signup_count = newSignedUp.length;
     }
     const url = `https://api.teamup.com/${calendarKeyOrId_modify}/events/${id}`;
-    logMessage('url updateAnEvent:::'+url, 'info');
+    console.log('url updateAnEvent:::'+url, 'info');
     const response = await axios.put(url, ubody, {
       headers: {
         'Teamup-Token': apiKey,
@@ -108,14 +108,14 @@ async function updateAnEvent(id, body){
     });
     
     if (!response.status == 200) {
-      logMessage(`Failed updateAnEvent: ${response.statusText}`, 'error');
+      console.log(`Failed updateAnEvent: ${response.statusText}`, 'error');
       return null;
     }
     
-    logMessage('Successfully updateAnEvent', 'info');
+    console.log('Successfully updateAnEvent', 'info');
     return response.data.event;
   } catch (error) {
-    logMessage(`Error to updateAnEvent: ${error.stack}`, 'error');
+    console.log(`Error to updateAnEvent: ${error.stack}`, 'error');
     return null;
   }
 }
@@ -132,14 +132,14 @@ async function deleteAnEvent(eventId){
     });
     
     if (!response.status == 200) {
-      logMessage(`Failed deleteAnEvent: ${response.statusText}`, 'error');
+      console.log(`Failed deleteAnEvent: ${response.statusText}`, 'error');
       return null;
     }
-    logMessage('Successfully deleteAnEvent', 'info');
+    console.log('Successfully deleteAnEvent', 'info');
     return response.data.event;
 
   } catch (error) {
-    logMessage(`Error to deleteAnEvent: ${error.stack}`, 'error');
+    console.log(`Error to deleteAnEvent: ${error.stack}`, 'error');
     return null;
   }
 }
@@ -156,13 +156,13 @@ async function getAnEvent(eventId){
     });
     
     if (!response.status == 200) {
-      logMessage(`Failed getAnEvent: ${response.statusText}`, 'error');
+      console.log(`Failed getAnEvent: ${response.statusText}`, 'error');
       return null;
     }
-    logMessage('Successfully getAnEvent', 'info');
+    console.log('Successfully getAnEvent', 'info');
     return response.data.event;
   } catch (error) {
-    logMessage(`Error to getAnEvent: ${error.stack}`, 'error');
+    console.log(`Error to getAnEvent: ${error.stack}`, 'error');
     return null;
   }
 }
