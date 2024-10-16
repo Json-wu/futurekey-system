@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const moment = require('moment');
 const courseService = require('../service/courseService');
 const studentDetailService = require('../service/studentDetailService');
 const leaveService = require('../service/leaveService');
@@ -125,6 +126,26 @@ router.post('/SaveInfo', async (req, res) => {
         res.status(500).json({ code: 1, msg: 'Failed to sumit.' });
     }
 });
+
+router.get('/refresh', async (req, res) => {
+    try {
+        console.log(`任务task_newClass执行:开始校验新课程！！！`, new Date());
+        let startDate = moment().subtract(1, 'week').format('YYYY-MM-DD');
+        let endDate = moment().add(4, 'weeks').format('YYYY-MM-DD');
+        let isok = await courseService.CheckCourse(startDate, endDate);
+        if(isok){
+            console.log(`任务task_newClass执行:校验新课程成功！！！`, new Date());
+             // 返回刷新成功
+            res.send('refresh success');
+        }else{
+            console.log(`任务task_newClass执行:校验新课程失败！！！`, new Date());
+            // 返回刷新失败
+            res.send('refresh fail');
+        }
+    } catch (error) {
+        res.send(error.message);
+    }
+})
 
 
 

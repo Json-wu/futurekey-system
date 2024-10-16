@@ -479,14 +479,14 @@ async function CheckCourse(sdt,edt) {
                             item.is_new = oldInfo.is_new;
                             item.attend = oldInfo.attend;
                         }
-                        UpdateCourseInfo(oldInfo, item);
+                        await UpdateCourseInfo(oldInfo, item);
                     }
                 }else{
                     if(item.who.trim().length > 0 || item.signups.length>0){
                         ischange = true;
                         item.teacherName = name;
                         item.is_new = '1';
-                        InsertData(item);
+                        await InsertData(item);
                     }
                 }
                 // 新课程提醒
@@ -498,8 +498,10 @@ async function CheckCourse(sdt,edt) {
             }
         }
         console.log('结束校验新课程！！！'+new Date());
+        return true;
     } catch (error) {
         logMessage(`CheckCourse error:${error.message}`, 'error');
+        return false;
     }
 }
 
