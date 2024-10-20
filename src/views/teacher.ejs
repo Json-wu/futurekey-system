@@ -42,9 +42,9 @@
         </div>
         <!-- 日期选择和前一天、后一天按钮 -->
         <div class="date-buttons" id="course_date">
-            <button onclick="changeDate(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button onclick="changeDate(-1)" title="Before"><i class="fas fa-chevron-left"></i></button>
             <input style="margin-left: 10px;" type="date" id="selectedDate" value="2024-12-02" onchange="fetchData()">
-            <button onclick="changeDate(1)"><i class="fas fa-chevron-right"></i></button>
+            <button onclick="changeDate(1)" title="Next day"><i class="fas fa-chevron-right"></i></button>
         </div>
 
        
@@ -72,7 +72,7 @@
             </div>
             <!-- 全选按钮栏-->
             <div class="selectAll2" id ="ss">
-                <label><input type="checkbox" class="courseCheckBox2" id="selectAll" onclick="selectAll()">Select All</label>
+                <input type="checkbox" class="courseCheckBox2" id="selectAll" onclick="selectAll()"><span>Select All</span>
             </div>
 
             <div class="button-group" id="course_Leave" style="display: none;">
@@ -322,6 +322,9 @@
     }
 
     .selectAll {
+        align-items: center;
+        justify-content: flex-start; /* 靠左对齐 */
+        margin-top: 10px;
         margin-bottom: 10px;
         height: 40px;
         background-color: #bac3f6;
@@ -332,23 +335,23 @@
         transform: translateX(-50%);
         display: flex;
         gap: 10px;
-        border-top: 1px solid #ddd;
-        justify-content: space-between;
-        padding-bottom: 20px;
         border-radius: 8px;
+    }
+    .selectAll span {
+        text-align: left;
+        justify-content: center;
     }
 
     .selectAll2 {
         display: none;
-        /* width: 100%;
-        margin-bottom: 10px;
-        height: 40px;
-        background-color: #f2f9f8;
-        padding: 10px;
-        justify-content: center; */
+        align-items: center;
+        justify-content: flex-start; /* 靠左对齐 */
+        margin-top: 10px;
     }
-    .selectAll label {
-        justify-content: center;
+
+    .headphone-icon {
+        color: #3498db !important;
+        font-size: 14px;
     }
 
     .leaveShow {
@@ -373,8 +376,14 @@
 
     .courseCheckBox,
     .courseCheckBox2 {
-        height: 15px;
-        width: 15px;
+        width: 20px;
+        height: 20px;
+        top: 250px;
+        gap: 0px;
+        border-radius: 6px 0px 0px 0px;
+        border: 1px 0px 0px 0px;
+        opacity: 0px;
+
     }
 
     .tabs {
@@ -510,7 +519,7 @@
     .notification-icon .badge {
         position: absolute;
         right: -8px;
-        background-color: red;
+        background: rgba(255, 104, 102, 1);
         color: white;
         border-radius: 50%;
         padding: 6px;
@@ -523,7 +532,7 @@
         position: absolute;
         top: 50px;
         right: 0;
-        width: 160px;
+        width: 165px;
         max-height: 400px;
         overflow-y: auto;
         background-color: white;
@@ -699,7 +708,7 @@
         font-size: 16px;
         border-radius: 8px;
         cursor: pointer;
-        width: 30%;
+        width: 20%;
         /* 调整按钮宽度 */
         height: 50px;
         /* 调整按钮高度 */
@@ -914,7 +923,7 @@
         position: absolute;
         right: 10px;
         top: 10px;
-        font-size: 18px;
+        font-size: 23px;
         cursor: pointer;
     }
 
@@ -1301,9 +1310,9 @@ overflow-y: auto; */
         color: white;
         padding: 5px 10px;
         font-size: 12px;
-        border-radius: 20px;
+        border-radius: 0 8px 0 12px;
         position: absolute;
-        top: -10px;
+        top: 0px;
         right: 0px;
     }
 
@@ -1311,13 +1320,13 @@ overflow-y: auto; */
         background: linear-gradient(to bottom, #FF6161, #FFc197);
         color: white;
         padding: 5px;
-        font-size: 8px;
+        font-size: 7px;
         border-radius: 50%;
         position: absolute;
-        top: -12px;
-        left: -2px;
-        width: 17px;
-        height: 17px;
+        top: 0px;
+        left: -5px;
+        width: 13px;
+        height: 13px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -1924,7 +1933,7 @@ overflow-y: auto; */
             loadUploadedFiles(courseData.value5.split('/'), 'uploadedFiles_homework');
         }
 
-        displayData(courseData.student);
+        displayData(courseData);
     }
     function loadUploadedFiles(files, containerId) {
         const container = document.getElementById(containerId);
@@ -1941,8 +1950,11 @@ overflow-y: auto; */
         });
     }
  
-    function displayData(data) {
+    function displayData(coursedata) {
         // studentAttendance
+        let data = coursedata.student;
+        let who = coursedata.who;
+        let signs = coursedata.signed_up;
         const studentAttendance = document.getElementById('studentAttendance');
         studentAttendance.innerHTML = `<div style="display: flex; align-items: center; ">
                     <div style="width: 4px; height: 24px; background-color: #2F51FF; "></div>
@@ -1997,13 +2009,13 @@ overflow-y: auto; */
             }
             if (i == 0) {
                 studentInfo.innerHTML += `
-                <span >${replaceNumberToNull(student.name)}</span>
-                <i class="fas fa-angle-right rotated" id="arrow_${scode}"></i>
+                <span >${replaceNumberToNull(student.name)}${showStudentIcon(student.name, who, signs)}</span>
+                <i class="fas fa-angle-right rotated" id="arrow_${scode}" title="Particulars"></i>
             `;
             } else {
                 studentInfo.innerHTML += `
-                <span >${replaceNumberToNull(student.name)}</span>
-                <i class="fas fa-angle-right" id="arrow_${scode}"></i>
+                <span>${replaceNumberToNull(student.name)}${showStudentIcon(student.name, who, signs)}</span>
+                <i class="fas fa-angle-right" id="arrow_${scode}"  title="Particulars"></i>
             `;
             }
             const studentDetails = document.createElement('div');
@@ -2262,9 +2274,9 @@ overflow-y: auto; */
                     courseItem.classList.add('course-item-absent');
                 }
                 if (course.class_category=='writing') {
-                    courseItem.innerHTML += `<div class="course-icon"><img src="data:image/png;base64,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" class="icon"></div>`;
+                    courseItem.innerHTML += `<div class="course-icon"><img title="Writing lessons" src="data:image/png;base64,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" class="icon"></div>`;
                 } else {
-                    courseItem.innerHTML += `<div class="course-icon"><img src="data:image/png;base64,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" class="icon"></div>`;
+                    courseItem.innerHTML += `<div class="course-icon"><img title="Comprehensive lessons" src="data:image/png;base64,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" class="icon"></div>`;
                 }
                 //  else {
                 //     courseItem.innerHTML += `<div class="course-icon">💻</div>`;
@@ -2275,10 +2287,10 @@ overflow-y: auto; */
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
                         <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Decline</label></p>
                     </div>
                     <div class="new-badge">New</div>`;
@@ -2286,10 +2298,10 @@ overflow-y: auto; */
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
                         <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Decline</label></p>
                     </div>
                     <div class="new-badge">Modified</div>`;
@@ -2297,13 +2309,13 @@ overflow-y: auto; */
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock" title="course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user" title="student name"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-plus add-course" title="singned up"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}</p>
+                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}</p>
                     </div>`;
                 }
-                courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right"></i></div>`;
+                courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right" title="Particulars"></i></div>`;
 
                 const isleaveCheckCss2 = isLeaveCheck ? 'leaveShow' : 'leaveHide';
                 if(course.isleave){
@@ -2685,6 +2697,14 @@ overflow-y: auto; */
         resStr = resStr.replace(',,', ',').replace(/,$/, '').replace(/^,/, '');
 
         return resStr;
+    }
+
+    function showStudentIcon(sname, who, singns){
+        if(who.includes(sname)){
+            return '<i class="fas fa-user headphone-icon" title="Regular students"></i>';
+        }else{
+            return '<i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>';
+        }
     }
 
     function replaceCommas(str) {
