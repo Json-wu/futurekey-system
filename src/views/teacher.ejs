@@ -304,8 +304,12 @@
     }
 
     .icon {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .icon-size{
+        font-size: 18px !important;
     }
 
     .text_dcro {
@@ -750,7 +754,7 @@
         border-radius: 10px;
         padding: 15px;
         margin: 0 0 15px auto;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 0 20px rgba(255, 192, 203, 0.5);
         display: flex;
         align-items: center;
         cursor: pointer;
@@ -802,7 +806,28 @@
 
     .course-arrow {
         font-size: 18px;
-        color: #007bff;
+        color: #007bff; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px; /* 设置圆圈的宽度 */
+        height: 40px; /* 设置圆圈的高度 */
+        background: rgba(47, 81, 255, 0.12);
+        border-radius: 50%; /* 设置圆角，形成圆形 */
+        cursor: pointer;
+    }
+
+    .course-arrow-hide {
+        font-size: 18px;
+        color: #007bff; 
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 40px; /* 设置圆圈的宽度 */
+        height: 40px; /* 设置圆圈的高度 */
+        background: rgba(47, 81, 255, 0.12);
+        border-radius: 50%; /* 设置圆角，形成圆形 */
+        cursor: pointer;
     }
 
     .button-group {
@@ -1697,9 +1722,10 @@ overflow-y: auto; */
         document.getElementById('courseTitle').innerText = 'My Course';
         document.getElementById('course_Leave').style.display = 'none';
 
-        const checkboxes1 = document.querySelectorAll('.course-arrow');
+        const checkboxes1 = document.querySelectorAll('.course-arrow-hide');
         checkboxes1.forEach(checkbox => {
-            checkbox.classList.remove('leaveHide');
+            checkbox.classList.remove('course-arrow-hide');
+            checkbox.classList.add('course-arrow');
         });
 
         const checkboxes2 = document.querySelectorAll('.rlable');
@@ -2281,16 +2307,18 @@ overflow-y: auto; */
                 //  else {
                 //     courseItem.innerHTML += `<div class="course-icon">💻</div>`;
                 // }
-                const leaveCheckCss = isLeaveCheck ? 'leaveHide' : '';
+                const leaveCheckCss = '';//isLeaveCheck ? 'leaveHide' : '';
+
+                const detailShow = isLeaveCheck ? 'course-arrow-hide' : 'course-arrow';
                 
                 if (course.value2 == '1') {
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon icon-size" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                    <p><i class="fas fa-user-friends headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas headphone-icon icon-size" title="Audition students">+</i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
                         <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Decline</label></p>
                     </div>
                     <div class="new-badge">New</div>`;
@@ -2298,10 +2326,10 @@ overflow-y: auto; */
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon icon-size" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
+                    <p><i class="fas fa-user-friends headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas headphone-icon icon-size" title="Audition students">+</i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}<label class="accept"><input type="radio" name="attendance_${course.id}" value="1" onchange="confirmAttendanceChange('${course.id}','1')">Accept</label>
                         <label class="refuse"><input type="radio" name="attendance_${course.id}" value="9" onchange="confirmAttendanceChange('${course.id}','9')">Decline</label></p>
                     </div>
                     <div class="new-badge">Modified</div>`;
@@ -2309,13 +2337,13 @@ overflow-y: auto; */
                     courseItem.innerHTML +=
                     `<div class="course-info">
                     <h4 onclick="showDetails('${course.id}')" class="${course.isleave ? 'text_dcro' : ''}">${course.title}</h4>
-                    <p><i class="fas fa-clock headphone-icon" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
+                    <p><i class="fas fa-clock headphone-icon icon-size" title="Course time"></i>&nbsp;&nbsp;${formatTime(course.start_dt)} ~ ${formatTime(course.end_dt)}
                             </p>
-                    <p><i class="fas fa-user headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
-                    <p class="rlable ${leaveCheckCss}"><i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}</p>
+                    <p><i class="fas fa-user-friends headphone-icon" title="Regular students"></i>&nbsp;&nbsp;${course.who ? replaceCommas(course.who) : ''}</p>
+                    <p class="rlable ${leaveCheckCss}"><i class="fas headphone-icon icon-size" title="Audition students">+</i>&nbsp;&nbsp;${course.signed_up ? replaceCommas(course.signed_up) : ''}</p>
                     </div>`;
                 }
-                courseItem.innerHTML += `<div class="course-arrow ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right" title="Particulars"></i></div>`;
+                courseItem.innerHTML += `<div class="${detailShow} ${leaveCheckCss}" onclick="showDetails('${course.id}')"><i class="fas fa-angle-right" title="Particulars"></i></div>`;
 
                 const isleaveCheckCss2 = isLeaveCheck ? 'leaveShow' : 'leaveHide';
                 if(course.isleave){
@@ -2701,9 +2729,9 @@ overflow-y: auto; */
 
     function showStudentIcon(sname, who, singns){
         if(who.includes(sname)){
-            return '&nbsp;<i class="fas fa-user headphone-icon" title="Regular students"></i>';
+            return '&nbsp;<i class="fas fa-user-friends headphone-icon" title="Regular students"></i>';
         }else{
-            return '&nbsp;<i class="fas fa-headphones-alt headphone-icon" title="Audition students"></i>';
+            return '&nbsp;<i class="fas headphone-icon" title="Audition students">+</i>';
         }
     }
 
