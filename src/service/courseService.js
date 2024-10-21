@@ -35,9 +35,9 @@ async function InsertData(info) {
         let who = info.who.split(/[,，]+/).filter(x=>x).map(s => s.trim());
         let signups = info.signups.map(x=>x.name);
 
-        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        const stmt = db.prepare("INSERT INTO courses (id, subcalendar_id, title, teacher, who,  start_dt, end_dt,date, tz, class_level, class_size,signed_up,is_trial_class,class_category,is_full,attend,status,value2,value3) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, who.join(','), info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signups.join(','), is_trial_class, class_category, is_full, '0', '1', info.is_new||'0');
+        stmt.run(info.id, info.subcalendar_id, info.title, info.teacherName, who.join(','), info.start_dt, info.end_dt, info.start_dt.substr(0, 10), info.tz, class_level, class_size, signups.join(','), is_trial_class, class_category, is_full, '0', '1', info.is_new||'0', info.series_id);
 
         stmt.finalize();
         
@@ -72,7 +72,7 @@ async function GetData(date, subcalendar_id) {
 }
 async function GetDataAll(sdate, edate) {
     try {
-        let sql = `SELECT * FROM courses`;
+        let sql = `SELECT * FROM courses where date>='${sdate}' and date<='${edate}' order by date asc`;
         return await new Promise((resolve, reject) => {
             db.all(sql, (err, rows) => {
                 if (err) {
@@ -457,13 +457,15 @@ function CheckCourseInfo(oldInfo, newInfo) {
 async function CheckCourse(sdt,edt) {
     try {
         console.log('开始校验新课程！！！'+new Date());
-        // let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
-        // let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
+        let dateNow = moment().seconds(0).milliseconds(0).utc().format('YYYY-MM-DD');
+        let date_start = moment(dateNow).subtract(30, 'day').utc().format('YYYY-MM-DD');
+        let date_end = moment(dateNow).add(30, 'day').utc().format('YYYY-MM-DD');
         // let data = await fetchTeamUpCalendar('2024-06-01', '2024-09-21');
         // let list = await GetDataAll(dateNow, date_end);
         //data = data.filter(x=>x.who && x.who.trim().length > 0);
         let data = await fetchTeamUpCalendar(sdt,edt);
-        let list = await GetDataAll(sdt,edt);
+        let list = await GetDataAll(date_start,date_end);
+        let series_idData = [];
         if (data != null && data.length > 0) {
             for (let index = 0; index < data.length; index++) {
                 let item = data[index];
@@ -482,19 +484,54 @@ async function CheckCourse(sdt,edt) {
                 if(oldInfo){
                     ischange = CheckCourseInfo(oldInfo, item);
                     if(ischange){
+                        // 保存series_id的消息
+                        if(item.series_id != null){
+                            if(item.title=='test111'){
+                                debugger;
+                            }
+                            if(series_idData.indexOf(item.series_id)<0){
+                                series_idData.push(item.series_id);
+                            }else{
+                                item.is_new = '0';
+                                ischange = false;
+                            }
+                        }
                         item.attend='0';
                         if(item.is_new=='0'){
-                            item.is_new = oldInfo.is_new || '0';
+                            item.is_new = oldInfo.value2 || '0';
                             item.attend = oldInfo.attend || '0';
+                        }
+                        if(oldInfo.value2=='1'){
+                            ischange = false;
                         }
                         await UpdateCourseInfo(oldInfo, item);
                     }
                 }else{
                     if(item.who.trim().length > 0 || item.signups.length>0){
+                        if(item.series_id!=null){
+                            // 查询两个月内是否有相同series_id的课程
+                            let hasoldInfo = list.find(x => x.series_id == item.series_id);
+                            if(hasoldInfo){
+                                item.is_new = '0';
+                                ischange = false;
+                                await InsertData(item);
+                                continue;
+                            }
+                            if(series_idData.indexOf(item.series_id)<0){
+                                series_idData.push(item.series_id);
+                            }else{
+                                item.is_new = '0';
+                                ischange = false;
+                                await InsertData(item);
+                                continue;
+                            }
+                        }
+                      
                         ischange = true;
                         item.teacherName = name;
                         item.is_new = '1';
                         await InsertData(item);
+                        
                     }
                 }
                 // 新课程提醒
@@ -517,7 +554,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
     try {
         let new_singneds = newInfo.signups.map(x=>x.name).join(',');
         let result = await new Promise((resolve, reject) => {
-            db.run(`update courses set who='${newInfo.who}',title='${newInfo.title}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}', attend='${newInfo.attend}' where id ='${oldInfo.id}'`, (err, data) => {
+            db.run(`update courses set who='${newInfo.who}',title='${newInfo.title}', signed_up='${new_singneds}', start_dt = '${newInfo.start_dt}', end_dt = '${newInfo.end_dt}', class_level='${newInfo.class_level}', class_category='${newInfo.class_category}', value2='${newInfo.is_new}', attend='${newInfo.attend}', value3='${newInfo.series_id}' where id ='${oldInfo.id}'`, (err, data) => {
                 if (err) {
                     resolve(false);
                 }
