@@ -304,8 +304,8 @@
     }
 
     .icon {
-        width: 50px;
-        height: 50px;
+        width: 44px;
+        height: 44px;
     }
 
     .icon-size{
@@ -1358,10 +1358,9 @@ overflow-y: auto; */
     }
 
     .rlable label {
-        border-radius: 3px;
+        border-radius: 4px;
         float: right;
-        margin-right: 10px;
-        padding: 1px 2px 1px 2px;
+        padding: 2px 8px 4px 2px;
     }
 
     .studentList {
@@ -2461,13 +2460,19 @@ overflow-y: auto; */
     function readMsg(date, id){
         if(date=='')
             return;
-        let messages = JSON.parse(localStorage.getItem('messages')) || [];
-        messages = messages.filter(message => message.id != id);
-        localStorage.setItem('messages', JSON.stringify(messages));
-        loadNotifications();
-        if(messages.length == 0){
-            document.getElementById('notification-popup').style.display = 'none';
-        }
+        // let messages = JSON.parse(localStorage.getItem('messages')) || [];
+        // messages = messages.filter(message => message.id != id);
+        // localStorage.setItem('messages', JSON.stringify(messages));
+        // loadNotifications();
+        // if(messages.length == 0){
+        //     document.getElementById('notification-popup').style.display = 'none';
+        // }
+
+        hideLeaveCheck();
+        hideDetail();
+        hideStatistics();
+        closeLeaveModal();
+
         const selectedDate = document.getElementById('selectedDate');
         selectedDate.value = date;
         fetchData();
@@ -2478,7 +2483,7 @@ overflow-y: auto; */
 
         setTimeout(() => {
             fetchNewMessages();
-        }, 1000);
+        }, 3000);
     }
 
     function toggleDetails(scode) {
