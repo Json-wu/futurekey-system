@@ -46,6 +46,6 @@
   "timerSet_syncXBB":{
     "enable": true,
     "hour": 12,
-    "minute": 32
+    "minute": 35
   }
 }
