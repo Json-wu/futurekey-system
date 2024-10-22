@@ -6,20 +6,21 @@ const momenttz = require('moment-timezone');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
 const config = require('../config/config');
 const { logMessage } = require('./logger');
-const { getCustomerDetail } = require('../service/xbbService');
+const { GETstudentList, getStudentDetail, getCustomerInfo} = require('../service/xbbService');
 const { autoSendSms, SendSms_teacher } = require('../service/smsService');
-const { getCustomerDetail_check } = require('../service/xbbService');
 const { sendEmail } = require('../service/emailService');
 const teacherData = require('../config/teacher.json');
 const { CheckCourse } = require('../service/courseService');
 const { getDateNow, ejsHtml } = require('./common');
 const path = require('path');
 const { sendBotMsg } = require('../service/botService');
+const { SyncStudentInfo, queryStudentInfo } = require('../service/studentService');
 
 const emailConfig = config.email;
 const timerSet_class = config.timerSet_class;
 const timerSet_total = config.timerSet_total;
 const timerSet_newclass = config.timerSet_newclass;
+const timerSet_syncXBB = config.timerSet_syncXBB;
 
 /*
   * 课程提醒任务：每20分钟执行一次
@@ -45,6 +46,11 @@ rule_total.minute = timerSet_total.minute;
 const rule_newClass = new schedule.RecurrenceRule();
 rule_newClass.minute = timerSet_newclass.minute;
 
+const rule_syncXBB = new schedule.RecurrenceRule();
+// rule_syncXBB.hour = timerSet_syncXBB.hour;
+rule_syncXBB.minute = timerSet_syncXBB.minute;
+
+
 // 定义任务
 async function task_class() {
   console.log(`任务task_class执行:开始校验开课提醒！！！`, new Date());
@@ -63,6 +69,13 @@ async function task_newClass() {
   let date_e = moment().add(30,'day').format('YYYY-MM-DD');
   CheckCourse(date_s, date_e);
 }
+
+// 同步销帮帮数据
+async function task_syncXbbData() {
+  console.log(`任务task_syncXbbData执行:开始同步销帮帮数据！！！`, new Date());
+  await syncXbbData();
+}
+
 let sdt='2024-08-10';
 async function task_newClass2() {
   console.log(`任务task_newClass执行:开始校验新课程！！！`,sdt);
@@ -104,6 +117,11 @@ function scheduleLoad() {
       schedule.scheduleJob(rule_newClass, task_newClass);
       //schedule.scheduleJob('*/30 * * * * *', task_newClass2);
     }
+    if(timerSet_syncXBB.enable){
+      console.log('已启动销帮帮学生数据同步！！！', new Date());
+      schedule.scheduleJob(rule_syncXBB, task_syncXbbData);
+      //schedule.scheduleJob('*/30 * * * * *', task_newClass2);
+    }
     // 初始化课时统计
     //job2 = schedule.scheduleJob('*/30 * * * * *', task_init);
 }
@@ -114,7 +132,7 @@ function scheduleLoad() {
  */
 async function classReminder() {
   try {
-    logMessage(new Date() + '开始校验提前课程提醒.', 'info');
+    // logMessage(new Date() + '开始校验提前课程提醒.', 'info');
     const data = await fetchTeamUpCalendar(getDateNow(), getDateNow());
     if (data != null && data.length > 0) {
       let title = "";
@@ -139,7 +157,7 @@ async function classReminder() {
           end_dt: item.end_dt
         };
       });
-      logMessage(`筛选出稍后需要提醒的课程条数：${sendData.length}`, 'info');
+      // logMessage(`筛选出稍后需要提醒的课程条数：${sendData.length}`, 'info');
       for (let index = 0; index < sendData.length; index++) {
         const info = sendData[index];
         title = info.title;
@@ -150,10 +168,10 @@ async function classReminder() {
           users = userName.split(/[,，]+/);
           await remind(info.id, sub_eventId, users, time, title, info.tz);
         }
-        logMessage(`classInfo:>> title: ${title},time: ${time},tz:${info.tz}, sub_eventId:${sub_eventId},who:${userName}`, 'info');
+        // logMessage(`classInfo:>> title: ${title},time: ${time},tz:${info.tz}, sub_eventId:${sub_eventId},who:${userName}`, 'info');
       }
     } else {
-      logMessage('not found TeamUp calendar data', 'info');
+      // logMessage('not found TeamUp calendar data', 'info');
     }
   } catch (error) {
     logMessage(`Failed to fetch TeamUp calendar data: ${error.message}`, 'error');
@@ -184,17 +202,7 @@ async function remind(id, sub_eventid, users, time, title, tz) {
         }
       }
     }
-    // Record course information to database
     users = users.filter(x => x != '');
-    // let usersInfo = users.map(item => {
-    //   return {
-    //     name: item,
-    //     state: 0,
-    //     evaluate: ''
-    //   }
-    // });
-    //InsertData(id, sub_eventid, title, teacherName, JSON.stringify(usersInfo), 0, time, tz);
-    // Send a message to students’ parents
     
     for (let index = 0; index < users.length; index++) {
       const item = users[index] ? users[index].trim() : '';
@@ -203,54 +211,24 @@ async function remind(id, sub_eventid, users, time, title, tz) {
       let isnoPhone = true;
       let isnoEmail = true;
       let usercode = item.match(/\d{8,10}/);
-      let userInfo = null;
-      let owerId= null;
-      
       if (usercode != null) {
-        userInfo = await getCustomerDetail(usercode[0], 1);
-      } else {
-        userInfo = await getCustomerDetail(item);
+        usercode = usercode[0];
+      }else{
+        usercode=null;
       }
+      let userInfo = await queryStudentInfo(item,usercode);
+      let owerId= null;
       if (userInfo) {
-        // send sms
-        if (userInfo.monther &&userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
-          let phones = userInfo.monther.subForm_1;
-
-          for (let index = 0; index < phones.length; index++) {
-            const subForm = phones[index];
-            let phone = subForm.text_2 ? subForm.text_2.trim() : '';
-            if (phone.length > 0) {
-              isnoPhone = false;
-              console.log(' subForm.text_1:;:' + JSON.stringify(subForm.text_1));
-              let codenum = '86';
-              if (subForm.text_1) {
-                codenum = subForm.text_1.text;
-                codenum = codenum.split(" ")[1].replace(/^0+/, '');
-                phone =  codenum+ phone;
-              }
-              let type =1;// userInfo.monther.text_8.value;
-              if(codenum !=='86'){
-                type=2;
-              }
-              let childName = userInfo.child.text_2;
-              autoSendSms(phone, type, childName, time, tz);//, teacherName
-            }
-          }
-        }
-        if(userInfo.monther && userInfo.monther.ownerId && userInfo.monther.ownerId.length>0){
-          owerId = userInfo.monther.ownerId[0].name;
-        }
-        // send email
-        let email_address = userInfo.monther.text_86 ? userInfo.monther.text_86.value : null;
-        if (email_address && email_address.length > 0) {
-          isnoEmail = false;
-        }
-        if (isnoPhone && isnoEmail) {
+        if(!userInfo.parent_phone){
           noPhoneList.push(item);
-          ownerList.push(owerId);
           sendBotMsg('text',`您的学员【${item}】的客户联系电话和邮箱缺失，请及时补充。@${owerId}`, []);
-          // sendBotMsg(`您的学员【${item}】或家长联系方式缺失，请及时补充。`, [ownerList[index],'@all']);
-          owerId=null;
+        }else{
+          let phone = userInfo.parent_phone;
+          let type =1;
+          if(userInfo.parent_areacode!='86'){
+            type=2;
+          }
+          autoSendSms(phone, type, userInfo.name, time, tz);
         }
       } else {
         noPhoneList.push(item);
@@ -263,22 +241,6 @@ async function remind(id, sub_eventid, users, time, title, tz) {
     }
   } catch (error) {
     logMessage(`Failed to remind: ${error.message}`, 'error');
-  }
-}
-
-async function test() {
-  let userInfo = await getCustomerDetail('Misylia');
-  if (userInfo) {
-    if (userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
-      let phone = userInfo.monther.subForm_1[0].text_2;
-
-      let codenum = userInfo.monther.subForm_1[0].text_1.text;
-      phone = codenum.split(" ")[1].replace(/^0+/, '') + "13052515651";
-      let time = moment(new Date()).add(15, 'M').format('YYYY-MM-DD HH:mm');
-      let type = userInfo.monther.text_8.value;
-      let childName = userInfo.child.text_2;
-      autoSendSms(phone, type, childName, time);
-    }
   }
 }
 
@@ -325,12 +287,14 @@ async function DoRunTotal(date) {
           const username = users[j];
           if (username != '') {
             let usercode = username.match(/\d{8,10}/);
-            let userInfo = null;
+            // let userInfo = null;
+
             if (usercode != null) {
-              userInfo = await getCustomerDetail_check(usercode[0], 1);
-            } else {
-              userInfo = await getCustomerDetail_check(username);
+              usercode = usercode[0];
+            }else{
+              usercode=null;
             }
+            let userInfo = await queryStudentInfo(username,usercode);
             if (userInfo) {
               if (userInfo.code == 0) {
                 const body = {
@@ -338,7 +302,7 @@ async function DoRunTotal(date) {
                   subid: eventData.subcalendar_id,
                   title: eventData.title,
                   teacher: teacherInfo.name,
-                  student: userInfo.child.text_2 + ' ' + userInfo.child.serialNo,
+                  student: userInfo.name + ' ' + userInfo.code,
                   parent: username+'-未找到家长信息',
                   sdate: eventData.start_dt,
                   edate: eventData.end_dt,
@@ -349,7 +313,7 @@ async function DoRunTotal(date) {
                   type: 'parent'
                 };
                 if(userInfo.monther){
-                  body.parent = userInfo.monther.text_2 + ' ' + userInfo.monther.serialNo;
+                  body.parent = userInfo.parent_name + ' ' + userInfo.parent_code;
                 }
                 InsertTotalData(body);
               }else{
@@ -372,7 +336,7 @@ async function DoRunTotal(date) {
                 InsertTotalData(body);
               }
             }else{
-              logMessage(`Get customer information failed2: ${userInfo}-username:${username}`, 'error');
+              logMessage(`Get customer information failed2:-username:${username}`, 'error');
               const body = {
                 eventid: eventData.id,
                 subid: eventData.subcalendar_id,
@@ -416,5 +380,107 @@ async function InsertTotalData(body) {
       return null;
   }
 }
+
+
+async function checkTimes(){
+  if(times>14){
+    await sleep(1);
+    times=0;
+  }
+}
+let times=0;
+async function syncXbbData() {
+  try {
+    console.log('syncXbbData is start!!!', new Date())
+    times++;
+    await checkTimes();
+    let studentList = await GETstudentList(1);
+    let total = studentList.result.totalPage;
+    await upStudent(studentList.result.list);
+    for (let page = 2; page <= total; page++) {
+      console.log('sync xbb data on page:'+page, new Date());
+      times++;
+      await checkTimes();
+      studentList = await GETstudentList(page);
+      await upStudent(studentList.result.list);
+    }
+   console.log('syncXbbData is ok!!!', new Date())
+  } catch (error) {
+    console.log('syncXbbData error.',error.message);
+  }
+}
+
+
+async function upStudent(datalist){
+  try {
+    for (let index = 0; index < datalist.length; index++) {
+      const stu = datalist[index];
+      times++;
+      // 获取学生信息
+      await checkTimes();
+      let studentData = await getStudentDetail(stu.dataId);
+      let studentInfo = studentData && studentData.result ? studentData.result.data: null;
+      times++;
+      // 获取家长信息
+      let customInfo;
+      if(stu.data && stu.data.text_1){
+        await checkTimes();
+        let customData = await getCustomerInfo(stu.data.text_1);
+        customInfo = customData && customData.result ? customData.result.data: null;
+        times++;
+      }
+
+      // 更新学生信息表
+      let parent_name='';
+      let parent_code='';
+      let parent_phone=[];
+      let parent_areacode=[];
+      let parent_email='';
+      if(customInfo){
+        parent_name = customInfo.text_2;
+        parent_code = customInfo.serialNo;
+        if(customInfo.subForm_1 && customInfo.subForm_1.length>0){
+          customInfo.subForm_1.forEach(tel => {
+            if(tel && tel.text_2){
+              parent_phone.push(tel.text_2);
+            }
+           
+            if(tel && tel.text_1 && tel.text_1.text){
+              parent_areacode.push(tel.text_1.text.split(" ")[1].replace(/^0+/, ''));
+            }
+            if(tel && tel.text_86){
+              parent_email = tel.text_86;
+            }
+          });
+        }
+      }
+
+      let sale_name=[];
+      if(customInfo.ownerId && customInfo.ownerId.length>0){
+        customInfo.ownerId.forEach(item=>{
+          if(item && item.name){
+            sale_name.push(item.name);
+          }
+        })
+      }
+      if(customInfo.coUserId  && customInfo.coUserId.length>0){
+        customInfo.coUserId.forEach(item=>{
+          if(item && item.name){
+            sale_name.push(item.name);
+          }
+        })
+      }
+      await SyncStudentInfo(studentInfo.text_2, studentInfo.serialNo, parent_code, parent_name, parent_phone.join(','), parent_areacode.join(','), parent_email,'',sale_name.join(','), '', '' );
+    }
+  } catch (error) {
+    console.log('upStudent error.',error.message);
+  }
+}
+
+// 等待指定秒数后再执行
+async function sleep(seconds) {
+  return new Promise(resolve => setTimeout(resolve, seconds * 1000));
+}
+
 
 module.exports = { scheduleLoad, DoRunTotal };

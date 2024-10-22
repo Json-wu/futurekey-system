@@ -252,9 +252,36 @@ async function getStudentDetail(dataId) {
     return null;
   }
 }
+
+// 获取学生列表
+async function GETstudentList(page){
+  try {
+    let body = {
+      "page": page,
+      "pageSize": 20,
+      "formId": '9474161',
+      "corpid": corpid,
+      "userId": userid
+    };
+    const headers = {
+      headers: {
+        'sign': sign(JSON.stringify(body), token)
+      }
+    };
+    const response = await axios.post(`https://appapi.xbongbong.com/pro/v2/api/paas/list`,body, headers);
+  
+    if (!response.status==200) {
+      console.log(`Error fetching customerDetail: ${response.statusText}`,'error');
+    }
+    return response.data;
+  } catch (error) {
+    console.log(`Error getStudentData: ${error.message}`);
+    return null;
+  }
+}
 // getPassList();
 // getPassList2();
 
 //getCustomerDetail('anne_808');
 
-module.exports = { getCustomerDetail, getCustomerDetail_check };
+module.exports = { getCustomerDetail, getCustomerDetail_check, GETstudentList, getStudentDetail, getCustomerInfo };

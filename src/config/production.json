@@ -42,5 +42,10 @@
     "enable": true,
     "hour": 20,
     "minute": 20
+  },
+  "timerSet_syncXBB":{
+    "enable": true,
+    "hour": 12,
+    "minute": 20
   }
 }

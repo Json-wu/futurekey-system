@@ -12,8 +12,8 @@ const teacherData = require('../config/teacher.json');
 const { StuInsertData } = require('./studentDetailService')
 const studentDetailService = require('../service/studentDetailService');
 const { replaceNumberToNull, formatDate, formatDateTime, formatTime, ejsHtml, formatDateE } = require('../libs/common');
-const { getCustomerDetail } = require('../service/xbbService');
 const { SendSms_parent } = require('../service/smsService');
+const { SyncStudentInfo, queryStudentInfo } = require('../service/studentService');
 
 const emailConfig = config.email;
 const smsConfig = config.sms;
@@ -390,42 +390,27 @@ async function sendMailSignStatus(id, sname, state) {
 async function sendSmsToParent(studentName, time, state, tz) {
     try {
         let usercode = studentName.match(/\d{8,10}/);
-        let userInfo = null;
-        
         if (usercode != null) {
-          userInfo = await getCustomerDetail(usercode[0], 1);
-        } else {
-          userInfo = await getCustomerDetail(studentName);
+            usercode = usercode[0];
+        }else{
+            usercode=null;
         }
+        let userInfo = await queryStudentInfo(studentName, usercode);
         if (userInfo) {
-          // send sms
-          if (userInfo.monther &&userInfo.monther.subForm_1 && userInfo.monther.subForm_1.length > 0) {
-            let phones = userInfo.monther.subForm_1;
-            for (let index = 0; index < phones.length; index++) {
-                const subForm = phones[index];
-                let phone = subForm.text_2 ? subForm.text_2.trim() : '';
-                if (phone.length > 0) {
-                  let codenum = '86';
-                  if (subForm.text_1) {
-                    codenum = subForm.text_1.text;
-                    codenum = codenum.split(" ")[1].replace(/^0+/, '');
-                    phone =  codenum+ phone;
-                  }
-                
-                  let user = userInfo.child.text_2;
-                  let type ='迟到';
-                  if(state==1){ 
-                    type = '迟到';
-                  }else if(state==9){
-                    type = '缺课';
-                  }else{
-                    type = '取消';
-                  }
-                  SendSms_parent(phone, {user, time, type, tz});
-                }
-              }
+            let user = userInfo.name;
+            let type ='迟到';
+            if(state==1){ 
+              type = '迟到';
+            }else if(state==9){
+              type = '缺课';
+            }else{
+              type = '取消';
+            }
+
+            let phone = userInfo.parent_phone;
+            
+            SendSms_parent(phone, {user, time, type, tz});
           }
-        }
     } catch (error) {
         console.log(`Failed to send teacher's absence reminder email, ${error.message}`, 'error');
     }

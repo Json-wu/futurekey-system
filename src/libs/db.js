@@ -28,6 +28,8 @@ db.serialize(() => {
 
   db.run("CREATE TABLE IF NOT EXISTS parent_detail (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, codenum TEXT,phone TEXT,child TEXT, value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
 
+  db.run("CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT, name TEXT, parent_name TEXT, parent_code TEXT, parent_phone TEXT, parent_areacode, parent_email TEXT,sale_code TEXT,sale_name TEXT, sale_phone TEXT, sale_email TEXT,value1 TEXT,value2 TEXT,value3 TEXT,value4 TEXT,value5 TEXT)");
+
 
   // Create indexes
   db.run("CREATE INDEX IF NOT EXISTS idx_logs_timestamp ON logs (id,message)");

@@ -1,4 +1,5 @@
 const moment = require('moment');
+const db = require('../libs/db');
 const { fetchTeamUpCalendar } = require('../service/teamupService');
 const { getCustomerDetail_check } = require('../service/xbbService');
 
@@ -72,4 +73,73 @@ async function GetStudentNoInfo(date){
     }
 }
 
-module.exports = { GetStudentNoInfo };
+async function SyncStudentInfo(name, code, parent_code, parent_name, parent_phone, parent_areacode, parent_email, sale_code, sale_name, sale_phone, sale_email){
+    try {
+        let sql = `SELECT * FROM students WHERE code = '${code}' `;
+        let stu= await new Promise((resolve, reject) => {
+            db.get(sql, (err, data) => {
+                if (err) {
+                    return resolve(null);
+                }
+                resolve(data);
+            })
+        });
+        if(stu==null){
+            await new Promise((resolve, reject) => {
+                db.run("INSERT INTO students (name, code, parent_code, parent_name, parent_phone, parent_areacode, parent_email, sale_code, sale_name, sale_phone, sale_email) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [name, code, parent_code, parent_name, parent_phone, parent_areacode, parent_email, sale_code, sale_name, sale_phone, sale_email], function(err) {
+                    if (err) {
+                        return resolve(null);
+                    }
+                    resolve(this.lastID);
+                });
+            });
+        }else{
+             await new Promise((resolve, reject) => {
+                db.run(`update students set name='${name}',parent_code='${parent_code}', parent_name='${parent_name}',parent_phone='${parent_phone}', parent_areacode='${parent_areacode}',  parent_email='${parent_email}', sale_code='${sale_code}', sale_name='${sale_name}', sale_phone='${sale_phone}', sale_email='${sale_email}' where code='${code}'`, function(err) {
+                    if (err) {
+                        return resolve(null);
+                    }
+                    resolve(this.lastID);
+                });
+            });
+        }
+    } catch (error) {
+        console.log('SyncStudentInfo Error.'+error.message);
+    }
+}
+
+async function queryStudentInfo(name, code){
+    try {
+        if(code){
+            let sql = `SELECT * FROM students WHERE code = '${code}' `;
+            let stu= await new Promise((resolve, reject) => {
+                db.get(sql, (err, data) => {
+                    if (err) {
+                        return resolve(null);
+                    }
+                    resolve(data);
+                })
+            });
+            return stu;
+        }
+         sql = `SELECT * FROM students WHERE name = '${name}' `;
+         stu= await new Promise((resolve, reject) => {
+            db.all(sql, (err, data) => {
+                if (err) {
+                    return resolve(null);
+                }
+                resolve(data);
+            })
+        });
+        if(stu && stu.length==1){
+            return stu[0];
+        }else{
+         return null;
+        }
+    } catch (error) {
+        console.log('queryStudentInfo error.'+error.message, new Date());
+        return null;
+    }
+}
+
+module.exports = { GetStudentNoInfo,SyncStudentInfo, queryStudentInfo };
