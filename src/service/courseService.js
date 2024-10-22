@@ -45,7 +45,7 @@ async function InsertData(info) {
        
         users = who.concat(signups).filter(x=>x).filter(x=>x.trim().length>0);
         if(users.length>0){
-            await StuInsertData(info.id, info.subcalendar_id, users);
+            await StuInsertData(info.id, info.subcalendar_id, users, info.is_new||'0');
         }else{
             console.log('课程没有学生！！！'+info.id);
         }
@@ -578,7 +578,7 @@ async function UpdateCourseInfo(oldInfo, newInfo) {
                 console.log('Added students:', addedStudents);
                
                 if(addedStudents.length>0){
-                    await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents);
+                    await StuInsertData(newInfo.id, newInfo.subcalendar_id, addedStudents, '1');
                 }else{
                     console.log('课程没有学生！！！'+newInfo.id);
                 }

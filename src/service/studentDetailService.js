@@ -60,7 +60,7 @@ async function GetDataAll(course_id) {
     }
 }
 
-async function StuInsertData(course_id, subcalendar_id, users){
+async function StuInsertData(course_id, subcalendar_id, users, is_new){
     try {
         const stmt = db.prepare("INSERT INTO student_detail (course_id, subcalendar_id, name, code, parent_name, parent_code, state, read, write, level, evaluate, remarks, homework, value2) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         for (let index = 0; index < users.length; index++) {
@@ -84,7 +84,7 @@ async function StuInsertData(course_id, subcalendar_id, users){
             //     parent_name = userInfo.monther.text_2;
             //     parent_code = userInfo.monther.serialNo;
             // }
-            stmt.run(course_id, subcalendar_id, username, usercode, '', '', '0', '0', '0', '0', '', '', '','1');
+            stmt.run(course_id, subcalendar_id, username, usercode, '', '', '0', '0', '0', '0', '', '', '',is_new);
         }
         stmt.finalize();
     } catch (error) {
