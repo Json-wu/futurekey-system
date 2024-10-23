@@ -1965,11 +1965,12 @@ overflow-y: auto; */
         container.innerHTML = '';
         files.forEach(filename => {
             if (filename === '') return;
-            const fileItem = document.createElement('div');
+            let fileItem = document.createElement('div');
             fileItem.classList.add('uploaded-file');
+            fileItem.id = filename;
             fileItem.innerHTML = `
-            <span><a href="/classroom/download/${filename}" target="_blank">${subStrFilename(filename)}</a></span>
-            <i class="fas fa-trash delete-icon" onclick="deleteFile('${filename}', '${containerId}')"></i>
+            <span><a href="/classroom/download/${filename}" target="_blank" id="${filename}">${subStrFilename(filename)}</a></span>
+            <i class="fas fa-trash delete-icon" onclick="deleteFile('${filename}', '${filename}')"></i>
         `;
             container.appendChild(fileItem);
         });
@@ -2221,7 +2222,8 @@ overflow-y: auto; */
                         return;
                     }
                     // 显示已上传文件
-                    const fileElement = document.createElement('div');
+                    let fileElement = document.createElement('div');
+                    
                     fileElement.className = 'uploaded-file';
                     fileElement.id = fileId;
                     fileElement.innerHTML = `
@@ -2535,17 +2537,24 @@ overflow-y: auto; */
         const homework = document.getElementById('coursetext_homework').value;
         let previewfiles = '';
         const previewFiles = Array.from(document.querySelectorAll('#uploadedFiles_preview .uploaded-file'));
+        let fnames = [];
         previewFiles.forEach(file => {
             const fileName = file.children[0].childNodes[0].id;
-            previewfiles += fileName + '/';
+            fnames.push(fileName);
+            //previewfiles += fileName + '/';
         });
+
+        previewfiles = fnames.join('/');
 
         const homeworkFiles = Array.from(document.querySelectorAll('#uploadedFiles_homework .uploaded-file'));
         let homeworkfiles = '';
+        let fnames2 = [];
         homeworkFiles.map(file => {
             const fileName = file.children[0].childNodes[0].id;
-            homeworkfiles += fileName + '/';
+            fnames2.push(fileName);
+            // homeworkfiles += fileName + '/';
         });
+        homeworkfiles = fnames2.join('/');
 
         let unit = document.getElementById('unit').value;
         let week = document.getElementById('week').value;
