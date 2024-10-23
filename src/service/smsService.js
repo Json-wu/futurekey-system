@@ -39,7 +39,6 @@ const sendSms = async (phoneNumber, templateParam) => {
       console.log('SMS send is not enable. content::' + SMSmsg, 'info');
       return false;
     }
-    console.log(`begin send SMS ` + SMSmsg);
     console.log(`begin send SMS ` + SMSmsg, 'info');
     let msg = {
       PhoneNumbers: phoneNumber,
@@ -59,7 +58,6 @@ const sendSms = async (phoneNumber, templateParam) => {
     }
   } catch (err) {
     console.log('Error sending SMS:' + err.message, 'error');
-    console.log('SMS sent fail' + err.message, 'error');
     return false;
   }
 };
@@ -120,7 +118,7 @@ const autoSendSms = async (phone, type, user, time, tz) => {
     
     console.log(`今天是: ${time}-${time_zone}`);
     const templateParam = { user, time };
-    console.log(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time-time_zone}`, 'info');
+    console.log(`phone:${phoneNumber}, type:${type}, user:${user}, time:${time}, timezone: ${time_zone}`, 'info');
     // 1.中国内地 9. 港澳台
     if (type == 1) {
       return await sendSms(phoneNumber, {user,time: time+`(${time_zone})`});
@@ -170,7 +168,6 @@ const SendSms_parent = async (phoneNumber, templateParam) => {
       console.log('SMS send is not enable. content::' + SMSmsg, 'info');
       return false;
     }
-    console.log(`begin send SMS ` + SMSmsg);
     console.log(`begin send SMS ` + SMSmsg, 'info');
     let msg = {
       PhoneNumbers: phoneNumber,
@@ -190,7 +187,6 @@ const SendSms_parent = async (phoneNumber, templateParam) => {
     }
   } catch (err) {
     console.log('Error sending SMS:' + err.message, 'error');
-    console.log('SMS sent fail' + err.message, 'error');
     return false;
   }
 };
@@ -225,7 +221,6 @@ const generateVerificationCode = () => {
 const sendSms_val = async (phoneNumber) => {
   const verificationCode = generateVerificationCode();
   console.log('Verification code:', verificationCode);
-  console.log('Verification code:' + verificationCode, 'info');
 
   let message = `Your verification code is <${verificationCode}>, please verify within 5 mins.`;
   
@@ -243,7 +238,6 @@ const sendSms_val = async (phoneNumber) => {
     }
   } catch (error) {
     console.log('Error autoSendSms:' + error.message, 'error');
-    console.error('Error sending SMS:', error);
     return {success: false, message: 'SMS sent error'};;
   }
 };
