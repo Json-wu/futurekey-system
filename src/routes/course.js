@@ -123,6 +123,7 @@ router.post('/SaveInfo', async (req, res) => {
             res.status(500).json({ code: 1, msg: 'Failed to sumit.' });
         }
     } catch (error) {
+        console.log(`Failed to sumit. ${error.message}`);
         res.status(500).json({ code: 1, msg: 'Failed to sumit.' });
     }
 });

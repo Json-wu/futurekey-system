@@ -243,6 +243,7 @@ async function SaveInfo(body){
         let result = await new Promise((resolve, reject) => {
             db.run(`update courses set preview='${preview}', homework='${homework}',value4='${previewfiles}', value5='${homeworkfiles}', unit='${unit}', week='${week}', day='${day}' where id ='${id}'`, (err, data) => {
                 if (err) {
+                    console.log(`SaveInfo22 error，${err.message}`, 'error');
                     resolve(false);
                 }
                 resolve(true);
